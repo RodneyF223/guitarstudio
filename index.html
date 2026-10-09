@@ -103,7 +103,11 @@
   /* ── top bar ─────────────────────────────── */
   .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;
     padding:9px 18px;background:var(--surf1);border-bottom:1.5px solid var(--line2)}
-  .brand{display:flex;align-items:baseline;gap:10px;margin-right:6px}
+  .brand{display:flex;align-items:baseline;gap:10px;margin-right:6px;position:relative}
+  /* número de versión: debajo del nombre, sin ocupar sitio en la barra (no la hace saltar a dos líneas) */
+  .appver{position:absolute;left:1px;top:100%;margin-top:3px;font-family:var(--font-n);font-size:9.5px;line-height:1;
+    font-weight:500;letter-spacing:.04em;color:var(--mut);white-space:nowrap;cursor:pointer}
+  .appver.upd{color:var(--accent-t);font-weight:700;text-decoration:underline;text-underline-offset:2px}
   .brand h1{font-size:22px;font-weight:900;font-stretch:125%;letter-spacing:-.02em;line-height:1}
   .brand small{color:var(--mut);font-family:var(--font-n);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em}
   .keychip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 11px;border-radius:2px;
@@ -956,7 +960,7 @@
 <body>
 
 <header class="topbar">
-  <div class="brand"><h1>GuitarStudio</h1><small>compón · ensaya · toca</small></div>
+  <div class="brand"><h1>GuitarStudio</h1><small>compón · ensaya · toca</small><span class="appver" id="appver" role="button" tabindex="0"></span></div>
   <div class="songbox">
     <button class="songtab" id="songtab" title="Mis canciones: sets, carpetas, archivo">
       <span class="sdot" id="sdot"></span><span class="stitle" id="stitle">Sin título</span><span class="caret"><i data-ic="chevron-down"></i></span>
@@ -5691,6 +5695,37 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 }
+/* versión: el número pequeño bajo «GuitarStudio». Al publicar se sube APP_VER (AAAA.MM.DD, con b, c… si hay
+   más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
+   se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
+   (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
+const APP_VER='2026.10.09';
+(()=>{
+  const el=document.getElementById('appver');if(!el)return;
+  const web=location.protocol==='https:';
+  let nueva='',ult=0;
+  const pinta=()=>{el.textContent='v'+APP_VER+(nueva?' · actualizar':'');el.classList.toggle('upd',!!nueva);
+    el.title=nueva?'Hay una versión nueva publicada (v'+nueva+'). Toca para cargarla'
+      :'Versión de GuitarStudio'+(web?'. Toca para comprobar si hay una nueva':' · archivo del PC');};
+  const mira=aviso=>{
+    if(!web){if(aviso)toast('GuitarStudio v'+APP_VER+' · archivo del PC');return;}
+    if(!navigator.onLine){if(aviso)toast('Sin conexión: no se puede comprobar la versión');return;}
+    ult=Date.now();
+    fetch('version.txt',{cache:'no-store'}).then(r=>r.ok?r.text():Promise.reject()).then(t=>{
+      t=t.trim();nueva=(t&&t.length<40&&t!==APP_VER)?t:'';pinta();
+      if(aviso)toast(nueva?'Hay una versión nueva (v'+nueva+'): toca el número para cargarla':'Estás en la última versión (v'+APP_VER+')');
+    }).catch(()=>{if(aviso)toast('No se ha podido comprobar la versión');});
+  };
+  const toca=()=>{
+    if(!nueva){mira(true);return;}
+    if(isDirty()){toast('Guarda la canción antes de actualizar (Guardar o Ctrl+S)');return;}
+    location.reload();
+  };
+  el.addEventListener('click',toca);
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();toca();}});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-ult>60000)mira(false);});
+  pinta();setTimeout(()=>mira(false),1500);
+})();
 </script>
 </body>
 </html>
