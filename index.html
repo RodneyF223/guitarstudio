@@ -324,8 +324,7 @@
   .spfh:hover{background:var(--wedge)}
   .spfh.drop{box-shadow:inset 0 0 0 2px var(--focus)}
   .spfh input{flex:none;width:16px;height:16px;margin:0}
-  .spfh .car{flex:none;width:12px;color:var(--mut);font-size:13px;transition:transform .12s;display:inline-flex}
-  .spfold.open>.spfh .car{transform:rotate(90deg)}
+  .spfh .car{width:16px}
   .spfh .fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .spfh .lrename{flex:1;min-width:0;height:28px}
   .spfh .fcount{flex:none;font-family:var(--font-n);font-size:11.5px;color:var(--mut)}
@@ -358,7 +357,7 @@
   .dlg .dbig button small{font-weight:500;color:var(--mut)}
   .dlg .dbig button:disabled{opacity:.45;cursor:default}
   .dlg .dsum{font-size:14px;margin:4px 0 8px}
-  .dlg .dmore summary{cursor:pointer;font-size:12.5px;color:var(--mut);margin:4px 0}
+  .dlg .dmore summary{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;color:var(--mut);margin:4px 0}
   .dlg .dlist{max-height:190px;overflow:auto;border:1px solid var(--line);border-radius:2px;padding:4px 8px;font-size:13px}
   .dlg .dli{display:flex;align-items:center;gap:8px;padding:3px 0}
   .dlg .dli span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -469,27 +468,71 @@
   .tone .n{font-size:15px;font-weight:800;line-height:1.1}
   .tone .r{font-family:var(--font-n);font-size:10px;font-weight:600}
   .vhint{font-size:12px;color:var(--mut);flex-basis:100%}
-  #voicings{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;padding:2px}
-  .vcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 6px 8px;border:1.5px solid var(--line);
-    border-radius:0;background:var(--panel);cursor:grab}
+  /* panel de voicings agrupado por forma (2026-10-09) */
+  #voicings{display:flex;flex-direction:column;gap:16px;padding:2px;container-type:inline-size}
+  .vmap{display:block;width:100%;max-width:600px;height:auto}
+  .vmapbar{cursor:pointer}
+  .vmapbar:hover rect{fill:var(--mut2)}
+  .vsec{scroll-margin-top:84px}
+  .vsec-h{display:flex;align-items:center;gap:8px 10px;width:100%;padding:0 0 7px;border:0;border-bottom:1.5px solid var(--line2);
+    background:none;color:var(--ink);text-align:left;font-family:var(--font-n)}
+  .vsec-h .vnum,.vlink b{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 4px;
+    background:var(--ink);color:var(--panel);font-family:var(--font-n);font-size:12px;font-weight:700}
+  .vsec-h .vtit{flex:1;min-width:0;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+  .vsec-h .vpos,.vsec-h .vcnt{font-size:11.5px;font-weight:600;color:var(--mut);white-space:nowrap}
+  .vsec-h .vpos+.vcnt::before{content:'· '}
+  .vsec-h .vsh{text-transform:none;letter-spacing:.02em}
+  .vsec.fold .vsec-h{border-bottom-color:var(--line)}
+  .vsec.fold .vgrid,.vsec.fold .vtri{display:none}
+  .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;padding-top:10px}
+  .vcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 6px 8px;min-width:0;
+    border:1.5px solid var(--line);border-radius:0;background:var(--panel);cursor:grab}
   .vcard:hover{border-color:var(--line2)}
-  .vcard .vn{font-size:11.5px;font-weight:700;text-align:center;line-height:1.25;min-height:29px;display:flex;align-items:center}
-  .vcard .vbtns{display:flex;width:100%;padding:0 4px;margin-top:4px}
-  .vcard .vbtns .addb{flex:1;padding:6px 10px;border-radius:2px;border:1.5px solid var(--line2);background:var(--surf1);color:var(--ink);font-size:12.5px;font-weight:700;font-family:var(--font-d);
-    letter-spacing:.04em;text-transform:uppercase}
-  .vcard .vbtns .addb:hover{background:var(--ink);border-color:var(--ink);color:var(--panel)}
-  .vgroup{grid-column:1/-1;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut2);
-    font-family:var(--font-n);font-weight:700;border-top:1px dashed var(--line);padding-top:10px;margin-top:5px}
-  .dg-lg{width:126px;height:auto}
+  .vcard.vcol{background:var(--surf1)}
+  .vtop{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;align-self:stretch;min-height:32px;padding:0 36px 0 3px}
+  .vcard .vn{font-family:var(--font-d);font-size:13px;font-weight:800;line-height:1.2}
+  .vchips{display:flex;flex-wrap:wrap;gap:3px 8px;flex-basis:100%}
+  .vgrid.hascol .vtop{min-height:44px;align-content:flex-start}
+  .vadd{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-n);font-size:11px;font-weight:700;white-space:nowrap}
+  .vadd b{padding:1px 5px;color:#151514}
+  .vadd i{font-style:normal;font-weight:600;color:var(--mut)}
+  .vcaged{display:inline-flex;gap:2px;font-family:var(--font-n);font-size:11px;font-weight:700}
+  .vcaged i,.vcaged b{display:inline-flex;align-items:center;justify-content:center;width:17px;height:18px;font-style:normal}
+  .vcaged i{color:var(--mut);border:1px solid var(--line)}
+  .vcaged b{background:var(--ink);color:var(--panel);border:1px solid var(--ink)}
+  .vtrihint{margin:8px 0 0;font-size:12px;color:var(--mut)}
+  .vtrihint b{color:var(--ink)}
+  .vlink,.voct{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-n);font-size:11px;font-weight:600;color:var(--mut2)}
+  .vlink b{min-width:18px;height:18px;font-size:11px}
+  .vplus{position:absolute;top:5px;right:5px;display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;
+    border:1.5px solid var(--line2);border-radius:2px;background:var(--surf1);color:var(--ink)}
+  .vplus:hover{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+  .vplus .ic{width:17px;height:17px;stroke-width:2.4}
+  .vtri{display:grid;grid-template-columns:64px repeat(3,minmax(0,1fr));gap:10px;padding-top:10px}
+  .vth{align-self:end;text-align:center;font-family:var(--font-n);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut2)}
+  .vth b{display:block;margin-top:1px;font-family:var(--font-d);font-size:16px;font-weight:800;text-transform:none;letter-spacing:0;color:var(--ink)}
+  .vrh{align-self:center;font-family:var(--font-n);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;line-height:1.5;color:var(--mut2)}
+  @container (max-width:540px){.vtri{grid-template-columns:repeat(3,minmax(0,1fr))}.vtri .vcorner{display:none}
+    .vrh{grid-column:1/-1;margin-top:4px}.vrh br{display:none}}
+  .dg-lg{width:126px;max-width:100%;height:auto}
   .dg-sm{width:116px;height:auto}
 
   /* ── diapasón / intervalos ───────────────── */
-  details.diap summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;margin:-14px -16px 0;padding:10px 16px 9px}
-  details.diap summary::-webkit-details-marker{display:none}
-  details.diap summary .boxtitle{margin:0}
-  details.diap summary::after{content:'▸  desplegar';color:var(--mut);font-family:var(--font-n);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
-  details.diap[open] summary::after{content:'▾  plegar'}
-  details.diap[open] summary{margin-bottom:12px;border-bottom:1px solid var(--line)}
+  /* ── desplegables: UN solo lenguaje en toda la app (2026-10-12) ──
+     Se pulsa toda la cabecera; chevron de línea junto al título (a la derecha; en las carpetas, a la izquierda,
+     como en un árbol): apunta abajo = abierto · a la derecha = plegado. Paneles: <details class="panel boxpad fold">
+     (diapasón, leyenda, trucos) · secciones de voicings: .vsec · carpetas: .spfold · ayuda e importar: details.fold */
+  details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px}
+  details.fold>summary::-webkit-details-marker{display:none}
+  details.panel.fold>summary{margin:-14px -16px 0;padding:10px 16px 9px}
+  details.panel.fold>summary .boxtitle{margin:0;flex:1;min-width:0}
+  details.panel.fold[open]>summary{margin-bottom:12px;border-bottom:1px solid var(--line)}
+  details.panel.fold:not([open]){padding-bottom:0}
+  .fchev{display:inline-flex;flex:none;color:var(--mut);transition:transform .15s}
+  .fchev .ic{width:16px;height:16px;stroke-width:2.2}
+  details.fold:not([open])>summary .fchev,.vsec.fold .vsec-h .fchev,.spfold:not(.open)>.spfh .fchev{transform:rotate(-90deg)}
+  @media (hover:hover){details.panel.fold>summary:hover{background:var(--inlay)}
+    details.fold>summary:hover .fchev,.vsec-h:hover .fchev,.spfh:hover .fchev{color:var(--ink)}}
   .diapctl{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:8px;font-size:13px}
   .diapctl label{display:inline-flex;align-items:center;gap:6px;font-weight:600;cursor:pointer}
   .diapctl input{width:15px;height:15px}
@@ -935,9 +978,9 @@
 
   details.help{margin:12px 18px 20px;max-width:1464px;font-size:13px;color:var(--mut)}
   @media (min-width:1500px){details.help{margin:12px auto 20px}}
-  details.help summary{cursor:pointer;font-weight:700;color:var(--ink)}
+  details.help summary{cursor:pointer;font-weight:700;color:var(--ink);gap:8px}
   details.help ol{margin:6px 0 10px;padding-left:22px}
-  details.help .ic{color:var(--ink)}
+  details.help>:not(summary) .ic{color:var(--ink)}
   /* en la ayuda, los colores de función van como fichas (el texto de color sobre blanco se leía mal) */
   .hlchip{color:var(--on);padding:0 5px;white-space:nowrap}
 
@@ -1041,13 +1084,16 @@
       <div id="circle"></div>
       <div class="circlefoot">Clic en un acorde coloreado = ver sus voicings · clic fuera de la escala = cambiar de tonalidad (anillo exterior = mayor · anillo medio = menor)</div>
     </div>
-    <div class="panel boxpad">
-      <div class="boxtitle">leyenda</div>
+    <details class="panel boxpad fold" data-fold="leyenda" open>
+      <summary><span class="boxtitle">leyenda</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
       <div class="legendrow" id="legendgrades"></div>
       <div class="legendrow" id="legendfuncs"></div>
       <div class="legendrow" id="legendroles"></div>
-    </div>
-    <div class="panel boxpad" id="tricks"></div>
+    </details>
+    <details class="panel boxpad fold" data-fold="trucos" open>
+      <summary><span class="boxtitle">trucos de composición</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
+      <div id="tricks"></div>
+    </details>
   </section>
 
   <section class="right">
@@ -1063,8 +1109,8 @@
   </section>
 </main>
 
-<details class="panel boxpad wide diap">
-  <summary><span class="boxtitle">diapasón · intervalos desde la tónica</span></summary>
+<details class="panel boxpad wide diap fold" data-fold="diap">
+  <summary><span class="boxtitle">diapasón · intervalos desde la tónica</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
   <div class="diapctl fbtop">
     <span class="rootinfo" id="rootinfo"></span>
     <span class="fbright">
@@ -1119,8 +1165,8 @@
   <div id="sections"></div>
 </section>
 
-<details class="help">
-  <summary>¿Cómo se usa?</summary>
+<details class="help fold">
+  <summary><span>¿Cómo se usa?</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
   <ol>
     <li><b>Tonalidad:</b> haz clic en cualquier nota gris del círculo para elegir la tonalidad. El anillo exterior fija una tonalidad <b>mayor</b> (y desactiva «ver como menor» si estaba puesta) y el anillo medio fija una tonalidad <b>menor</b>. Los acordes de la escala se colorean por grado (I, ii, iii…).</li>
     <li><b>Voicings:</b> haz clic en un acorde coloreado (círculo o paleta) para ver acorde abierto, cejillas, quintas rock, tríadas con inversiones y una fila de <b>tensiones · sus · jazz</b> (sus2, sus4, maj7, m7, 6, add9, 9, 13…). Clic en un diagrama = escucharlo. Los puntos indican la función de cada nota: <b class="hlchip" style="background:var(--r1)">1 = fundamental</b>, <b class="hlchip" style="background:var(--r3)">3 = tercera</b>, <b class="hlchip" style="background:var(--r5)">5 = quinta</b>, <b class="hlchip" style="background:var(--r7)">7 = séptima</b> — también en las cuerdas al aire.</li>
@@ -1433,14 +1479,17 @@ const EXT_SHAPES={
     ['dim7',5,[null,0,1,-1,1,null],['','1','♭5','°7','♭3','']]
   ]
 };
+/* _m = datos solo para pintar el panel (familia, etiqueta corta, traste de la raíz). Propiedad NO enumerable:
+   JSON.stringify la ignora, así que no entra en las canciones guardadas ni cambia el «sin guardar». */
+function vtag(v,m){Object.defineProperty(v,'_m',{value:m,enumerable:false,configurable:true});return v;}
 function extVoicings(ch){
   const root=nName(ch.pc,ch.flat);
   return (EXT_SHAPES[ch.quality]||[]).map(([suf,str,offs,roles])=>{
     let f=str===6?(ch.pc-4+12)%12:(ch.pc-9+12)%12;
     const mn=Math.min(...offs.filter(o=>o!==null));
     if(f+mn<0)f+=12;
-    return {vname:root+suf+' · raíz '+(str===6?'6ª':'5ª'),disp:root+suf,ext:true,
-      frets:offs.map(o=>o===null?-1:o+f),roles:roles.slice()};
+    return vtag({vname:root+suf+' · raíz '+(str===6?'6ª':'5ª'),disp:root+suf,ext:true,
+      frets:offs.map(o=>o===null?-1:o+f),roles:roles.slice()},{fam:str===6?'r6':'r5',kind:'col',short:root+suf,z:f});
   });
 }
 const SETS=[{s:[3,4,5],name:'cuerdas 1·2·3'},{s:[2,3,4],name:'cuerdas 2·3·4'}];
@@ -1471,25 +1520,26 @@ function triadVoicing(ch,setIdx,inv){
 function getVoicings(ch){
   const out=[],seen=new Set();
   const add=v=>{const k=v.frets.join(',');if(!seen.has(k)){seen.add(k);out.push(v);}};
+  /* el orden NO se toca: getVoicings(ch)[0] es el voicing por defecto de la paleta. vtag() solo dice dónde va en el panel */
   const op=OPEN[ch.pc+':'+ch.quality];
-  if(op)add({vname:'Acorde abierto',frets:op.f.slice(),roles:op.r.slice()});
+  if(op)add(vtag({vname:'Acorde abierto',frets:op.f.slice(),roles:op.r.slice()},{fam:'open',kind:'base',short:'Abierto',z:0}));
   const B=BARRES[ch.quality]||{};
   if(B.r6){let f=(ch.pc-4+12)%12;if(f===0)f=12;
-    add({vname:'Cejilla · forma '+B.r6.shape+' (raíz 6ª)',frets:B.r6.f.map(o=>o<0?-1:o+f),roles:B.r6.r.slice()});}
+    add(vtag({vname:'Cejilla · forma '+B.r6.shape+' (raíz 6ª)',frets:B.r6.f.map(o=>o<0?-1:o+f),roles:B.r6.r.slice()},{fam:'r6',kind:'base',short:'Cejilla',z:f}));}
   if(B.r5){let f=(ch.pc-9+12)%12;if(f===0)f=12;
-    add({vname:'Cejilla · forma '+B.r5.shape+' (raíz 5ª)',frets:B.r5.f.map(o=>o<0?-1:o+f),roles:B.r5.r.slice()});}
+    add(vtag({vname:'Cejilla · forma '+B.r5.shape+' (raíz 5ª)',frets:B.r5.f.map(o=>o<0?-1:o+f),roles:B.r5.r.slice()},{fam:'r5',kind:'base',short:'Cejilla',z:f}));}
   if(ch.quality==='dom7'){
     const s6=(ch.pc-4+12)%12,s5=(ch.pc-9+12)%12,s4=(ch.pc-2+12)%12;
-    add({vname:'Séptima · shell raíz 6ª (1·♭7·3)',frets:[s6,-1,s6,s6+1,-1,-1],roles:['1','','♭7','3','','']});
-    add({vname:'Séptima · shell raíz 5ª (1·♭7·3)',frets:[-1,s5,-1,s5,s5+2,-1],roles:['','1','','♭7','3','']});
-    add({vname:'Séptima · cuerdas 1·2·3·4 (forma D7)',frets:[-1,-1,s4,s4+2,s4+1,s4+2],roles:['','','1','5','♭7','3']});
+    add(vtag({vname:'Séptima · shell raíz 6ª (1·♭7·3)',frets:[s6,-1,s6,s6+1,-1,-1],roles:['1','','♭7','3','','']},{fam:'r6',kind:'base',short:'Shell 1·♭7·3',z:s6}));
+    add(vtag({vname:'Séptima · shell raíz 5ª (1·♭7·3)',frets:[-1,s5,-1,s5,s5+2,-1],roles:['','1','','♭7','3','']},{fam:'r5',kind:'base',short:'Shell 1·♭7·3',z:s5}));
+    add(vtag({vname:'Séptima · cuerdas 1·2·3·4 (forma D7)',frets:[-1,-1,s4,s4+2,s4+1,s4+2],roles:['','','1','5','♭7','3']},{fam:'r4',kind:'base',short:'Forma D7',z:s4}));
   }
   if(ch.quality!=='dim'){
     const f6=(ch.pc-4+12)%12,f5=(ch.pc-9+12)%12;
-    add({vname:'Quinta rock · raíz 6ª',frets:[f6,f6+2,f6+2,-1,-1,-1],roles:['1','5','1','','','']});
-    add({vname:'Quinta rock · raíz 5ª',frets:[-1,f5,f5+2,f5+2,-1,-1],roles:['','1','5','1','','']});
+    add(vtag({vname:'Quinta rock · raíz 6ª',frets:[f6,f6+2,f6+2,-1,-1,-1],roles:['1','5','1','','','']},{fam:'r6',kind:'base',short:'Quinta',z:f6}));
+    add(vtag({vname:'Quinta rock · raíz 5ª',frets:[-1,f5,f5+2,f5+2,-1,-1],roles:['','1','5','1','','']},{fam:'r5',kind:'base',short:'Quinta',z:f5}));
   }
-  SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++)add(triadVoicing(ch,si,inv));});
+  SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++)add(vtag(triadVoicing(ch,si,inv),{fam:'tri',set:si,inv}));});
   extVoicings(ch).forEach(add);
   return out;
 }
@@ -1497,9 +1547,9 @@ function getVoicings(ch){
 /* ════════ diagramas SVG ════════ */
 /* trastes con marcador (punto) en el mástil real — para orientarse como en la guitarra */
 const INLAY_FRETS=[3,5,7,9,12,15,17,19,21,24];
-function chordSVG(v,cls){
+function chordSVG(v,cls,ghost){
   const F=v.frets,R=v.roles;
-  const played=F.filter(f=>f>0);
+  const played=F.concat(ghost||[]).filter(f=>f>0); /* con forma en tenue, la ventana la incluye entera */
   let base=1;
   if(played.length&&Math.max(...played)>5)base=Math.min(...played);
   const L=26,T=27,W=85,H=95,cw=W/5,rh=H/5;
@@ -1517,8 +1567,18 @@ function chordSVG(v,cls){
     s+='<line x1="'+L+'" y1="'+y+'" x2="'+(L+W)+'" y2="'+y+'" stroke="var(--dgline)" stroke-width="1.1"/>';}
   if(base===1)s+='<rect x="'+(L-1.2)+'" y="'+(T-3.4)+'" width="'+(W+2.4)+'" height="4" rx="1.6" fill="var(--ink)"/>';
   else s+='<text x="'+(L-17)+'" y="'+(T+rh*0.5+5)+'" font-size="14.5" font-weight="bold" fill="var(--ink)" text-anchor="middle" font-family="IBM Plex Mono,Consolas,monospace">'+base+'</text>';
+  /* número de traste junto a cada banda gris (3·5·7·9·12…): segunda referencia para ubicar el acorde en el mástil */
+  for(let row=1;row<=5;row++){const fr=base+row-1;
+    if(INLAY_FRETS.includes(fr)&&!(row===1&&base>1))
+      s+='<text x="'+(L-17)+'" y="'+(T+(row-0.5)*rh+4.5)+'" font-size="12.5" font-weight="700" fill="var(--mut2)" text-anchor="middle" font-family="IBM Plex Mono,Consolas,monospace">'+fr+'</text>';}
+  /* tríadas: el resto de su forma CAGED en círculos huecos tenues (no se tocan en la tríada); el × queda solo
+     en las cuerdas que no entran ni en la tríada ni en su forma */
+  if(ghost)ghost.forEach((g,i)=>{if(g<0||F[i]>=0)return;const x=L+i*cw;
+    if(g===0){s+='<circle cx="'+x+'" cy="'+(T-11)+'" r="6" fill="none" stroke="var(--mut)" stroke-width="1.4" opacity=".6"/>';return;}
+    const row=g-base+1;if(row<1||row>5)return;
+    s+='<circle cx="'+x+'" cy="'+(T+(row-0.5)*rh)+'" r="7.6" fill="none" stroke="var(--mut)" stroke-width="1.4" opacity=".6"/>';});
   F.forEach((f,i)=>{const x=L+i*cw;
-    if(f<0){s+='<text x="'+x+'" y="'+(T-8)+'" font-size="11" fill="var(--mut)" text-anchor="middle" font-weight="bold">×</text>';}
+    if(f<0){if(!(ghost&&ghost[i]>=0))s+='<text x="'+x+'" y="'+(T-8)+'" font-size="11" fill="var(--mut)" text-anchor="middle" font-weight="bold">×</text>';}
     else if(f===0){const role=R[i]||'';
       if(role){const col=ROLE_COLORS[role]||'var(--ink)';
         s+='<circle cx="'+x+'" cy="'+(T-11)+'" r="7" fill="'+col+'" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>';
@@ -1642,7 +1702,7 @@ function renderPalette(){
 function renderTricks(){
   const t=buildTricks();
   TRICKLIST=t.sec.concat(t.bor);
-  let h='<div class="boxtitle">trucos de composición</div>';
+  let h=''; /* el título va en el <summary> del panel desplegable */
   h+='<div class="trickgroup"><label class="minortoggle"><input type="checkbox" id="minorview"'+(S.minorView?' checked':'')+'> Ver como menor relativa ('+esc(nName(relMinorPc(),keyObj().flat))+'m)</label>'+
      '<p class="trickhint">Mismos acordes, otro centro: la canción suena melancólica. Añade el V de la menor armónica para tensión clásica.</p></div>';
   h+='<div class="trickgroup"><div class="tricklabel">Dominantes secundarias</div><p class="trickhint">Un acorde de 7ª que «apunta» al siguiente. Ponlo justo antes de su destino: V7/ii → ii, V7/V → V…</p><div class="trickrow">';
@@ -1659,6 +1719,79 @@ function renderTricks(){
 }
 
 /* ════════ voicings panel ════════ */
+/* Agrupado por FORMA / zona del mástil (2026-10-09): abierto · raíz 6ª (forma E) · raíz 5ª (forma A) · raíz 4ª
+   (forma D7, solo en los 7) · tríadas en tabla 2×3. Cada tensión va con la forma de la que sale; lo que cae en el
+   traste 0 va con el abierto. Arriba, un mini-mástil (0–15) con dónde cae cada forma: tocarlo lleva a su sección.
+   Las tarjetas llevan etiqueta corta (_m.short); en la progresión se sigue guardando el vname completo de siempre.
+   Secciones plegables: se recuerda en gc-fold (ver «desplegables» aquí debajo). */
+const VBASE_TONES={maj:['1','3','5'],min:['1','♭3','5'],dom7:['1','3','5','♭7'],dim:['1','♭3','♭5']};
+const VSHAPE={maj:['E','A'],min:['Em','Am'],dom7:['E7','A7'],dim:['E°','A°']};
+/* desplegables: se recuerda cómo los dejaste (gc-fold = {id: 1 abierto · 0 plegado}).
+   ids: 'diap', 'leyenda', 'trucos' (paneles <details data-fold>) y 'v-open', 'v-r6'… (secciones de voicings) */
+let FOLDST={};try{FOLDST=JSON.parse(localStorage.getItem('gc-fold')||'{}')||{};}catch(e){}
+function foldOpen(id,def){return Object.prototype.hasOwnProperty.call(FOLDST,id)?!!FOLDST[id]:def;}
+function foldSet(id,open){FOLDST[id]=open?1:0;try{localStorage.setItem('gc-fold',JSON.stringify(FOLDST));}catch(e){}}
+document.querySelectorAll('details.fold[data-fold]').forEach(d=>{
+  const id=d.dataset.fold;d.open=foldOpen(id,d.open);
+  d.addEventListener('toggle',()=>foldSet(id,d.open));
+});
+function vFam(v){const m=v._m;if(!m)return 'x';return m.fam!=='tri'&&m.z===0?'open':m.fam;}
+/* lo que la tensión añade o cambia respecto al acorde base: +7, +9, «4 en vez de 3»… */
+function vAdded(v,q){
+  const base=VBASE_TONES[q]||[],has=[...new Set(v.roles.filter(Boolean))];
+  const third=has.includes('3')||has.includes('♭3');
+  return has.filter(r=>!base.includes(r)).map(r=>(!third&&(r==='4'||r==='2'))?{r,t:r,x:'en vez de 3'}:{r,t:'+'+r});
+}
+function vCardHTML(v,i,label,extra,ghost){
+  const m=v._m||{},adds=m.kind==='col'?vAdded(v,S.selChord.quality):[];
+  const chips=adds.length?'<span class="vchips">'+adds.map(a=>'<span class="vadd"><b style="background:'+(ROLE_COLORS[a.r]||'var(--line)')+'">'+esc(a.t)+'</b>'+(a.x?'<i>'+a.x+'</i>':'')+'</span>').join('')+'</span>':'';
+  const bar=adds.length?' style="box-shadow:inset 0 3px 0 0 '+(ROLE_COLORS[adds[0].r]||'var(--line)')+'"':'';
+  return '<div class="vcard'+(m.kind==='col'?' vcol':'')+'" draggable="true" data-vi="'+i+'" title="'+esc(v.vname)+'"'+bar+'>'+
+    '<div class="vtop">'+(label?'<span class="vn">'+esc(label)+'</span>':'')+chips+(extra||'')+'</div>'+chordSVG(v,'dg-lg',ghost)+
+    '<button class="addb vplus" data-vi="'+i+'" title="Añadir a la sección activa" aria-label="Añadir a la sección activa">'+ICO('plus')+'</button></div>';
+}
+/* mini-mástil: una barra por forma, en su zona (trastes 0–15) */
+function vMapHTML(fams){
+  const L=fams.filter(f=>f.bar);if(!L.length)return '';
+  const X0=4,NUT=30,CW=38,LH=19,GP=5,TOP=18,W=NUT+15*CW+2,H=TOP+L.length*(LH+GP);
+  const fx=n=>n<=0?X0:NUT+(n-1)*CW, fx2=n=>n<=0?NUT:NUT+Math.min(n,15)*CW;
+  const mono=' font-family="IBM Plex Mono,Consolas,monospace"';
+  let s='<svg class="vmap" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dónde cae cada forma en el mástil">'+
+    '<text x="'+((X0+NUT)/2)+'" y="12" font-size="11.5" fill="var(--mut)" text-anchor="middle"'+mono+'>0</text>';
+  INLAY_FRETS.filter(n=>n<=15).forEach(n=>{
+    s+='<rect x="'+fx(n)+'" y="'+(TOP-3)+'" width="'+CW+'" height="'+(H-TOP+3)+'" fill="'+(n===12?'var(--inlay12)':'var(--inlay)')+'"/>'+
+      '<text x="'+(fx(n)+CW/2)+'" y="12" font-size="11.5" fill="var(--mut)" text-anchor="middle"'+mono+'>'+n+'</text>';});
+  for(let n=1;n<=15;n++)s+='<line x1="'+fx2(n)+'" y1="'+(TOP-3)+'" x2="'+fx2(n)+'" y2="'+H+'" stroke="var(--line)" stroke-width="1"/>';
+  s+='<rect x="'+(NUT-2.5)+'" y="'+(TOP-3)+'" width="3" height="'+(H-TOP+3)+'" fill="var(--ink)"/>';
+  L.forEach((f,j)=>{const y=TOP+j*(LH+GP),x1=fx(f.lo)+1,x2=fx2(f.hi)-1;
+    s+='<g class="vmapbar" data-vjump="'+f.k+'"><title>Ir a '+esc(f.t+(f.sh||''))+'</title><rect x="'+x1+'" y="'+y+'" width="'+Math.max(x2-x1,20)+'" height="'+LH+'" fill="var(--ink)"/>'+
+      '<text x="'+(x1+6)+'" y="'+(y+13.6)+'" font-size="12" font-weight="700" fill="var(--panel)"'+mono+'>'+f.n+' · '+esc(f.bar)+'</text></g>';});
+  return s+'</svg>';
+}
+/* Sistema CAGED: las 5 formas abiertas (C·A·G·E·D) como plantillas movibles. [cuerda de la raíz, trastes respecto a
+   la raíz] (null = cuerda que no entra). Cada tríada pertenece a una de ellas: se dibuja el resto en tenue. */
+const CAGED={
+  maj:{C:[1,[null,0,-1,-3,-2,-3]],A:[1,[null,0,2,2,2,0]],G:[0,[0,-1,-3,-3,-3,0]],E:[0,[0,2,2,1,0,0]],D:[2,[null,null,0,2,3,2]]},
+  min:{C:[1,[null,0,-2,-3,-2,0]],A:[1,[null,0,2,2,1,0]],G:[0,[0,-2,-3,-3,0,0]],E:[0,[0,2,2,0,0,0]],D:[2,[null,null,0,2,3,1]]}
+};
+function cagedOf(v,pc,q){
+  const T=CAGED[q];if(!T)return null;
+  let best=null;
+  Object.keys(T).forEach(L=>{const [rs,off]=T[L],r0=((pc-TUNING[rs])%12+12)%12;
+    [r0-12,r0,r0+12].forEach(r=>{
+      const fr=off.map(o=>o===null?-1:o+r);
+      if(!v.frets.every((f,s)=>f<0||fr[s]===f))return;          /* la tríada tiene que estar dentro */
+      const full=off.every((o,s)=>o===null||fr[s]>=0)&&Math.max(...fr)<=17;
+      /* preferencia: forma completa en el mástil; si dos encajan (pasa en algunas), la de raíz más grave en el mástil */
+      const sc=(full?0:1000)+r;
+      if(!best||sc<best.sc)best={L,sc,frets:fr.map(f=>f<0?-1:f)};
+    });
+  });
+  return best;
+}
+function cagedTag(L){
+  return '<span class="vcaged" title="Forma '+L+' del sistema CAGED">'+'CAGED'.split('').map(x=>x===L?'<b>'+x+'</b>':'<i>'+x+'</i>').join('')+'</span>';
+}
 function renderVoicings(){
   const ch=S.selChord;
   const vh=document.getElementById('vhead'),vv=document.getElementById('voicings');
@@ -1668,11 +1801,68 @@ function renderVoicings(){
   vh.innerHTML='<span class="vbadge '+txtOn(ch.degNum)+'" style="background:'+ch.color+'"><span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span></span>'+
     '<div class="tones">'+tones+'</div>'+
     '<span class="vhint">'+esc(ch.label)+' '+esc(QUAL_ES[ch.quality])+' · grado '+esc(ch.deg)+'. Haz clic en un diagrama para escucharlo; arrástralo o pulsa '+ICO('plus')+' para añadirlo a la progresión.</span>';
-  vv.innerHTML=VOICINGS.map((v,i)=>
-    (v.ext&&(i===0||!VOICINGS[i-1].ext)?'<div class="vgroup">tensiones · sus · jazz</div>':'')+
-    '<div class="vcard" draggable="true" data-vi="'+i+'"><span class="vn">'+esc(v.vname)+'</span>'+chordSVG(v,'dg-lg')+
-    '<div class="vbtns"><button class="addb" data-vi="'+i+'" title="Añadir a la sección activa">'+ICO('plus')+' añadir</button></div></div>').join('');
+  const q=ch.quality,sh=VSHAPE[q]||VSHAPE.maj;
+  const G={};VOICINGS.forEach((v,i)=>{const k=vFam(v);(G[k]=G[k]||[]).push(i);});
+  const fams=[
+    {k:'open',t:'Abierto',bar:'abierto'},
+    {k:'r6',t:'Raíz en 6ª · forma ',sh:sh[0],bar:'forma '+sh[0]},
+    {k:'r5',t:'Raíz en 5ª · forma ',sh:sh[1],bar:'forma '+sh[1]},
+    {k:'r4',t:'Raíz en 4ª · forma ',sh:'D7',bar:'forma D7'},
+    {k:'tri',t:'Tríadas · inversiones'+(q==='dom7'?' (sin 7ª)':'')},
+    {k:'x',t:'Otras'}
+  ].filter(f=>G[f.k]);
+  /* número de cada sección y su zona (sin contar las que caen una octava más arriba) */
+  fams.forEach((f,n)=>{f.n=n+1;
+    if(f.k==='tri'||f.k==='x')return;
+    const z0=VOICINGS[G[f.k][0]]._m.z;let lo=99,hi=0;
+    G[f.k].forEach(i=>{const v=VOICINGS[i];if(f.k!=='open'&&Math.abs(v._m.z-z0)>=7)return;
+      v.frets.forEach(fr=>{if(fr>0){lo=Math.min(lo,fr);hi=Math.max(hi,fr);}});});
+    f.z0=z0;f.lo=(f.k==='open'||lo===99)?0:lo;f.hi=hi;
+    f.pos=(f.lo===f.hi?'traste '+f.lo:'trastes '+f.lo+'–'+f.hi);
+  });
+  const octTag=(v,f)=>{if(f.k==='open'||!v._m)return '';const d=v._m.z-f.z0;
+    return d>=7?'<span class="voct">8ª arriba</span>':d<=-7?'<span class="voct">8ª abajo</span>':'';};
+  let h=vMapHTML(fams);
+  fams.forEach(f=>{
+    const fold=!foldOpen('v-'+f.k,true),n=G[f.k].length;
+    h+='<div class="vsec'+(fold?' fold':'')+'" id="vsec-'+f.k+'">'+
+      '<button class="vsec-h" data-vfold="'+f.k+'" aria-expanded="'+(!fold)+'"><span class="vnum">'+f.n+'</span>'+
+      '<span class="vtit">'+esc(f.t)+(f.sh?'<span class="vsh">'+esc(f.sh)+'</span>':'')+'</span>'+(f.pos?'<span class="vpos">'+f.pos+'</span>':'')+
+      '<span class="vcnt">'+n+' voicing'+(n===1?'':'s')+'</span>'+'<span class="fchev">'+ICO('chevron-down')+'</span></button>';
+    if(f.k==='tri'){
+      const C={};G.tri.forEach(i=>{const m=VOICINGS[i]._m;C[m.set+':'+m.inv]=i;});
+      const nm=inv=>{if(!inv)return nName(ch.pc,ch.flat)+SUFFIX[q==='dom7'?'maj':q];
+        const i=C['0:'+inv]!==undefined?C['0:'+inv]:C['1:'+inv];return (i!==undefined&&VOICINGS[i].disp)||'';};
+      const tq=q==='dom7'?'maj':q;
+      if(CAGED[tq])h+='<p class="vtrihint">En tenue, el resto de la <b>forma CAGED</b> a la que pertenece cada tríada (la letra marcada).</p>';
+      h+='<div class="vtri"><span class="vcorner"></span>';
+      [0,1,2].forEach(inv=>{h+='<span class="vth">'+INV_NAMES[inv]+'<b>'+esc(nm(inv))+'</b></span>';});
+      SETS.forEach((st,si)=>{h+='<span class="vrh">'+esc(st.name).replace(' ',' <br>')+'</span>';
+        [0,1,2].forEach(inv=>{const i=C[si+':'+inv];if(i===undefined){h+='<span></span>';return;}
+          const cg=cagedOf(VOICINGS[i],ch.pc,tq);
+          h+=vCardHTML(VOICINGS[i],i,'',cg?cagedTag(cg.L):'',cg?cg.frets:null);});});
+      h+='</div>';
+    }else{
+      h+='<div class="vgrid'+(G[f.k].some(i=>VOICINGS[i]._m&&VOICINGS[i]._m.kind==='col')?' hascol':'')+'">'+G[f.k].map(i=>{const v=VOICINGS[i];return vCardHTML(v,i,v._m?v._m.short:v.vname,octTag(v,f));}).join('')+'</div>';
+    }
+    h+='</div>';
+  });
+  vv.innerHTML=h;
 }
+/* plegar / desplegar secciones y saltar desde el mini-mástil (sin redibujar el panel) */
+function vSetFold(sec,k,fold){
+  foldSet('v-'+k,!fold);
+  sec.classList.toggle('fold',fold);
+  sec.querySelector('[data-vfold]').setAttribute('aria-expanded',String(!fold));
+}
+document.getElementById('voicings').addEventListener('click',e=>{
+  const fb=e.target.closest('[data-vfold]');
+  if(fb){const sec=fb.closest('.vsec');vSetFold(sec,fb.dataset.vfold,!sec.classList.contains('fold'));return;}
+  const j=e.target.closest('[data-vjump]');
+  if(j){const sec=document.getElementById('vsec-'+j.dataset.vjump);if(!sec)return;
+    if(sec.classList.contains('fold'))vSetFold(sec,j.dataset.vjump,false);
+    sec.scrollIntoView({behavior:'smooth',block:'start'});}
+});
 
 /* ════════ diapasón · intervalos ════════ */
 const IVS=[
@@ -3414,7 +3604,7 @@ function libTabHTML(){
       return '<div class="spfold'+(f.open?' open':'')+'" data-fold="'+f.id+'">'+
         '<div class="spfh" data-fh="'+f.id+'"'+(SP.edit?' draggable="true"':'')+' title="'+(SP.edit?'clic = abrir / cerrar · doble clic en el nombre = renombrar · arrástrala sobre otra carpeta para meterla dentro':'clic = abrir / cerrar')+'">'+
         (SP.edit?'<input type="checkbox" data-selall="'+f.id+'"'+(all?' checked':'')+' title="marcar todas las de esta carpeta (y sus subcarpetas)">':'')+
-        '<span class="car">'+ICO('chevron-right')+'</span><span class="fname">'+ICO(f.open?'folder-open':'folder')+' '+esc(f.name)+'</span>'+
+        '<span class="car fchev">'+ICO('chevron-down')+'</span><span class="fname">'+ICO(f.open?'folder-open':'folder')+' '+esc(f.name)+'</span>'+
         '<span class="fcount">'+n+'</span>'+
         (SP.edit?(d<FMAX?'<button class="spib" data-fsub="'+f.id+'" title="Subcarpeta nueva dentro de «'+esc(f.name)+'»">'+ICO('folder-plus')+'</button>':'')+
           '<button class="spib del" data-fdel="'+f.id+'" title="Borrar carpeta (lo que tenga dentro sube un nivel)">'+ICO('x')+'</button>':'')+
@@ -3428,7 +3618,7 @@ function libTabHTML(){
     const none=lib.filter(d=>!folderOf(d));
     if(none.length)h+='<div class="spfold'+(SP.noneOpen?' open':'')+'" data-fold=""><div class="spfh" data-fh="" title="canciones que no están en ninguna carpeta">'+
       (SP.edit?'<input type="checkbox" data-selall="_none"'+(none.every(d=>SP.sel.has(d.id))?' checked':'')+' title="marcar todas las de «Sin carpeta»">':'')+
-      '<span class="car">'+ICO('chevron-right')+'</span><span class="fname"><i>Sin carpeta</i></span><span class="fcount">'+none.length+'</span></div>'+
+      '<span class="car fchev">'+ICO('chevron-down')+'</span><span class="fname"><i>Sin carpeta</i></span><span class="fcount">'+none.length+'</span></div>'+
       '<div class="spfin"><div class="spfrows splist" data-list="_none">'+none.map((d,i)=>songRowHTML(d,i+1,{inSet:inSet.has(d.id)})).join('')+'</div></div></div>';
   }
   if(!lib.length)h+='<div class="spnote">Aún no hay canciones: pulsa <b>'+ICO('plus')+' Nueva</b> o importa un archivo en <b>'+ICO('arrow-down-up')+' Archivo</b>.</div>';
@@ -3676,7 +3866,7 @@ function renderImportDlg(){
   if(chg.length){
     const opt=v=>'<option value="update"'+(v==='update'?' selected':'')+'>actualizar con la del archivo</option><option value="keep"'+(v==='keep'?' selected':'')+'>mantener la mía</option><option value="copy"'+(v==='copy'?' selected':'')+'>guardar copia</option>';
     h+='<div class="dsec"><div class="drow"><span class="dlab">cambiadas ('+chg.length+')</span><select id="impchg">'+opt(c.changed)+'</select></div>'+
-      '<details class="dmore"><summary>decidir canción a canción</summary><div class="dlist">'+
+      '<details class="dmore fold"><summary><span>decidir canción a canción</span><span class="fchev">'+ICO('chevron-down')+'</span></summary><div class="dlist">'+
       chg.map(i=>'<div class="dli"><span title="'+esc(i.name)+'">'+esc(i.name)+'</span><select data-impone="'+c.items.indexOf(i)+'">'+opt(i.choice)+'</select></div>').join('')+
       '</div></details></div>';
   }
@@ -5699,7 +5889,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.09';
+const APP_VER='2026.10.12';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
