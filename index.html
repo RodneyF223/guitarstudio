@@ -856,6 +856,10 @@
   .durchip{border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:0;
     font-family:var(--font-n);font-size:13.5px;font-weight:700;padding:2px 9px;white-space:nowrap}
   .durchip:hover{background:var(--mut2);border-color:var(--mut2)}
+  .durchip.none{background:var(--panel);color:var(--mut);border:1px dashed var(--mut)}
+  .durchip.none:hover{background:var(--panel);color:var(--ink);border-color:var(--ink)}
+  body.live .durchip,body.live .durchip:hover{cursor:default;background:var(--ink);border-color:var(--ink)}
+  body.live .noterow.only0{display:none}
   .secrow.noslots .noterow{order:1;margin:12px 14px 8px}
   .secrow.noslots .noterow .secnote{margin:0}
   .secrow.compact.noslots .noterow{margin:8px 10px}
@@ -1174,7 +1178,7 @@
     <li><b>Canción completa:</b> cada sección es una fila con su nombre en vertical (clic = activar, <i data-ic="pencil"></i> o doble clic = renombrar, arrastra el nombre = reordenar) y sus botones al lado: <i data-ic="play"></i> la toca — con el <b>bucle encendido</b> repite esa sección sola una y otra vez; con el <b>bucle apagado</b> arranca ahí y sigue con el resto de la canción —, <i data-ic="palette"></i> le pone un <b>color de fondo</b> — p. ej. amarillo al solo, para localizarlo de un vistazo; se ve también en el directo y en las imágenes exportadas —, <i data-ic="copy"></i> duplica, <i data-ic="x"></i> elimina y <i data-ic="sticky-note"></i> añade una nota para el directo. El «×N» grande al final de la fila repite la sección hasta 12 veces sin duplicarla. Y en el <b>margen izquierdo</b>, arrastrando de arriba abajo por la franja estrecha, marcas un <b>corchete rojo</b> que repite un <b>bloque entero de secciones</b> (p. ej. Intro-Verso-Coro ×2): clic en el «×2» rojo sube las repeticiones, Mayús+clic las baja y en «×2» quita el corchete. Las secciones nuevas se crean justo detrás de la sección activa. Si la sección no tiene acordes, la nota se muestra en grande.</li>
     <li><b>Escuchar:</b> todos los controles de reproducción viven en la barra inferior. <i data-ic="play"></i> (o barra espaciadora) toca toda la canción; el <i data-ic="play"></i> de cada sección toca solo esa parte, ideal para estudiar. TAP marca el tempo con clics, «cuenta de entrada» da un compás de claqueta y la batería se enciende con su casilla. La <b>guitarra</b> da un rasgueo completo al empezar cada acorde y, en cada tiempo siguiente mientras dure, un golpe en <b>palm mute</b> (las 3 cuerdas graves, corto y apagado); un acorde de ½ o 1 tiempo solo lleva el rasgueo, y cada golpe corta lo que sonaba en esa cuerda. <b>ataque</b> controla la velocidad del rasgueo (izquierda = todas las notas a la vez) y <b>sustain</b> la caída máxima del rasgueo inicial. En <i data-ic="sliders-horizontal"></i> mezcla ajustas el volumen de acordes, batería y metrónomo por separado. También suenan las notas del diapasón al hacer clic. La tarjeta que suena se ilumina; con <b>resaltar</b> eliges si se ilumina <b>cada acorde</b> o <b>solo la sección</b> entera — en directo, si la banda no va clavada al clic del tempo, saber la sección es más fiable que el acorde exacto. Este ajuste se recuerda en el dispositivo, para todas las canciones.</li>
     <li><b>Batería y energía por sección:</b> en el panel de ritmo eliges el <b>estilo</b> de la canción (rock, pop 80, rock rápido (movida), medio tiempo, balada, rumba, ska, funk o vals en 3/4); se guarda con ella. <b><i data-ic="play"></i> oír el estilo</b> toca un compás de cada nivel y luego el redoble y el final. Cada estilo tiene <b>4 niveles de energía</b> — 1 suave (charles o aro) · 2 verso · 3 estribillo (crash y charles abierto) · 4 clímax (ride o bombo doblado) — y la app elige el nivel <b>por el nombre de cada sección</b> (en inglés o en castellano; «Verse 2» cuenta como «Verse»): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3; un nombre desconocido toma el de la sección anterior. Cuando la sección siguiente cambia de nivel suena un <b>redoble</b> en el último compás, y si sube a 3 o 4 entra con <b>crash</b>; en las repeticiones (×N o corchete rojo) el redoble va solo en la última vuelta. Con el bucle apagado, la canción acaba con redoble y <b>golpe final</b>. Para forzarlo a mano, pasa el ratón por una sección: asoma un <b><i data-ic="zap"></i></b> tenue al final de sus botones; su panel elige nivel (auto · — · 1–4) y redoble al final (auto · sí · no). No se ve en el directo ni en las imágenes. Un <b>N.C.</b> (silencio) puede dejar la batería sonando o pararla.</li>
-    <li><b>Modo directo:</b> el botón <b><i data-ic="monitor-play"></i> directo</b> abre la vista de escenario: solo la canción, con botones grandes — <i data-ic="skip-back"></i> <i data-ic="skip-forward"></i> o un <b>deslizamiento lateral con el dedo</b> (al entrar, una mano animada te recuerda el gesto hasta que lo uses una vez) cambian de canción siguiendo el set activo — o, si no hay set, el orden de tu biblioteca, <i data-ic="play"></i> toca, <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> alterna entre vista simple y vista diagramas, <i data-ic="maximize"></i> pantalla completa y <i data-ic="x"></i> (o Esc) sale. En el directo, <b>toca el nombre de una sección</b> para abrirla con diagramas dentro de la vista simple, o plegarla a simple dentro de la vista diagramas (el iconito bajo el nombre indica qué hará el toque); las secciones abiertas con diagramas muestran además sus botones <i data-ic="play"></i> (tocar solo esa parte) y <i data-ic="rectangle-horizontal"></i> (replegarla), y las simples quedan limpias. <b>Cada vista recuerda qué secciones dejaste abiertas o plegadas, canción por canción</b>, aunque cambies de tema en pleno set. Mientras suena, la sección en curso queda enmarcada en azul y la pantalla la sigue sola. Las partes sin acordes (con nota o lick: un solo, una intro hablada…) <b>duran ×N compases</b> en la reproducción — cámbialo con el botón ×N junto a la nota (×– las salta).</li>
+    <li><b>Modo directo:</b> el botón <b><i data-ic="monitor-play"></i> directo</b> abre la vista de escenario: solo la canción, con botones grandes — <i data-ic="skip-back"></i> <i data-ic="skip-forward"></i> o un <b>deslizamiento lateral con el dedo</b> (al entrar, una mano animada te recuerda el gesto hasta que lo uses una vez) cambian de canción siguiendo el set activo — o, si no hay set, el orden de tu biblioteca, <i data-ic="play"></i> toca, <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> alterna entre vista simple y vista diagramas, <i data-ic="maximize"></i> pantalla completa y <i data-ic="x"></i> (o Esc) sale. En el directo, <b>toca el nombre de una sección</b> para abrirla con diagramas dentro de la vista simple, o plegarla a simple dentro de la vista diagramas (el iconito bajo el nombre indica qué hará el toque); las secciones abiertas con diagramas muestran además sus botones <i data-ic="play"></i> (tocar solo esa parte) y <i data-ic="rectangle-horizontal"></i> (replegarla), y las simples quedan limpias. <b>Cada vista recuerda qué secciones dejaste abiertas o plegadas, canción por canción</b>, aunque cambies de tema en pleno set. Mientras suena, la sección en curso queda enmarcada en azul y la pantalla la sigue sola. Las partes sin acordes (un solo, una intro hablada…) <b>duran ×N compases</b> en la reproducción — toca su ×N (sale siempre, aunque la sección esté vacía) y elige de 1 a 16, 20, 24 o 32 compases, o ajusta de uno en uno con −1/+1 (— las salta).</li>
     <li><b>Directo con repeticiones que cambian (ocultar y anotar):</b> cuando una parte vuelve <b>casi igual</b> (Verso-Coro-Puente otra vez, pero con un corte o un final distinto), escribe la canción entera en modo normal para ensayarla tal cual y después aligera el directo: <b>① Ocultar:</b> el botón <b><i data-ic="eye"></i></b> de cada sección (junto al <i data-ic="palette"></i>) la oculta <b>solo en el directo</b> — pasa a <i data-ic="eye-off"></i> y su nombre se atenúa; en modo normal la sigues viendo y <b>al reproducir suena igual</b>, porque ocultar solo afecta a lo que ves. En el directo, el botón <b><i data-ic="eye-off"></i></b> de la barra de abajo (solo aparece si la canción tiene secciones ocultas) las enseña un momento, semitransparentes; al volver a entrar al directo quedan ocultas otra vez. <b>② Anotar:</b> en el directo, arrastra por el margen izquierdo de arriba abajo para dibujar un <b>corchete discontinuo «×2~»</b>: es un <b>recordatorio</b> de que ese bloque vuelve con variaciones y <b>no cambia lo que suena</b> (el corchete rojo continuo, que se dibuja en modo normal, sí repite de verdad). Toca el «×2~» para pasar a ×3, ×4 y, al siguiente toque, quitarlo. No puede pisar un corchete real (gana el real). Las anotaciones se guardan solas en la canción de la biblioteca — sin marcarla como «sin guardar» —, siempre que la canción esté guardada al menos una vez; en modo normal se ven tenues. <b>③ Al reproducir:</b> cuando suena una sección oculta, se ilumina la sección visible a la que corresponde con la marca <b>«2ª»</b>, el corchete muestra la vuelta («2/2~») y, si la oculta tiene nota, aparece encima (p. ej. «2ª · corte en el compás 4») — así las variaciones siguen a la vista sin ocupar sitio. La pareja se busca entre las ocultas que van <b>dentro del corchete o justo detrás</b>: primero por nombre («Verso 2», «Verso II» o «Verso (bis)» van con «Verso») y, si los nombres no coinciden, por orden cuando las cuentas cuadran. Si una oculta no tiene pareja, en su sitio se enciende una <b>barra de luz</b> fina con su nombre. Los corchetes rojos también muestran la vuelta en curso («1/2», «2/2»). <b>④ Tira de progreso:</b> encima de los botones del directo, una tira con un tramo por sección — también las ocultas, rayadas — te enseña la canción entera: lo ya tocado se atenúa y el tramo actual va en azul.</li>
     <li><b>Pedal pasapáginas:</b> en el directo sirven los pedales-teclado (pasapáginas Bluetooth) y el propio teclado: <b>Av Pág / Re Pág o las flechas ← →</b> cambian de canción y la barra espaciadora toca / para.</li>
     <li><b>Diapasón y licks:</b> el diapasón usa siempre la <b>tónica de la canción</b>. Cada nota son dos cajas: la <b>nota</b> (blanca, fija) y su <b>grado</b> (de color, contado desde la tónica). Un <b>clic</b> hace sonar la nota; con <b>doble clic</b> esa nota pasa a ser la tónica (<b>modular</b>): los grados cambian, las notas no, y junto a la pantallita aparece «modulado» con una × para volver. Con <b>escala</b> ves solo sus notas y con <b>acorde</b> resaltas su arpegio; «el que suena» lo va cambiando mientras reproduces la canción. Debajo, la <b>regla de semitonos</b> enseña la escala casilla a casilla (1 casilla = ½ tono = 1 traste) y el salto entre notas: T o ½. En el <b>editor de licks</b> dibujas en la rejilla («pos» = traste de la primera fila); cada nota lleva su grado. Botones: nota, secundaria, <b>→ flecha</b>, <b>sl</b> slide, <b>h</b> hammer-on y <b>p</b> pull-off (toca dos notas), <b>bnd</b> bend (toca una nota: ½, 1 o 1½ tono) y <b>▭ agrupar</b> (toca las notas y pulsa «cerrar grupo»). <b>Arrastra una nota para moverla</b>, borra con <b>doble clic</b> cualquier cosa del dibujo (nota, flecha, slide, bend o grupo) y deshaz el dibujo con <i data-ic="undo-2"></i> o Ctrl+Z. Con <b><i data-ic="plus"></i></b> el diagrama va a la sección activa; toca un diagrama en la canción para reabrirlo en el editor y «<i data-ic="check"></i> actualizar»lo, o quítalo con su ×.</li>
@@ -2223,9 +2227,47 @@ function placeDurPop(pop,anchor){
 }
 function followDurPop(){
   const pop=document.querySelector('.durpop');if(!pop)return;
+  if(pop.dataset.sd!=null){
+    const a=document.querySelector('.durchip[data-dur="'+pop.dataset.sd+'"]');
+    if(a)placeDurPop(pop,a);else closeDurPop();
+    return;
+  }
   const [si,ei]=pop.dataset.k.split(':');
   const a=document.querySelector('.slot[data-si="'+si+'"][data-ei="'+ei+'"] .mchip');
   if(a)placeDurPop(pop,a);else closeDurPop();
+}
+/* ── duración de una parte sin acordes (un solo, una intro…): panel de compases ──
+   1–16 · 20 · 24 · 32 · — (se salta) y −1/+1 para cualquier otra (hasta SECDUR_MAX).
+   Usa el mismo aspecto que el panel del acorde (.durpop); se distingue por data-sd = sección. */
+const SECDUR_MAX=64;
+function openSecDurPop(si,anchor){
+  const sec=S.sections[si];
+  if(!sec||sec.slots.length||!anchor){closeDurPop();return;}
+  closeDurPop();
+  const dm=secDur(sec),ts=S.ts;
+  const bb=(v,lab,t)=>'<button class="dpbtn'+(v===dm?' sel':'')+'" data-sdp="'+v+'" title="'+t+'">'+lab+'</button>';
+  const nb=n=>bb(n,String(n),n+(n===1?' compás':' compases')+' ('+(n*ts)+' tiempos)');
+  const row=(lab,arr,extra)=>'<div class="dprow"><span class="dplab">'+lab+'</span>'+arr.map(nb).join('')+(extra||'')+'</div>';
+  const h=row('compases',[1,2,3,4,5,6,7,8])+row('',[9,10,11,12,13,14,15,16])+
+    row('',[20,24,32],bb(0,'—','Sin duración: al reproducir esta parte se salta')+
+      '<button class="dpbtn plus" data-sdp="-1" title="Un compás menos">−1</button>'+
+      '<button class="dpbtn plus" data-sdp="+1" title="Un compás más (hasta '+SECDUR_MAX+')">+1</button>')+
+    '<div class="dpnow">«'+esc(sec.name)+'»: '+(dm?dm+(dm===1?' compás':' compases')+' · '+beatsWord(dm*ts):'sin duración — al reproducir se salta')+'</div>';
+  const pop=document.createElement('div');
+  pop.className='durpop panel';pop.dataset.sd=si;
+  pop.innerHTML=h;
+  document.body.appendChild(pop);
+  placeDurPop(pop,anchor);
+}
+function secDurPopClick(btn){
+  const pop=btn.closest('.durpop');if(!pop)return;
+  const si=+pop.dataset.sd,sec=S.sections[si];
+  if(!sec||sec.slots.length){closeDurPop();return;}
+  const v=btn.dataset.sdp,cur=secDur(sec),step=(v==='-1'||v==='+1');
+  const nd=step?Math.max(0,Math.min(SECDUR_MAX,cur+Number(v))):Number(v);
+  if(nd!==cur){pushUndo();sec.dur=nd;renderSections();}
+  if(step)openSecDurPop(si,document.querySelector('.durchip[data-dur="'+si+'"]')); /* −1/+1: sigue abierto */
+  else closeDurPop();
 }
 /* ── energía de la sección: indicador y panel (nivel auto · — · 1–4 · redoble auto · sí · no) ── */
 const LVNAME=['sin batería','suave','verso','estribillo','clímax'];
@@ -2364,12 +2406,11 @@ function renderSections(){
     const showNote=!!(sec.note&&sec.note.trim())||!!sec.noteOpen||(!sec.slots.length&&!!(sec.licks&&sec.licks.length));
     const noteArea='<textarea class="secnote" data-si="'+si+'" rows="1" placeholder="notas para el directo: solo de guitarra, dinámica…">'+esc(sec.note||'')+'</textarea>';
     let noteHTML='';
-    if(showNote){
-      if(sec.slots.length)noteHTML=noteArea;
-      else{ /* parte sin acordes: dura ×N compases en la reproducción */
-        const dm=secDur(sec);
-        noteHTML='<div class="noterow"><button class="durchip" data-dur="'+si+'" title="Compases que dura esta parte al reproducir — clic para cambiar (1 · 2 · 4 · 8 · 12 · 16 · 20 · 24 · –)">×'+(dm||'–')+'</button>'+noteArea+'</div>';
-      }
+    if(sec.slots.length){if(showNote)noteHTML=noteArea;}
+    else{ /* parte sin acordes (un solo, una intro…): dura ×N compases en la reproducción.
+             El ×N sale siempre, aunque la sección esté vacía · ×– = se salta al reproducir */
+      const dm=secDur(sec);
+      noteHTML='<div class="noterow'+(!dm&&!showNote?' only0':'')+'"><button class="durchip'+(dm?'':' none')+'" data-dur="'+si+'" title="'+(dm?'Esta parte dura '+dm+(dm===1?' compás':' compases'):'Sin duración: al reproducir se salta')+' — clic para elegir los compases (1–16, 20, 24, 32 o de uno en uno)">×'+(dm||'–')+'</button>'+(showNote?noteArea:'')+'</div>';
     }
     let lickHTML='';
     if(sec.licks&&sec.licks.length){
@@ -4452,6 +4493,8 @@ document.addEventListener('click',e=>{
   }
   const dpb=e.target.closest&&e.target.closest('[data-dp]');
   if(dpb){durPopClick(dpb,e.shiftKey);return;}
+  const sdb=e.target.closest&&e.target.closest('[data-sdp]');
+  if(sdb){secDurPopClick(sdb);return;}
   const lvb=e.target.closest&&e.target.closest('[data-lv]');
   if(lvb){lvPopClick(lvb);return;}
   const lvs=e.target.closest&&e.target.closest('[data-lvsec]');
@@ -4519,11 +4562,10 @@ document.addEventListener('click',e=>{
   }
   const dchip=e.target.closest&&e.target.closest('.durchip');
   if(dchip&&dchip.dataset.dur!=null){
-    pushUndo();
-    const sec=S.sections[+dchip.dataset.dur];
-    const cyc=[1,2,4,8,12,16,20,24,0];
-    sec.dur=cyc[(cyc.indexOf(secDur(sec))+1)%cyc.length];
-    renderSections();return;
+    if(document.body.classList.contains('live'))return; /* en el directo la duración solo se lee */
+    const si=+dchip.dataset.dur,ex=document.querySelector('.durpop');
+    if(ex&&ex.dataset.sd===String(si)){closeDurPop();return;} /* segundo clic en el mismo chip = cerrar */
+    openSecDurPop(si,dchip);return;
   }
   const ps=e.target.closest&&e.target.closest('[data-playsec]');
   if(ps){
@@ -5254,7 +5296,7 @@ document.addEventListener('pointerdown',e=>{
   const mix=document.getElementById('mixmenu');
   if(!mix.hidden&&!(e.target.closest&&e.target.closest('.mixbox')))mix.hidden=true;
   if(document.querySelector('.colpop')&&!(e.target.closest&&e.target.closest('.colpop,[data-colorsec]')))closeColPop();
-  if(document.querySelector('.durpop')&&!(e.target.closest&&e.target.closest('.durpop,.slot .mchip')))closeDurPop();
+  if(document.querySelector('.durpop')&&!(e.target.closest&&e.target.closest('.durpop,.slot .mchip,.durchip')))closeDurPop();
   if(document.querySelector('.lvpop')&&!(e.target.closest&&e.target.closest('.lvpop,[data-lvsec]')))closeLvPop();
 });
 /* la paleta va en position:fixed — al hacer scroll se separaría de su botón */
@@ -5889,7 +5931,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.12';
+const APP_VER='2026.10.13';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
