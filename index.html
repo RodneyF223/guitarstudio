@@ -978,7 +978,20 @@
      la tira de estructura ocupa todo el ancho y es más alta */
   body.live .livetop{display:none}
   body.live #livestrip{grid-column:1/-1;height:38px;gap:3px}
-  body.live .lss{line-height:38px;font-size:13px;padding:0 6px}
+  /* letra grande para leerla de lejos: Archivo estrecha (cabe más nombre que en la mono) y fitStrip() ajusta el tamaño */
+  body.live .lss{line-height:38px;font-family:var(--font-d);font-weight:800;font-stretch:75%;font-size:22px;padding:0 7px;letter-spacing:0}
+  /* ── directo «reticulado» (2026-10-14) ──────────────────────────────────────────
+     La barra de compás va pegada DELANTE de cada acorde que empieza compás (.bs::before), no detrás del
+     anterior: así, cuando una fila salta de línea, la línea nueva empieza con su barra. Todos los acordes
+     reservan el mismo hueco a su izquierda (lleven barra o no), de modo que las columnas quedan alineadas
+     entre líneas. Las barras sueltas se ocultan, salvo la que cierra la sección (.bend). */
+  body.live .slots>.barline:not(.bend){display:none}
+  body.live .secrow.compact .slots>.slot{margin-left:16px}
+  body.live .secrow.compact .slots>.slot.bs::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
+    background:var(--ink);opacity:.7;pointer-events:none}
+  body.live .secrow:not(.compact) .slots>.slot{margin-left:12.5px}
+  body.live .secrow:not(.compact) .slots>.slot.bs::before{content:'';position:absolute;left:-12px;top:4px;bottom:4px;width:2.5px;
+    background:var(--ink);opacity:.8;pointer-events:none}
   body.live .livebtns{grid-column:1/-1}
   body.live .lbtn{min-height:64px;font-size:30px}
   body.live .lbtn.sm{font-size:22px}
@@ -2408,9 +2421,12 @@ function renderSections(){
       const bm=barMarks(sec.slots,S.ts);
       inner='<span class="barline" aria-hidden="true"></span>';
       sec.slots.forEach((sl,ei)=>{
-        inner+=slotHTML(sl,si,ei,bm[ei].mids);
+        let sh=slotHTML(sl,si,ei,bm[ei].mids);
+        /* .bs = este acorde empieza compás: en el directo dibuja SU barra delante (ver «directo reticulado») */
+        if(ei===0||bm[ei-1].closed)sh=sh.replace('<div class="slot','<div class="slot bs');
+        inner+=sh;
         const closed=bm[ei].closed;
-        if(closed)inner+='<span class="barline" aria-hidden="true"></span>';
+        if(closed)inner+='<span class="barline'+(ei===sec.slots.length-1?' bend':'')+'" aria-hidden="true"></span>';
         if(sl.br){
           inner+='<span class="lbreak" aria-hidden="true"></span>';
           if(closed&&ei<sec.slots.length-1)inner+='<span class="barline" aria-hidden="true"></span>';
@@ -3335,7 +3351,22 @@ function renderStrip(){
     const sec=S.sections[sg.si]||{};
     return '<span class="lss'+(sec.lh?' hid':'')+'" data-i="'+i+'" style="flex-grow:'+(sg.end-sg.start)+(sec.color?';--secc:var(--'+sec.color+')':'')+'" title="'+esc(sec.name||'')+(sec.lh?' (oculta)':'')+'">'+esc(sec.name||'')+'</span>';
   }).join('');
+  fitStrip();
 }
+/* tira del directo: letra lo más grande posible (hasta 22 px) y la MISMA en todos los tramos: la del tramo
+   más justo. Un tramo diminuto (donde no cabría ni a 15 px) no arrastra a los demás: se encoge él solo (hasta 11 px) */
+function fitStrip(){
+  const box=document.getElementById('livestrip');if(!box||!box.offsetWidth)return;
+  const els=[...box.querySelectorAll('.lss')];if(!els.length)return;
+  const fs=els.map(el=>{
+    let f=22;el.style.fontSize=f+'px';
+    while(el.scrollWidth>el.clientWidth+1&&f>11){f-=1;el.style.fontSize=f+'px';}
+    return f;
+  });
+  const ok=fs.filter(f=>f>=15),common=ok.length?Math.min(...ok):22;
+  els.forEach((el,i)=>{el.style.fontSize=Math.min(common,fs[i])+'px';});
+}
+window.addEventListener('resize',()=>{clearTimeout(fitStrip._t);fitStrip._t=setTimeout(fitStrip,150);});
 function updateStrip(rb){
   const box=document.getElementById('livestrip');if(!box||!LSTRIP.length)return;
   let idx=-1;
@@ -5976,7 +6007,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.14';
+const APP_VER='2026.10.14b';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
