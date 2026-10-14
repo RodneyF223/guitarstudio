@@ -931,22 +931,32 @@
   .prnum{display:none}
   body.live .prnum:not([hidden]){display:inline-flex;align-items:center;height:32px;padding:0 8px;border:1.5px solid var(--line2);
     font-family:var(--font-n);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
-  body.live .secname,body.live .secrow.compact .secname{writing-mode:horizontal-tb;transform:none;flex-direction:row;flex-wrap:wrap;
-    align-items:center;align-content:center;justify-content:flex-start;gap:2px 6px;width:104px;min-width:104px;
-    padding:4px 8px;font-size:17px;letter-spacing:.01em;line-height:1.1;text-align:left}
-  body.live .secname .tname,body.live .secrow.compact .secname .tname{max-width:100%;max-height:none;overflow-wrap:anywhere}
-  body.live .secname .vmark{margin-top:0;font-size:13px}
-  body.live .secname .passmark{margin-top:2px}
-  body.live .secrow.on .secname{box-shadow:inset 0 0 0 2px var(--ink),inset -6px 0 0 0 var(--ink)}
+  /* 2026-10-14 (Rodney): nombre otra vez en VERTICAL, en una columna estrecha de 60 px (antes horizontal, 104 px).
+     Dentro: a la izquierda el nombre girado (se lee de abajo arriba, como fuera del directo); a la derecha, arriba el ×N
+     y ABAJO, siempre en el mismo sitio, el icono de vista (⊞ / ▭), que ya no baila con el largo del nombre.
+     El nombre va en position:absolute para no estirar la fila: fitLive() le ajusta la letra (17 → 12 px) al alto
+     de su fila y, solo si ni así cabe, alarga la fila lo justo. */
+  body.live .secname,body.live .secrow.compact .secname{writing-mode:horizontal-tb;transform:none;position:relative;
+    flex-direction:column;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:3px;width:60px;min-width:60px;
+    padding:5px 6px 5px 30px;font-size:17px;letter-spacing:.02em;line-height:1;text-align:center}
+  body.live .secname .tname,body.live .secrow.compact .secname .tname{position:absolute;left:3px;top:5px;bottom:5px;width:24px;
+    writing-mode:vertical-rl;transform:rotate(180deg);max-width:none;max-height:none;overflow:hidden;white-space:nowrap;
+    text-align:center;line-height:24px}
+  body.live .secname .vmark{order:5;margin-top:auto;font-size:15px;line-height:1}
+  body.live .secname .lhmark{order:4;margin-top:0;font-size:13px}
+  body.live .secname .passmark{position:absolute;right:2px;bottom:3px;margin:0;z-index:1;font-size:11px;padding:1px 4px}
+  body.live .secrow.on .secname{box-shadow:inset 0 0 0 2px var(--ink),inset -4px 0 0 0 var(--ink)}
   /* columna izquierda: margen del corchete + nombre; en las secciones abiertas, ▷ y ▭ van DEBAJO del nombre
      (no en otra columna), así los diagramas empiezan donde los acordes de la vista simple */
-  body.live .secleft{display:grid;grid-template-columns:38px 104px;grid-template-rows:minmax(0,1fr) auto}
+  body.live .secleft{display:grid;grid-template-columns:38px 60px;grid-template-rows:minmax(0,1fr) auto}
   body.live .secgut{grid-row:1/3;grid-column:1}
   body.live .secname{grid-row:1;grid-column:2}
-  body.live .secctl{grid-row:2;grid-column:2;flex-direction:row;justify-content:flex-start;gap:6px;padding:4px 6px;border-right:none}
+  body.live .secctl{grid-row:2;grid-column:2;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;padding:4px 0;border-right:none}
+  /* el ▭ de debajo del nombre repetía lo que hace el icono de vista del propio nombre: en el directo solo queda ▷ */
+  body.live .secctl .scbtn[data-viewsec]{display:none}
   /* el ×N de la sección, bajo su nombre (el de detrás del último acorde no se muestra en el directo) */
   .lrepn{display:none}
-  body.live .lrepn{display:block;flex-basis:100%;font:900 30px/1 var(--font-d);font-stretch:110%;color:var(--accent-t);letter-spacing:0}
+  body.live .lrepn{display:block;flex:none;order:1;font:900 19px/1 var(--font-d);font-stretch:85%;color:var(--accent-t);letter-spacing:0;white-space:nowrap}
   body.live .secrow[data-c] .lrepn{color:inherit}
   body.live .secbody{flex-direction:row;flex-wrap:wrap;align-items:flex-start;align-content:flex-start}
   body.live .secbody>.varnote{flex-basis:calc(100% - 20px)}
@@ -962,7 +972,7 @@
   body.live .lickfig svg:not(.ic){width:236px}
   /* vista simple: acordes más grandes */
   body.live .secrow.compact .slots{gap:2px 12px}
-  body.live .secrow.compact .sl-name{font-size:46px;line-height:.92}
+  body.live .secrow.compact .sl-name{font-size:var(--lchfs,46px);line-height:.92}
   body.live .secrow.compact .sl-deg{font-size:13.5px}
   body.live .secrow.compact .mchip{font-size:13px}
   /* diagramas: nombre del acorde más grande y la duración arriba a la derecha (sin la fila de abajo) */
@@ -2501,6 +2511,7 @@ function renderSections(){
   }
   alignSimple();
   document.querySelector('.progress').classList.toggle('compact',S.viewMode==='simple');
+  fitLive();
   const cb=document.getElementById('compactbtn');
   if(cb)cb.innerHTML=S.viewMode==='simple'?ICO('grid-3x3')+' ver diagramas':ICO('rectangle-horizontal')+' vista simple';
   positionReps();
@@ -2544,6 +2555,50 @@ function alignSimple(){
     if(w)prog.style.setProperty('--namew',Math.ceil(w)+'px');
   }
 }
+/* ── directo (2026-10-14): que quepan AL MENOS 4 acordes por línea en la vista simple (una vuelta de 4 acordes,
+   aunque sean invertidos tipo G/D o Em/B) y que cada nombre de sección, en vertical, quepa en el alto de su fila.
+   1 · acordes: si 4 columnas no caben en el ancho, baja la letra del acorde (--lchfs, de 46 px hasta 28 px) y
+       vuelve a igualar columnas (alignSimple). Las columnas siguen siendo iguales en toda la canción.
+   2 · nombres: letra de 17 a 12 px; si ni a 12 px cabe, la fila crece lo justo (min-height del nombre).
+   Se recalcula al redibujar las secciones y al girar la tableta. Fuera del directo lo deja todo como estaba. */
+function fitLive(){
+  const prog=document.querySelector('.progress');if(!prog)return;
+  const live=document.body.classList.contains('live');
+  document.querySelectorAll('#sections .secname').forEach(n=>{
+    n.style.minHeight='';const t=n.querySelector('.tname');if(t)t.style.fontSize='';
+  });
+  if(prog.style.getPropertyValue('--lchfs')){prog.style.removeProperty('--lchfs');alignSimple();}
+  if(!live)return;
+  const visSlot=()=>[...document.querySelectorAll('#sections .secrow.compact .slot:not(.ncslot)')].find(x=>x.offsetWidth);
+  let sl=visSlot();
+  if(sl){
+    const box=sl.closest('.slots'),bd=sl.closest('.secbody'),cs=getComputedStyle(box);
+    const avail=bd.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+    const gap=parseFloat(cs.columnGap)||0;
+    for(let k=0;k<5&&sl;k++){
+      const ml=parseFloat(getComputedStyle(sl).marginLeft)||0,W=sl.getBoundingClientRect().width;
+      if(4*(W+ml)+3*gap<=avail+0.5)break;
+      const nm=sl.querySelector('.sl-name');if(!nm)break;
+      const fs=parseFloat(getComputedStyle(nm).fontSize),cw=nm.getBoundingClientRect().width;
+      if(fs<=28||!cw)break;
+      const target=(avail-3*gap)/4-ml-(W-cw);
+      let nf=Math.floor(fs*target/cw);
+      nf=Math.max(28,Math.min(nf,fs-1));
+      prog.style.setProperty('--lchfs',nf+'px');alignSimple();
+      sl=visSlot();
+    }
+  }
+  document.querySelectorAll('#sections .secname .tname').forEach(t=>{
+    if(!t.clientHeight)return;
+    let f=parseFloat(getComputedStyle(t).fontSize)||17;
+    while(t.scrollHeight>t.clientHeight+1&&f>12){f-=1;t.style.fontSize=f+'px';}
+    if(t.scrollHeight>t.clientHeight+1){
+      const n=t.parentNode;n.style.minHeight=Math.ceil(n.offsetHeight+t.scrollHeight-t.clientHeight+2)+'px';
+    }
+  });
+}
+window.addEventListener('resize',()=>{clearTimeout(fitLive._t);fitLive._t=setTimeout(()=>{fitLive();positionReps();},150);});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(document.body.classList.contains('live'))fitLive();});
 /* coloca el ×N a la derecha de los acordes, centrado en vertical (aunque haya varias líneas) */
 function positionReps(){
   document.querySelectorAll('#sections .slots').forEach(box=>{
@@ -6007,7 +6062,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.14b';
+const APP_VER='2026.10.14c';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
