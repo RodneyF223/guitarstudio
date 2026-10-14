@@ -153,6 +153,10 @@
     font-family:var(--font-b);font-size:13.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
   .tpill:hover{box-shadow:var(--hov)}
   .tgrp.open>.tpill{box-shadow:var(--hov)}
+  /* deshacer / rehacer: solo icono; atenuados cuando no hay nada que deshacer o rehacer (se pueden pulsar igual) */
+  .tpill.tundo{padding:0 13px;touch-action:manipulation}
+  .tpill.tundo.off{opacity:.35}
+  .tpill.tundo.off:hover{box-shadow:none}
   .tico{font-style:normal;font-size:16px;line-height:1;display:inline-flex}
   /* tempo = pantallita LCD */
   .tnum{background-color:var(--lcd-bg);background-image:radial-gradient(circle,var(--lcd-dim) 1px,transparent 1.3px);background-size:4px 4px;
@@ -222,6 +226,11 @@
   @media (max-width:1100px){
     .tlab{display:none}
     .transport .tpill:has(.tlab){padding:0 14px}
+    /* sitio para ↶ ↷ sin que la barra salte a dos líneas en la tableta en vertical (876 px) */
+    .transport .tsep-u{display:none}
+    .transport .tpill.tundo{padding:0 11px}
+    .transport #playbtn{padding:0 16px}
+    .tvol input[type=range]{width:70px}
   }
   @media (max-width:820px){
     .transport{gap:6px 8px;padding:8px 12px}
@@ -914,10 +923,14 @@
   /* ── directo compacto (2026-10-04): la canción entera de un vistazo en la tableta ──────────────
      menos aire; nombre de sección en horizontal (así cada fila mide lo que miden sus acordes, no lo
      que mide la palabra girada); acordes más grandes; notas y licks AL LADO de los acordes si caben */
-  body.live{padding-bottom:116px}
+  body.live{padding-bottom:134px}
   body.live .progress{width:auto;min-width:0;max-width:none;margin:0;border-left:none;border-right:none;border-top:none}
   body.live .proghead{padding:3px 12px 4px;gap:8px}
   body.live .proghead h2{font-size:26px;max-width:none}
+  /* nº de la canción en el set, delante del título (solo en el directo; antes iba en la barra de abajo) */
+  .prnum{display:none}
+  body.live .prnum:not([hidden]){display:inline-flex;align-items:center;height:32px;padding:0 8px;border:1.5px solid var(--line2);
+    font-family:var(--font-n);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
   body.live .secname,body.live .secrow.compact .secname{writing-mode:horizontal-tb;transform:none;flex-direction:row;flex-wrap:wrap;
     align-items:center;align-content:center;justify-content:flex-start;gap:2px 6px;width:104px;min-width:104px;
     padding:4px 8px;font-size:17px;letter-spacing:.01em;line-height:1.1;text-align:left}
@@ -961,8 +974,11 @@
   body.live .secrow:not(.compact) .barline{margin:4px 2px}
   /* barra del directo: título y tira de secciones en una sola línea, botones algo más bajos */
   body.live #livebar{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 12px;padding:6px 10px 8px}
-  body.live .livetop{display:block;max-width:34vw;min-width:0}
-  body.live .livetop #livepos{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  /* 2026-10-14: el título y el nº salen de la barra (el título ya está arriba y el nº va con él);
+     la tira de estructura ocupa todo el ancho y es más alta */
+  body.live .livetop{display:none}
+  body.live #livestrip{grid-column:1/-1;height:38px;gap:3px}
+  body.live .lss{line-height:38px;font-size:13px;padding:0 6px}
   body.live .livebtns{grid-column:1/-1}
   body.live .lbtn{min-height:64px;font-size:30px}
   body.live .lbtn.sm{font-size:22px}
@@ -1155,6 +1171,7 @@
 
 <section class="panel progress wide">
   <div class="proghead">
+    <span class="prnum" id="prnum" hidden></span>
     <h2 id="prname">Sin título</h2>
     <span class="prkey" id="prkey"></span>
     <span class="prmeta" id="prtempo"></span>
@@ -1182,7 +1199,7 @@
     <li><b>Directo con repeticiones que cambian (ocultar y anotar):</b> cuando una parte vuelve <b>casi igual</b> (Verso-Coro-Puente otra vez, pero con un corte o un final distinto), escribe la canción entera en modo normal para ensayarla tal cual y después aligera el directo: <b>① Ocultar:</b> el botón <b><i data-ic="eye"></i></b> de cada sección (junto al <i data-ic="palette"></i>) la oculta <b>solo en el directo</b> — pasa a <i data-ic="eye-off"></i> y su nombre se atenúa; en modo normal la sigues viendo y <b>al reproducir suena igual</b>, porque ocultar solo afecta a lo que ves. En el directo, el botón <b><i data-ic="eye-off"></i></b> de la barra de abajo (solo aparece si la canción tiene secciones ocultas) las enseña un momento, semitransparentes; al volver a entrar al directo quedan ocultas otra vez. <b>② Anotar:</b> en el directo, arrastra por el margen izquierdo de arriba abajo para dibujar un <b>corchete discontinuo «×2~»</b>: es un <b>recordatorio</b> de que ese bloque vuelve con variaciones y <b>no cambia lo que suena</b> (el corchete rojo continuo, que se dibuja en modo normal, sí repite de verdad). Toca el «×2~» para pasar a ×3, ×4 y, al siguiente toque, quitarlo. No puede pisar un corchete real (gana el real). Las anotaciones se guardan solas en la canción de la biblioteca — sin marcarla como «sin guardar» —, siempre que la canción esté guardada al menos una vez; en modo normal se ven tenues. <b>③ Al reproducir:</b> cuando suena una sección oculta, se ilumina la sección visible a la que corresponde con la marca <b>«2ª»</b>, el corchete muestra la vuelta («2/2~») y, si la oculta tiene nota, aparece encima (p. ej. «2ª · corte en el compás 4») — así las variaciones siguen a la vista sin ocupar sitio. La pareja se busca entre las ocultas que van <b>dentro del corchete o justo detrás</b>: primero por nombre («Verso 2», «Verso II» o «Verso (bis)» van con «Verso») y, si los nombres no coinciden, por orden cuando las cuentas cuadran. Si una oculta no tiene pareja, en su sitio se enciende una <b>barra de luz</b> fina con su nombre. Los corchetes rojos también muestran la vuelta en curso («1/2», «2/2»). <b>④ Tira de progreso:</b> encima de los botones del directo, una tira con un tramo por sección — también las ocultas, rayadas — te enseña la canción entera: lo ya tocado se atenúa y el tramo actual va en azul.</li>
     <li><b>Pedal pasapáginas:</b> en el directo sirven los pedales-teclado (pasapáginas Bluetooth) y el propio teclado: <b>Av Pág / Re Pág o las flechas ← →</b> cambian de canción y la barra espaciadora toca / para.</li>
     <li><b>Diapasón y licks:</b> el diapasón usa siempre la <b>tónica de la canción</b>. Cada nota son dos cajas: la <b>nota</b> (blanca, fija) y su <b>grado</b> (de color, contado desde la tónica). Un <b>clic</b> hace sonar la nota; con <b>doble clic</b> esa nota pasa a ser la tónica (<b>modular</b>): los grados cambian, las notas no, y junto a la pantallita aparece «modulado» con una × para volver. Con <b>escala</b> ves solo sus notas y con <b>acorde</b> resaltas su arpegio; «el que suena» lo va cambiando mientras reproduces la canción. Debajo, la <b>regla de semitonos</b> enseña la escala casilla a casilla (1 casilla = ½ tono = 1 traste) y el salto entre notas: T o ½. En el <b>editor de licks</b> dibujas en la rejilla («pos» = traste de la primera fila); cada nota lleva su grado. Botones: nota, secundaria, <b>→ flecha</b>, <b>sl</b> slide, <b>h</b> hammer-on y <b>p</b> pull-off (toca dos notas), <b>bnd</b> bend (toca una nota: ½, 1 o 1½ tono) y <b>▭ agrupar</b> (toca las notas y pulsa «cerrar grupo»). <b>Arrastra una nota para moverla</b>, borra con <b>doble clic</b> cualquier cosa del dibujo (nota, flecha, slide, bend o grupo) y deshaz el dibujo con <i data-ic="undo-2"></i> o Ctrl+Z. Con <b><i data-ic="plus"></i></b> el diagrama va a la sección activa; toca un diagrama en la canción para reabrirlo en el editor y «<i data-ic="check"></i> actualizar»lo, o quítalo con su ×.</li>
-    <li><b>Canciones:</b> el nombre de la canción y la tonalidad están siempre en la barra superior; el punto naranja avisa de cambios sin guardar (verde = guardada). Pulsa <b>Guardar</b> o Ctrl+S; <b>doble clic en el título</b> de la progresión la renombra. La pestaña de la canción abre el <b>panel lateral «Canciones»</b> (Esc o <i data-ic="x"></i> lo cierra), con el nombre de la canción actual y Guardar arriba, y dos pestañas: <b>SET</b> — eliges el set (o «♪ todas las canciones»), creas, renombras o borras sets, ves solo sus canciones en orden, las ordenas arrastrando <i data-ic="grip-vertical"></i> y un clic carga la canción — y <b>BIBLIOTECA</b> — tus canciones en <b>carpetas</b> (un solo nivel) que se abren y cierran con un clic y recuerdan cómo las dejaste; el buscador abre las carpetas que tienen coincidencias y la ✓ marca las canciones del set activo. Arrastrar una canción a otra carpeta la mueve allí. Cada fila es siempre una sola línea: nº · nombre · tono · bpm. Si cambias de canción con cambios pendientes, la app pregunta antes. <b>Ctrl+Z deshace</b> y Ctrl+Y rehace cualquier cambio en la progresión. El botón <i data-ic="sun-moon"></i> cambia entre tema automático, claro y oscuro.</li>
+    <li><b>Canciones:</b> el nombre de la canción y la tonalidad están siempre en la barra superior; el punto naranja avisa de cambios sin guardar (verde = guardada). Pulsa <b>Guardar</b> o Ctrl+S; <b>doble clic en el título</b> de la progresión la renombra. La pestaña de la canción abre el <b>panel lateral «Canciones»</b> (Esc o <i data-ic="x"></i> lo cierra), con el nombre de la canción actual y Guardar arriba, y dos pestañas: <b>SET</b> — eliges el set (o «♪ todas las canciones»), creas, renombras o borras sets, ves solo sus canciones en orden, las ordenas arrastrando <i data-ic="grip-vertical"></i> y un clic carga la canción — y <b>BIBLIOTECA</b> — tus canciones en <b>carpetas</b> (un solo nivel) que se abren y cierran con un clic y recuerdan cómo las dejaste; el buscador abre las carpetas que tienen coincidencias y la ✓ marca las canciones del set activo. Arrastrar una canción a otra carpeta la mueve allí. Cada fila es siempre una sola línea: nº · nombre · tono · bpm. Si cambias de canción con cambios pendientes, la app pregunta antes. <b>Deshacer y rehacer:</b> botones <i data-ic="undo-2"></i> <i data-ic="redo-2"></i> de la barra inferior (en la tableta) o Ctrl+Z / Ctrl+Y, para cualquier cambio en la progresión. El botón <i data-ic="sun-moon"></i> cambia entre tema automático, claro y oscuro.</li>
     <li><b><i data-ic="plus"></i> Nueva · <i data-ic="square"></i> Editar · <i data-ic="arrow-down-up"></i> Archivo</b> (pie del panel): <b><i data-ic="plus"></i> Nueva</b> pide el nombre (propone «Idea» con la fecha, p. ej. «Idea 29-sep»; Enter acepta), la carpeta, la plantilla — vacía o Intro · Verse · Chorus · Verse · Chorus · Bridge · Chorus · Outro, que ya encaja con la energía de la batería — y si la añades al set activo; se guarda al momento. Guardar una canción por primera vez ya no la mete sola en el set. <b><i data-ic="square"></i> Editar</b> pone casillas en las filas (y «marcar todas» de la vista o de una carpeta; en edición un clic marca en vez de cargar) y una barra de acciones: <b><i data-ic="plus"></i> al set / − del set</b>, <b>mover a carpeta</b>, <b>duplicar</b>, <b>renombrar</b> (con una marcada), <b><i data-ic="download"></i> .json</b> y <b>borrar</b> (pide confirmación). En edición también creas, renombras y borras carpetas (sus canciones pasan a «Sin carpeta»). <b><i data-ic="arrow-down-up"></i> Archivo</b> exporta la canción actual, el set activo o la <b>biblioteca completa</b> (copia de seguridad con carpetas y sets), e importa cualquier .json — también los antiguos: antes de tocar nada te enseña qué es (canción, set, biblioteca o lista), cuántas canciones ya tienes iguales (se reutilizan, no se copian), cuántas han cambiado (actualizar, mantener la tuya o guardar copia — para todas o una a una) y cuántas son nuevas, y a qué carpeta irán. Si el set ya existe, lo reemplazas o se crea «Nombre (2)»; importar dos veces lo mismo no duplica nada.</li>
     <li><b>Set lists e imágenes:</b> un set = las canciones y el orden de una banda o un bolo. Las canciones se añaden desde BIBLIOTECA con <i data-ic="square"></i> Editar → «<i data-ic="plus"></i> al set»; un set no borra nada de la biblioteca. El <b>modo directo</b> recorre el set activo en su orden (o toda la biblioteca si no hay set). Con <b><i data-ic="images"></i> Imágenes</b> (pestaña SET) entras en una pantalla completa con las canciones del set marcadas y una <b>vista previa real</b> de la que elijas: vista simple o con diagramas, tema blanco o negro, ancho, nitidez y destino (ZIP o una carpeta de tu equipo); «Exportar N imágenes» genera una por canción marcada, numeradas según el orden del set (<b>01-Canción-Tono.png</b>). Esc sale.</li>
   </ol>
@@ -1237,6 +1254,11 @@
 
   <label class="tpill tsw" title="Metrónomo"><input type="checkbox" id="metro" checked><i class="tico"><i data-ic="timer"></i></i><span class="tlab">metrónomo</span></label>
   <label class="tpill tsw" title="Activa o desactiva la batería"><input type="checkbox" id="drumson" checked><i class="tico"><i data-ic="drum"></i></i><span class="tlab">batería</span></label>
+
+  <span class="tsep tsep-u"></span>
+
+  <button class="tpill tundo" id="undobtn" title="Deshacer el último cambio (Ctrl+Z)"><i class="tico"><i data-ic="undo-2"></i></i></button>
+  <button class="tpill tundo" id="redobtn" title="Rehacer lo deshecho (Ctrl+Y)"><i class="tico"><i data-ic="redo-2"></i></i></button>
 
   <div class="tright">
     <div class="tgrp">
@@ -1323,6 +1345,7 @@ const ICONS={
   'download':'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
   'trash-2':'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
   'undo-2':'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+  'redo-2':'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/>',
   'eraser':'<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>',
   'check':'<path d="M20 6 9 17l-5-5"/>',
   'skip-back':'<polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/>',
@@ -2469,6 +2492,7 @@ function renderSections(){
   updateLiveBar();
   renderProgHead();
   updateLickTarget();
+  updUndoBtns();
   persist();
 }
 /* mantiene al día el rótulo del botón «＋ a «…»» del editor de licks:
@@ -3425,8 +3449,21 @@ function pushUndo(){
   pushUndo._t=Date.now(); /* para decidir si Ctrl+Z va a la canción o al editor de licks */
   const j=JSON.stringify(snapshot());
   if(UNDO[UNDO.length-1]!==j){UNDO.push(j);if(UNDO.length>60)UNDO.shift();REDO.length=0;}
+  updUndoBtns();
 }
-function clearHistory(){UNDO.length=0;REDO.length=0;}
+function clearHistory(){UNDO.length=0;REDO.length=0;updUndoBtns();}
+/* deshacer «inteligente» (botón y Ctrl+Z): lo último que tocaste, el dibujo del lick o la canción */
+function smartUndo(){
+  let lk=0;try{lk=LKUNDO.length&&(LK.t||0)>(pushUndo._t||0);}catch(e){}
+  if(lk)lkUndo();else doUndo();
+}
+/* atenúa los botones ↶ ↷ de la barra inferior cuando no hay nada que deshacer / rehacer */
+function updUndoBtns(){
+  const u=document.getElementById('undobtn'),r=document.getElementById('redobtn');if(!u||!r)return;
+  let lk=0;try{lk=LKUNDO.length;}catch(e){} /* LKUNDO se declara más abajo */
+  u.classList.toggle('off',!UNDO.length&&!lk);
+  r.classList.toggle('off',!REDO.length);
+}
 function applyFull(d){
   applySnapshot(d);S.selChord=currentChords()[0];
   
@@ -3435,13 +3472,13 @@ function applyFull(d){
 function doUndo(){
   if(!UNDO.length){toast('Nada que deshacer');return;}
   REDO.push(JSON.stringify(snapshot()));
-  applyFull(JSON.parse(UNDO.pop()));
+  applyFull(JSON.parse(UNDO.pop()));updUndoBtns();
   toast('Deshecho ↩');
 }
 function doRedo(){
   if(!REDO.length){toast('Nada que rehacer');return;}
   UNDO.push(JSON.stringify(snapshot()));
-  applyFull(JSON.parse(REDO.pop()));
+  applyFull(JSON.parse(REDO.pop()));updUndoBtns();
   toast('Rehecho ↪');
 }
 
@@ -4936,13 +4973,14 @@ document.addEventListener('dragend',()=>{
 
 /* transporte */
 document.getElementById('playbtn').addEventListener('click',()=>{play.on?stopPlay():startPlay(null);});
+document.getElementById('undobtn').addEventListener('click',smartUndo);
+document.getElementById('redobtn').addEventListener('click',doRedo);
 document.addEventListener('keydown',e=>{
   const inField=e.target.closest&&e.target.closest('input,select,textarea,[contenteditable="true"]');
   const mod=e.ctrlKey||e.metaKey;
   if(mod&&!e.shiftKey&&e.key.toLowerCase()==='z'&&!inField){
     e.preventDefault();
-    /* Ctrl+Z deshace lo último que tocaste: el dibujo del lick o la canción */
-    if(LKUNDO.length&&(LK.t||0)>(pushUndo._t||0))lkUndo();else doUndo();
+    smartUndo(); /* lo último que tocaste: el dibujo del lick o la canción */
     return;
   }
   if(mod&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))&&!inField){e.preventDefault();doRedo();return;}
@@ -5400,6 +5438,13 @@ function updateLiveBar(){
   const set=setSongs(),act=activeSetl();
   const i=set.findIndex(x=>x.id===S.songId);
   lp.textContent=(act?'♪ '+act.name+' · ':'')+(set.length?((i>=0?(i+1):'–')+' / '+set.length+' · '):'')+(S.songName||'Sin título');
+  /* en el directo el nº va delante del título, arriba (la barra de abajo queda solo para la estructura) */
+  const pn=document.getElementById('prnum');
+  if(pn){
+    pn.hidden=!(set.length&&i>=0);
+    pn.textContent=(i+1)+'/'+set.length;
+    pn.title='Canción '+(i+1)+' de '+set.length+(act?' del set «'+act.name+'»':'');
+  }
   const lv=document.getElementById('lview');
   lv.innerHTML=ICO(S.viewMode==='simple'?'grid-3x3':'rectangle-horizontal');
   lv.title=S.viewMode==='simple'?'Cambiar a vista diagramas':'Cambiar a vista simple (chuleta)';
@@ -5722,11 +5767,11 @@ document.addEventListener('keydown',e=>{
 });
 /* deshacer del dibujo (independiente del Ctrl+Z de la canción) */
 const LKUNDO=[];
-function lkPush(){LKUNDO.push(JSON.stringify(LK.cur));if(LKUNDO.length>50)LKUNDO.shift();LK.t=Date.now();}
+function lkPush(){LKUNDO.push(JSON.stringify(LK.cur));if(LKUNDO.length>50)LKUNDO.shift();LK.t=Date.now();updUndoBtns();}
 function lkUndo(){
   if(!LKUNDO.length){toast('Nada que deshacer en el lick');return;}
   LK.cur=JSON.parse(LKUNDO.pop());LK.selA=null;LK.selG=null;LK.dragK=null;LK.t=Date.now();
-  renderLickEd();toast('Dibujo deshecho ↩');
+  renderLickEd();updUndoBtns();toast('Dibujo deshecho ↩');
 }
 /* toque simple en la rejilla */
 function lkTap(s,f){
@@ -5931,7 +5976,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.13';
+const APP_VER='2026.10.14';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
