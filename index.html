@@ -746,6 +746,7 @@
     border:1.5px solid var(--line);border-radius:0;background:var(--panel);cursor:grab}
   .slot:hover{border-color:var(--mut)}
   .slot.dropbefore{box-shadow:-4px 0 0 0 var(--focus)}
+  .slot.copysrc{outline:2px dashed var(--focus);outline-offset:2px}
   .slot.playing{border-color:var(--play);box-shadow:0 0 0 2.5px var(--play)}
   @media (prefers-reduced-motion: no-preference){
     .slot.playing{animation:pulse .5s ease}
@@ -2145,7 +2146,7 @@ function slotHTML(sl,si,ei,mids){
     const para=sl.drums!=='go';
     return '<div class="slot ncslot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
       '<div class="sl-top"><span class="sl-deg ncdeg">—</span><span class="sl-name">N.C.</span>'+
-      '<button class="sl-dup" title="Duplicar">'+ICO('copy')+'</button><button class="sl-x" title="Quitar">'+ICO('x')+'</button></div>'+
+      '<button class="sl-dup" title="Duplicar · mantener y arrastrar = soltar una copia donde quieras">'+ICO('copy')+'</button><button class="sl-x" title="Quitar">'+ICO('x')+'</button></div>'+
       '<div class="ncbox"><b>silencio</b><span>corta lo que suena</span></div>'+
       '<div class="sl-bot">'+mc+
       '<button class="sl-v ncdr" title="Qué hace la batería durante el silencio — clic para cambiar">'+(para?ICO('drum')+' para':ICO('drum')+' sigue')+'</button>'+
@@ -2154,7 +2155,7 @@ function slotHTML(sl,si,ei,mids){
   return '<div class="slot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
     '<div class="sl-top"><span class="sl-deg '+txtOn(sl.chord.degNum)+'" style="background:'+sl.chord.color+'">'+esc(sl.chord.deg)+'</span>'+
     '<span class="sl-name">'+esc(sl.voicing.disp||sl.chord.label)+'</span>'+
-    '<button class="sl-dup" title="Duplicar acorde">'+ICO('copy')+'</button><button class="sl-x" title="Quitar">'+ICO('x')+'</button></div>'+
+    '<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">'+ICO('copy')+'</button><button class="sl-x" title="Quitar">'+ICO('x')+'</button></div>'+
     chordSVG(sl.voicing,'dg-sm')+
     '<div class="sl-bot">'+mc+
     '<span class="sl-v">'+esc(sl.voicing.vname)+'</span>'+
@@ -4878,7 +4879,8 @@ document.addEventListener('focusout',e=>{
 /* tableta: mantener pulsado (p. ej. para arrastrar una canción, un acorde o una sección) abría el menú del
    navegador, como un clic derecho. En pantalla táctil se anula; con ratón y en los campos de texto, igual que siempre */
 let LASTPT='mouse';
-document.addEventListener('pointerdown',e=>{LASTPT=e.pointerType||'mouse';},true);
+let DOWNDUP=null; /* el último pointerdown fue en ⧉ de un acorde: el arrastre que sigue lleva una COPIA (2026-10-16) */
+document.addEventListener('pointerdown',e=>{LASTPT=e.pointerType||'mouse';DOWNDUP=e.target&&e.target.closest?e.target.closest('.sl-dup'):null;},true);
 document.addEventListener('contextmenu',e=>{
   if((e.pointerType||LASTPT)==='mouse')return;
   if(e.target&&e.target.closest&&e.target.closest('input,textarea,[contenteditable="true"]'))return;
@@ -4921,6 +4923,12 @@ document.addEventListener('dragstart',e=>{
     dragPayload={kind:'chord',chord:ch,voicing:getVoicings(ch)[0]};
   }else if(vc){
     dragPayload={kind:'chord',chord:S.selChord,voicing:VOICINGS[+vc.dataset.vi]};
+  }else if(slot&&DOWNDUP&&slot.contains(DOWNDUP)){ /* mantener ⧉ y arrastrar: se suelta una copia, el original se queda */
+    dragPayload={kind:'copy',si:+slot.dataset.si,ei:+slot.dataset.ei};
+    e.dataTransfer.setData('text/plain','chord');
+    e.dataTransfer.effectAllowed='copy';
+    setTimeout(()=>slot.classList.add('copysrc'),0);
+    return;
   }else if(slot){
     dragPayload={kind:'move',si:+slot.dataset.si,ei:+slot.dataset.ei};
   }else{dragPayload=null;return;}
@@ -5039,6 +5047,8 @@ document.addEventListener('drop',e=>{
     slots.splice(at,0,newSlot(dragPayload.chord,dragPayload.voicing));
   }else if(dragPayload.kind==='nc'){
     slots.splice(at,0,newNC());
+  }else if(dragPayload.kind==='copy'){
+    slots.splice(at,0,JSON.parse(JSON.stringify(S.sections[dragPayload.si].slots[dragPayload.ei])));
   }else{
     const src=S.sections[dragPayload.si].slots;
     const [moved]=src.splice(dragPayload.ei,1);
@@ -5052,6 +5062,7 @@ document.addEventListener('drop',e=>{
 document.addEventListener('dragend',()=>{
   document.querySelectorAll('.slots.dropping').forEach(el=>el.classList.remove('dropping'));
   document.querySelectorAll('.slot.dropbefore').forEach(el=>el.classList.remove('dropbefore'));
+  document.querySelectorAll('.slot.copysrc').forEach(el=>el.classList.remove('copysrc'));
   document.querySelectorAll('.secrow.secdrop').forEach(el=>el.classList.remove('secdrop'));
   document.querySelectorAll('.sprow.drop,.spfh.drop,.sproot.drop').forEach(el=>el.classList.remove('drop'));
   const sm=document.getElementById('songmenu');if(sm)sm.classList.remove('fdrag');
@@ -6062,7 +6073,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.14c';
+const APP_VER='2026.10.16';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
