@@ -670,28 +670,49 @@
   /* corchete del margen: repetir un BLOQUE de secciones (arrastrar de arriba abajo) — trazo continuo */
   .secgut{position:relative;flex:0 0 38px;width:38px;cursor:ns-resize;touch-action:none}
   /* margen vacío: agarradera «⋮» siempre tenue, se enciende al pasar por la fila */
-  .secgut::after{content:'⋮';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  .secgut::after{content:'⋮';position:absolute;left:20px;width:18px;top:50%;transform:translateY(-50%);
     text-align:center;line-height:1;font-size:17px;letter-spacing:0;color:var(--mut);opacity:.35;
     pointer-events:none;transition:opacity .12s,color .12s}
   .secrow:hover .secgut::after{opacity:1;color:var(--accent)}
   .secgut.gon::after,body.live .secgut::after,.xport .secgut::after{display:none}
-  .secgut.gon::before{content:'';position:absolute;left:13px;right:7px;top:-1px;bottom:0;border-left:4px solid var(--accent)}
-  .secgut.gon.gs::before{top:8px;border-top:4px solid var(--accent);border-top-left-radius:0}
-  .secgut.gon.ge::before{bottom:8px;border-bottom:4px solid var(--accent);border-bottom-left-radius:0}
+  /* corchete del BLOQUE: carril de fuera (20–38 px, hacia el borde), con los extremos mirando a los acordes */
+  .secgut.gon::before{content:'';position:absolute;left:20px;width:11px;top:-1px;bottom:0;border-right:3px solid var(--accent)}
+  .secgut.gon.gs::before{top:7px;border-top:3px solid var(--accent)}
+  .secgut.gon.ge::before{bottom:7px;border-bottom:3px solid var(--accent)}
   .secgut.gsel{background:color-mix(in srgb, var(--accent) 18%, transparent)}
-  .grep{position:absolute;left:1px;right:1px;top:50%;transform:translateY(-50%);z-index:3;border:none;
-    background:var(--accent);color:var(--on);font-family:var(--font-n);font-weight:700;font-size:15px;line-height:1;
-    padding:6px 0;border-radius:2px;text-align:center;box-shadow:none;cursor:pointer}
-  .grep:hover{filter:brightness(1.08)}
+  .rcfit .secbody{flex:0 1 var(--bodyw);min-width:0}
+  /* ── repeticiones (2026-10-22, «corchete único»): TODA repetición es la misma pastilla roja
+     («×» pequeño arriba, cifra grande abajo), siempre en la columna de la DERECHA, detrás de los acordes, y del mismo color.
+     Carril de DENTRO (1–19 px, pegado al final de los acordes) = la sección sola, con su corchete corto.
+     Carril de FUERA (20–38 px) = bloque de secciones, sobre su corchete largo (positionReps la centra en el bloque).
+     Igual en edición, en el directo y en la imagen del set. Al sonar se pone azul y cuenta la vuelta («1/2»). */
+  .rqb{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:18px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:1px;padding:4px 0 5px;border:none;border-radius:2px;
+    background:var(--accent);color:var(--on);line-height:1;letter-spacing:0;box-shadow:none;cursor:pointer}
+  .rqb i{font:700 12px/1 var(--font-n);font-style:normal}
+  .rqb b{font:900 21px/1 var(--font-d);font-stretch:75%}
+  .rqb.dd b{font-size:16px}
+  .rqb:hover{filter:brightness(1.08)}
+  .grep.rqb,.lrep.rqb{left:20px}
+  .secrep.rqb{left:1px}
+  .rqb.now{background:var(--play);color:#fff}
+  .rqb.now i{font-size:11px}
+  /* corchete corto de la sección (carril de dentro): solo cuando se repite */
+  .sbr{position:absolute;left:0;width:12px;top:7px;bottom:7px;border:3px solid var(--accent);border-left:none;pointer-events:none}
+  /* «×1» tenue: para dar vueltas a una sección (solo en edición; en el directo no sale) */
+  .secrep.rqb.ghost{background:transparent;color:var(--mut);box-shadow:inset 0 0 0 1.5px var(--line);opacity:.55}
+  .secrow:hover .secrep.ghost,.secrow.on .secrep.ghost{opacity:1}
+  .secrep.rqb.ghost:hover{filter:none;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+  body.live .secrep.ghost,.xport .secrep.ghost{display:none}
+  body.live .secrep.rqb{cursor:default;pointer-events:none} /* en el directo el ×N de la sección solo se lee */
   body.live .secgut{cursor:ns-resize}
   /* corchete de ANOTACIÓN (se dibuja en el directo): discontinuo, «×2~», no cambia lo que suena */
   .secgut.lon::after{display:none}
-  .secgut.lon::before{content:'';position:absolute;left:13px;right:7px;top:-1px;bottom:0;border-left:4px dashed var(--accent)}
-  .secgut.lon.ls::before{top:8px;border-top:4px dashed var(--accent);border-top-left-radius:0}
-  .secgut.lon.le::before{bottom:8px;border-bottom:4px dashed var(--accent);border-bottom-left-radius:0}
-  .lrep{position:absolute;left:1px;right:1px;top:50%;transform:translateY(-50%);z-index:3;border:2px dashed var(--accent);
-    background:var(--panel);color:var(--accent-t);font-family:var(--font-n);font-weight:700;font-size:13px;line-height:1;
-    padding:5px 0;border-radius:2px;text-align:center;cursor:pointer;white-space:nowrap}
+  .secgut.lon::before{content:'';position:absolute;left:20px;width:11px;top:-1px;bottom:0;border-right:3px dashed var(--accent)}
+  .secgut.lon.ls::before{top:7px;border-top:3px dashed var(--accent)}
+  .secgut.lon.le::before{bottom:7px;border-bottom:3px dashed var(--accent)}
+  .lrep.rqb{background:var(--panel);color:var(--accent-t);box-shadow:inset 0 0 0 2px var(--accent)}
+  .lrep.rqb.now{background:var(--play);color:#fff;box-shadow:none}
   body:not(.live) .secgut.lon{opacity:.45}
   body:not(.live) .lrep{pointer-events:none}
   .xport .secgut.lon::before,.xport .lrep{display:none}
@@ -713,6 +734,10 @@
   .lss.hid{opacity:.5;background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(0,0,0,.14) 4px 8px)}
   .lss.done{opacity:.35}
   .lss.cur{background:var(--play);color:#fff;opacity:1}
+  body.live .lss{cursor:pointer}
+  /* sección ×N: un tramo con una marca por vuelta y su «×N» (los bloques ya salen vuelta a vuelta) */
+  .lss.rpass{background-image:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--rpn) - 3px),var(--bg) calc(100% / var(--rpn) - 3px) calc(100% / var(--rpn)))}
+  .lss .lssx{font-family:var(--font-n);font-weight:700;font-size:.72em;margin-left:4px;opacity:.9}
   .secbody{flex:1;min-width:0;display:flex;flex-direction:column}
   .slots{position:relative;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;min-height:120px;padding:12px 14px 8px}
   .slots.dropping{background:color-mix(in srgb, var(--focus) 9%, transparent)}
@@ -769,10 +794,6 @@
   .sl-br.on{color:var(--focus);font-weight:800}
   .sl-br.on .ic{stroke-width:2.8}
   .lbreak{flex-basis:100%;height:0}
-  .secrep{position:absolute;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--mut);
-    font-family:var(--font-d);font-weight:800;font-size:15px;padding:2px 10px;border-radius:2px;line-height:1}
-  .secrep:hover{color:var(--ink);background:var(--wedge)}
-  .secrep.big{color:var(--accent-t);font-size:32px;font-weight:900;font-stretch:110%}
   .scbtn.playsec.on{color:#fff;background:var(--play);border-color:var(--play)}
   /* vista simple por sección: grado+duración a la izquierda, acorde grande a la derecha */
   .secrow.compact .slot{display:grid;grid-template-columns:var(--degw,auto) var(--chw,auto);grid-template-rows:auto auto;
@@ -799,7 +820,6 @@
   .progress.compact .slot{cursor:default}
   .progress.compact .proghint{display:none}
   .progress.compact .slots .empty{display:none}
-  .progress.compact .secrep:not(.big){display:none}
   /* ── duración en tiempos · silencio N.C. · barras de compás ── */
   /* barra de compás que cae a mitad de un acorde (solo si el acorde empieza o acaba a mitad de compás) */
   .midbar{position:absolute;top:7px;bottom:7px;width:0;border-left:2px dashed var(--ink);opacity:.32;pointer-events:none;z-index:1}
@@ -857,7 +877,6 @@
     --danger:#ff6a52;--accent-t:#ff6a52;--focus:#6d95ff;--lkarrow:#f8a13f; --lkband:color-mix(in srgb,var(--amber) 60%,var(--panel));--lcd-bg:#000000;--lcd-dim:#1d1d1b}
   .xport .progress{width:auto;min-width:0;max-width:none;margin:0}
   .xport .proghead h2{max-width:none}
-  .xport .secrep{position:static;transform:none;align-self:center;margin-left:8px}
   .xport .secnote{width:fit-content;height:auto;max-width:calc(100% - 24px)}
   .xport .slot,.xport .secname,.xport .secgut{cursor:default}
 
@@ -889,8 +908,7 @@
   body.live .topbar,body.live .main,body.live details.diap,body.live details.help,body.live .transport{display:none}
   body.live .progress{margin:10px auto 0}
   body.live .addsec,body.live .proghint,body.live #compactbtn,
-  body.live .slots .empty,body.live .sl-dup,body.live .sl-x,body.live .sl-br,
-  body.live .secrep:not(.big){display:none}
+  body.live .slots .empty,body.live .sl-dup,body.live .sl-x,body.live .sl-br{display:none}
   /* en directo: las secciones ABIERTAS (con diagramas) muestran ▶ y ▭/▦; las simples, nada */
   body.live .secrow.compact .secctl{display:none}
   body.live .secctl .scbtn{display:none}
@@ -927,43 +945,40 @@
   body.live{padding-bottom:134px}
   body.live .progress{width:auto;min-width:0;max-width:none;margin:0;border-left:none;border-right:none;border-top:none}
   body.live .proghead{padding:3px 12px 4px;gap:8px}
+  /* 2026-10-22: la barra del título (nombre, tono, tempo, compás) queda fija arriba mientras la canción baja */
+  body.live .proghead{position:sticky;top:0;z-index:60;background:var(--panel)}
   body.live .proghead h2{font-size:26px;max-width:none}
   /* nº de la canción en el set, delante del título (solo en el directo; antes iba en la barra de abajo) */
   .prnum{display:none}
   body.live .prnum:not([hidden]){display:inline-flex;align-items:center;height:32px;padding:0 8px;border:1.5px solid var(--line2);
     font-family:var(--font-n);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--ink);white-space:nowrap}
   /* 2026-10-14 (Rodney): nombre otra vez en VERTICAL, en una columna estrecha de 60 px (antes horizontal, 104 px).
-     Dentro: a la izquierda el nombre girado (se lee de abajo arriba, como fuera del directo); a la derecha, arriba el ×N
-     y ABAJO, siempre en el mismo sitio, el icono de vista (⊞ / ▭), que ya no baila con el largo del nombre.
+     2026-10-22: el ×N salió al margen (pastilla única) y el icono de vista (⊞ / ▭) se quitó: tocar el nombre sigue
+     abriendo o plegando la sección. La columna queda en 32 px, solo el nombre girado (se lee de abajo arriba).
      El nombre va en position:absolute para no estirar la fila: fitLive() le ajusta la letra (17 → 12 px) al alto
      de su fila y, solo si ni así cabe, alarga la fila lo justo. */
   body.live .secname,body.live .secrow.compact .secname{writing-mode:horizontal-tb;transform:none;position:relative;
-    flex-direction:column;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:3px;width:60px;min-width:60px;
-    padding:5px 6px 5px 30px;font-size:17px;letter-spacing:.02em;line-height:1;text-align:center}
-  body.live .secname .tname,body.live .secrow.compact .secname .tname{position:absolute;left:3px;top:5px;bottom:5px;width:24px;
+    flex-direction:column;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:3px;width:32px;min-width:32px;
+    padding:5px 0;font-size:17px;letter-spacing:.02em;line-height:1;text-align:center}
+  body.live .secname .tname,body.live .secrow.compact .secname .tname{position:absolute;left:4px;top:5px;bottom:5px;width:24px;
     writing-mode:vertical-rl;transform:rotate(180deg);max-width:none;max-height:none;overflow:hidden;white-space:nowrap;
     text-align:center;line-height:24px}
-  body.live .secname .vmark{order:5;margin-top:auto;font-size:15px;line-height:1}
-  body.live .secname .lhmark{order:4;margin-top:0;font-size:13px}
-  body.live .secname .passmark{position:absolute;right:2px;bottom:3px;margin:0;z-index:1;font-size:11px;padding:1px 4px}
+  body.live .secname .vmark{display:none}
+  body.live .secname .lhmark{position:absolute;left:0;right:0;bottom:4px;margin:0;font-size:13px;z-index:1}
+  body.live .secname .passmark{position:absolute;left:1px;right:1px;bottom:3px;margin:0;z-index:1;font-size:11px;padding:1px 0;text-align:center}
   body.live .secrow.on .secname{box-shadow:inset 0 0 0 2px var(--ink),inset -4px 0 0 0 var(--ink)}
-  /* columna izquierda: margen del corchete + nombre; en las secciones abiertas, ▷ y ▭ van DEBAJO del nombre
+  /* columna izquierda: solo el nombre (las repeticiones van a la derecha); en las secciones abiertas, ▷ va DEBAJO del nombre
      (no en otra columna), así los diagramas empiezan donde los acordes de la vista simple */
-  body.live .secleft{display:grid;grid-template-columns:38px 60px;grid-template-rows:minmax(0,1fr) auto}
-  body.live .secgut{grid-row:1/3;grid-column:1}
-  body.live .secname{grid-row:1;grid-column:2}
-  body.live .secctl{grid-row:2;grid-column:2;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;padding:4px 0;border-right:none}
+  body.live .secleft{display:grid;grid-template-columns:32px;grid-template-rows:minmax(0,1fr) auto}
+  body.live .secname{grid-row:1;grid-column:1}
+  body.live .secctl{grid-row:2;grid-column:1;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;padding:4px 0;border-right:none}
   /* el ▭ de debajo del nombre repetía lo que hace el icono de vista del propio nombre: en el directo solo queda ▷ */
   body.live .secctl .scbtn[data-viewsec]{display:none}
-  /* el ×N de la sección, bajo su nombre (el de detrás del último acorde no se muestra en el directo) */
-  .lrepn{display:none}
-  body.live .lrepn{display:block;flex:none;order:1;font:900 19px/1 var(--font-d);font-stretch:85%;color:var(--accent-t);letter-spacing:0;white-space:nowrap}
-  body.live .secrow[data-c] .lrepn{color:inherit}
+  body.live .secctl .scbtn{padding:3px 5px}
   body.live .secbody{flex-direction:row;flex-wrap:wrap;align-items:flex-start;align-content:flex-start}
   body.live .secbody>.varnote{flex-basis:calc(100% - 20px)}
   body.live .slots,body.live .secrow.compact .slots{flex:0 1 auto;min-width:0;min-height:0;padding:5px 10px 4px}
   body.live .slots{gap:6px}
-  body.live .secrep.big{display:none}
   body.live .secnote,body.live .secrow.compact .secnote{align-self:center;margin:4px 10px;padding:3px 10px;min-height:0;font-size:16px;line-height:1.3}
   body.live .secrow.noslots .secbody{justify-content:flex-start;align-items:center}
   body.live .secrow.noslots .noterow{margin:5px 10px}
@@ -1216,11 +1231,11 @@
     <li><b>Tonalidad:</b> haz clic en cualquier nota gris del círculo para elegir la tonalidad. El anillo exterior fija una tonalidad <b>mayor</b> (y desactiva «ver como menor» si estaba puesta) y el anillo medio fija una tonalidad <b>menor</b>. Los acordes de la escala se colorean por grado (I, ii, iii…).</li>
     <li><b>Voicings:</b> haz clic en un acorde coloreado (círculo o paleta) para ver acorde abierto, cejillas, quintas rock, tríadas con inversiones y una fila de <b>tensiones · sus · jazz</b> (sus2, sus4, maj7, m7, 6, add9, 9, 13…). Clic en un diagrama = escucharlo. Los puntos indican la función de cada nota: <b class="hlchip" style="background:var(--r1)">1 = fundamental</b>, <b class="hlchip" style="background:var(--r3)">3 = tercera</b>, <b class="hlchip" style="background:var(--r5)">5 = quinta</b>, <b class="hlchip" style="background:var(--r7)">7 = séptima</b> — también en las cuerdas al aire.</li>
     <li><b>Progresión:</b> arrastra acordes a una sección, o usa «<i data-ic="plus"></i> añadir» (va a la sección activa, la que lleva el nombre enmarcado). «×N» abre la duración: compases (1·2·3·4·6·8) o tiempos (½·1·2·3); con «<i data-ic="plus"></i>» se suman (1 compás + 2 tiempos = 1½). La ficha <b>N.C.</b> del final de la paleta es un silencio que corta el sonido (la batería sigue o para). Las barras | separan compases; si un acorde empieza o acaba a mitad de compás, una <b>raya discontinua</b> dentro de su tarjeta marca dónde cae la barra, y si una sección no cierra en compases enteros, su último compás es <b>corto</b> (p. ej. «compás de 2t», como un 2/4): la batería y el metrónomo lo respetan y la sección siguiente empieza en el «1». <i data-ic="corner-down-left"></i> salta a la siguiente línea para ordenar los acordes como frases musicales. <i data-ic="copy"></i> duplica un acorde o una sección y <i data-ic="corner-right-down"></i> fusiona una sección con la siguiente. La <b>vista simple</b> muestra cada acorde superdenso: grado y duración a la izquierda y el nombre bien grande. La canción tiene <b>dos vistas</b> — «simple» (chuleta) y «diagramas» — y el botón <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> de la cabecera cambia entre ellas. El <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> de cada fila abre o pliega solo esa sección <b>dentro de la vista actual</b>, y cada vista recuerda ese estado por separado: encoge las partes que ya te sabes y deja con diagramas las difíciles.</li>
-    <li><b>Canción completa:</b> cada sección es una fila con su nombre en vertical (clic = activar, <i data-ic="pencil"></i> o doble clic = renombrar, arrastra el nombre = reordenar) y sus botones al lado: <i data-ic="play"></i> la toca — con el <b>bucle encendido</b> repite esa sección sola una y otra vez; con el <b>bucle apagado</b> arranca ahí y sigue con el resto de la canción —, <i data-ic="palette"></i> le pone un <b>color de fondo</b> — p. ej. amarillo al solo, para localizarlo de un vistazo; se ve también en el directo y en las imágenes exportadas —, <i data-ic="copy"></i> duplica, <i data-ic="x"></i> elimina y <i data-ic="sticky-note"></i> añade una nota para el directo. El «×N» grande al final de la fila repite la sección hasta 12 veces sin duplicarla. Y en el <b>margen izquierdo</b>, arrastrando de arriba abajo por la franja estrecha, marcas un <b>corchete rojo</b> que repite un <b>bloque entero de secciones</b> (p. ej. Intro-Verso-Coro ×2): clic en el «×2» rojo sube las repeticiones, Mayús+clic las baja y en «×2» quita el corchete. Las secciones nuevas se crean justo detrás de la sección activa. Si la sección no tiene acordes, la nota se muestra en grande.</li>
+    <li><b>Canción completa:</b> cada sección es una fila con su nombre en vertical (clic = activar, <i data-ic="pencil"></i> o doble clic = renombrar, arrastra el nombre = reordenar) y sus botones al lado: <i data-ic="play"></i> la toca — con el <b>bucle encendido</b> repite esa sección sola una y otra vez; con el <b>bucle apagado</b> arranca ahí y sigue con el resto de la canción —, <i data-ic="palette"></i> le pone un <b>color de fondo</b> — p. ej. amarillo al solo, para localizarlo de un vistazo; se ve también en el directo y en las imágenes exportadas —, <i data-ic="copy"></i> duplica, <i data-ic="x"></i> elimina y <i data-ic="sticky-note"></i> añade una nota para el directo. Las repeticiones van todas en la <b>columna de la derecha</b>, justo detrás de los acordes, y con la misma <b>pastilla roja «×N»</b>: pegada al último acorde, la de la <b>sección</b> (la repite hasta 12 veces sin duplicarla; el «×1» tenue sirve para darle vueltas); por fuera, sobre un <b>corchete rojo</b>, la de un <b>bloque entero de secciones</b>, que marcas arrastrando de arriba abajo por esa columna (p. ej. Intro-Verso-Coro ×2). Clic en la pastilla sube las repeticiones, Mayús+clic las baja y, en un bloque ×2, quita el corchete. Las secciones nuevas se crean justo detrás de la sección activa. Si la sección no tiene acordes, la nota se muestra en grande.</li>
     <li><b>Escuchar:</b> todos los controles de reproducción viven en la barra inferior. <i data-ic="play"></i> (o barra espaciadora) toca toda la canción; el <i data-ic="play"></i> de cada sección toca solo esa parte, ideal para estudiar. TAP marca el tempo con clics, «cuenta de entrada» da un compás de claqueta y la batería se enciende con su casilla. La <b>guitarra</b> da un rasgueo completo al empezar cada acorde y, en cada tiempo siguiente mientras dure, un golpe en <b>palm mute</b> (las 3 cuerdas graves, corto y apagado); un acorde de ½ o 1 tiempo solo lleva el rasgueo, y cada golpe corta lo que sonaba en esa cuerda. <b>ataque</b> controla la velocidad del rasgueo (izquierda = todas las notas a la vez) y <b>sustain</b> la caída máxima del rasgueo inicial. En <i data-ic="sliders-horizontal"></i> mezcla ajustas el volumen de acordes, batería y metrónomo por separado. También suenan las notas del diapasón al hacer clic. La tarjeta que suena se ilumina; con <b>resaltar</b> eliges si se ilumina <b>cada acorde</b> o <b>solo la sección</b> entera — en directo, si la banda no va clavada al clic del tempo, saber la sección es más fiable que el acorde exacto. Este ajuste se recuerda en el dispositivo, para todas las canciones.</li>
     <li><b>Batería y energía por sección:</b> en el panel de ritmo eliges el <b>estilo</b> de la canción (rock, pop 80, rock rápido (movida), medio tiempo, balada, rumba, ska, funk o vals en 3/4); se guarda con ella. <b><i data-ic="play"></i> oír el estilo</b> toca un compás de cada nivel y luego el redoble y el final. Cada estilo tiene <b>4 niveles de energía</b> — 1 suave (charles o aro) · 2 verso · 3 estribillo (crash y charles abierto) · 4 clímax (ride o bombo doblado) — y la app elige el nivel <b>por el nombre de cada sección</b> (en inglés o en castellano; «Verse 2» cuenta como «Verse»): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3; un nombre desconocido toma el de la sección anterior. Cuando la sección siguiente cambia de nivel suena un <b>redoble</b> en el último compás, y si sube a 3 o 4 entra con <b>crash</b>; en las repeticiones (×N o corchete rojo) el redoble va solo en la última vuelta. Con el bucle apagado, la canción acaba con redoble y <b>golpe final</b>. Para forzarlo a mano, pasa el ratón por una sección: asoma un <b><i data-ic="zap"></i></b> tenue al final de sus botones; su panel elige nivel (auto · — · 1–4) y redoble al final (auto · sí · no). No se ve en el directo ni en las imágenes. Un <b>N.C.</b> (silencio) puede dejar la batería sonando o pararla.</li>
-    <li><b>Modo directo:</b> el botón <b><i data-ic="monitor-play"></i> directo</b> abre la vista de escenario: solo la canción, con botones grandes — <i data-ic="skip-back"></i> <i data-ic="skip-forward"></i> o un <b>deslizamiento lateral con el dedo</b> (al entrar, una mano animada te recuerda el gesto hasta que lo uses una vez) cambian de canción siguiendo el set activo — o, si no hay set, el orden de tu biblioteca, <i data-ic="play"></i> toca, <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> alterna entre vista simple y vista diagramas, <i data-ic="maximize"></i> pantalla completa y <i data-ic="x"></i> (o Esc) sale. En el directo, <b>toca el nombre de una sección</b> para abrirla con diagramas dentro de la vista simple, o plegarla a simple dentro de la vista diagramas (el iconito bajo el nombre indica qué hará el toque); las secciones abiertas con diagramas muestran además sus botones <i data-ic="play"></i> (tocar solo esa parte) y <i data-ic="rectangle-horizontal"></i> (replegarla), y las simples quedan limpias. <b>Cada vista recuerda qué secciones dejaste abiertas o plegadas, canción por canción</b>, aunque cambies de tema en pleno set. Mientras suena, la sección en curso queda enmarcada en azul y la pantalla la sigue sola. Las partes sin acordes (un solo, una intro hablada…) <b>duran ×N compases</b> en la reproducción — toca su ×N (sale siempre, aunque la sección esté vacía) y elige de 1 a 16, 20, 24 o 32 compases, o ajusta de uno en uno con −1/+1 (— las salta).</li>
-    <li><b>Directo con repeticiones que cambian (ocultar y anotar):</b> cuando una parte vuelve <b>casi igual</b> (Verso-Coro-Puente otra vez, pero con un corte o un final distinto), escribe la canción entera en modo normal para ensayarla tal cual y después aligera el directo: <b>① Ocultar:</b> el botón <b><i data-ic="eye"></i></b> de cada sección (junto al <i data-ic="palette"></i>) la oculta <b>solo en el directo</b> — pasa a <i data-ic="eye-off"></i> y su nombre se atenúa; en modo normal la sigues viendo y <b>al reproducir suena igual</b>, porque ocultar solo afecta a lo que ves. En el directo, el botón <b><i data-ic="eye-off"></i></b> de la barra de abajo (solo aparece si la canción tiene secciones ocultas) las enseña un momento, semitransparentes; al volver a entrar al directo quedan ocultas otra vez. <b>② Anotar:</b> en el directo, arrastra por el margen izquierdo de arriba abajo para dibujar un <b>corchete discontinuo «×2~»</b>: es un <b>recordatorio</b> de que ese bloque vuelve con variaciones y <b>no cambia lo que suena</b> (el corchete rojo continuo, que se dibuja en modo normal, sí repite de verdad). Toca el «×2~» para pasar a ×3, ×4 y, al siguiente toque, quitarlo. No puede pisar un corchete real (gana el real). Las anotaciones se guardan solas en la canción de la biblioteca — sin marcarla como «sin guardar» —, siempre que la canción esté guardada al menos una vez; en modo normal se ven tenues. <b>③ Al reproducir:</b> cuando suena una sección oculta, se ilumina la sección visible a la que corresponde con la marca <b>«2ª»</b>, el corchete muestra la vuelta («2/2~») y, si la oculta tiene nota, aparece encima (p. ej. «2ª · corte en el compás 4») — así las variaciones siguen a la vista sin ocupar sitio. La pareja se busca entre las ocultas que van <b>dentro del corchete o justo detrás</b>: primero por nombre («Verso 2», «Verso II» o «Verso (bis)» van con «Verso») y, si los nombres no coinciden, por orden cuando las cuentas cuadran. Si una oculta no tiene pareja, en su sitio se enciende una <b>barra de luz</b> fina con su nombre. Los corchetes rojos también muestran la vuelta en curso («1/2», «2/2»). <b>④ Tira de progreso:</b> encima de los botones del directo, una tira con un tramo por sección — también las ocultas, rayadas — te enseña la canción entera: lo ya tocado se atenúa y el tramo actual va en azul.</li>
+    <li><b>Modo directo:</b> el botón <b><i data-ic="monitor-play"></i> directo</b> abre la vista de escenario: solo la canción, con botones grandes — <i data-ic="skip-back"></i> <i data-ic="skip-forward"></i> o un <b>deslizamiento lateral con el dedo</b> (al entrar, una mano animada te recuerda el gesto hasta que lo uses una vez) cambian de canción siguiendo el set activo — o, si no hay set, el orden de tu biblioteca, <i data-ic="play"></i> toca, <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> alterna entre vista simple y vista diagramas y <i data-ic="x"></i> (o Esc) sale. La barra del título queda fija arriba. En el directo, <b>toca el nombre de una sección</b> para abrirla con diagramas dentro de la vista simple, o plegarla a simple dentro de la vista diagramas ; las secciones abiertas con diagramas muestran además su botón <i data-ic="play"></i> (tocar solo esa parte), y las simples quedan limpias. <b>Cada vista recuerda qué secciones dejaste abiertas o plegadas, canción por canción</b>, aunque cambies de tema en pleno set. Mientras suena, la pantalla baja (o sube) sola para dejar arriba la sección que suena, y la sección en curso queda enmarcada en azul y la pantalla la sigue sola. Las partes sin acordes (un solo, una intro hablada…) <b>duran ×N compases</b> en la reproducción — toca su ×N (sale siempre, aunque la sección esté vacía) y elige de 1 a 16, 20, 24 o 32 compases, o ajusta de uno en uno con −1/+1 (— las salta).</li>
+    <li><b>Directo con repeticiones que cambian (ocultar y anotar):</b> cuando una parte vuelve <b>casi igual</b> (Verso-Coro-Puente otra vez, pero con un corte o un final distinto), escribe la canción entera en modo normal para ensayarla tal cual y después aligera el directo: <b>① Ocultar:</b> el botón <b><i data-ic="eye"></i></b> de cada sección (junto al <i data-ic="palette"></i>) la oculta <b>solo en el directo</b> — pasa a <i data-ic="eye-off"></i> y su nombre se atenúa; en modo normal la sigues viendo y <b>al reproducir suena igual</b>, porque ocultar solo afecta a lo que ves. En el directo, el botón <b><i data-ic="eye-off"></i></b> de la barra de abajo (solo aparece si la canción tiene secciones ocultas) las enseña un momento, semitransparentes; al volver a entrar al directo quedan ocultas otra vez. <b>② Anotar:</b> en el directo, arrastra por la columna de la derecha de arriba abajo para dibujar un <b>corchete discontinuo «×2~»</b>: es un <b>recordatorio</b> de que ese bloque vuelve con variaciones y <b>no cambia lo que suena</b> (el corchete rojo continuo, que se dibuja en modo normal, sí repite de verdad). Toca el «×2~» para pasar a ×3, ×4 y, al siguiente toque, quitarlo. No puede pisar un corchete real (gana el real). Las anotaciones se guardan solas en la canción de la biblioteca — sin marcarla como «sin guardar» —, siempre que la canción esté guardada al menos una vez; en modo normal se ven tenues. <b>③ Al reproducir:</b> cuando suena una sección oculta, se ilumina la sección visible a la que corresponde con la marca <b>«2ª»</b>, el corchete muestra la vuelta («2/2~») y, si la oculta tiene nota, aparece encima (p. ej. «2ª · corte en el compás 4») — así las variaciones siguen a la vista sin ocupar sitio. La pareja se busca entre las ocultas que van <b>dentro del corchete o justo detrás</b>: primero por nombre («Verso 2», «Verso II» o «Verso (bis)» van con «Verso») y, si los nombres no coinciden, por orden cuando las cuentas cuadran. Si una oculta no tiene pareja, en su sitio se enciende una <b>barra de luz</b> fina con su nombre. Al sonar, la pastilla ×N de la sección o del bloque se pone azul y muestra la vuelta en curso («1/2», «2/2»), y la tira de abajo marca cada vuelta. <b>④ Tira de progreso:</b> encima de los botones del directo, una tira con un tramo por sección — también las ocultas, rayadas — te enseña la canción entera: lo ya tocado se atenúa y el tramo actual va en azul.</li>
     <li><b>Pedal pasapáginas:</b> en el directo sirven los pedales-teclado (pasapáginas Bluetooth) y el propio teclado: <b>Av Pág / Re Pág o las flechas ← →</b> cambian de canción y la barra espaciadora toca / para.</li>
     <li><b>Diapasón y licks:</b> el diapasón usa siempre la <b>tónica de la canción</b>. Cada nota son dos cajas: la <b>nota</b> (blanca, fija) y su <b>grado</b> (de color, contado desde la tónica). Un <b>clic</b> hace sonar la nota; con <b>doble clic</b> esa nota pasa a ser la tónica (<b>modular</b>): los grados cambian, las notas no, y junto a la pantallita aparece «modulado» con una × para volver. Con <b>escala</b> ves solo sus notas y con <b>acorde</b> resaltas su arpegio; «el que suena» lo va cambiando mientras reproduces la canción. Debajo, la <b>regla de semitonos</b> enseña la escala casilla a casilla (1 casilla = ½ tono = 1 traste) y el salto entre notas: T o ½. En el <b>editor de licks</b> dibujas en la rejilla («pos» = traste de la primera fila); cada nota lleva su grado. Botones: nota, secundaria, <b>→ flecha</b>, <b>sl</b> slide, <b>h</b> hammer-on y <b>p</b> pull-off (toca dos notas), <b>bnd</b> bend (toca una nota: ½, 1 o 1½ tono) y <b>▭ agrupar</b> (toca las notas y pulsa «cerrar grupo»). <b>Arrastra una nota para moverla</b>, borra con <b>doble clic</b> cualquier cosa del dibujo (nota, flecha, slide, bend o grupo) y deshaz el dibujo con <i data-ic="undo-2"></i> o Ctrl+Z. Con <b><i data-ic="plus"></i></b> el diagrama va a la sección activa; toca un diagrama en la canción para reabrirlo en el editor y «<i data-ic="check"></i> actualizar»lo, o quítalo con su ×.</li>
     <li><b>Canciones:</b> el nombre de la canción y la tonalidad están siempre en la barra superior; el punto naranja avisa de cambios sin guardar (verde = guardada). Pulsa <b>Guardar</b> o Ctrl+S; <b>doble clic en el título</b> de la progresión la renombra. La pestaña de la canción abre el <b>panel lateral «Canciones»</b> (Esc o <i data-ic="x"></i> lo cierra), con el nombre de la canción actual y Guardar arriba, y dos pestañas: <b>SET</b> — eliges el set (o «♪ todas las canciones»), creas, renombras o borras sets, ves solo sus canciones en orden, las ordenas arrastrando <i data-ic="grip-vertical"></i> y un clic carga la canción — y <b>BIBLIOTECA</b> — tus canciones en <b>carpetas</b> (un solo nivel) que se abren y cierran con un clic y recuerdan cómo las dejaste; el buscador abre las carpetas que tienen coincidencias y la ✓ marca las canciones del set activo. Arrastrar una canción a otra carpeta la mueve allí. Cada fila es siempre una sola línea: nº · nombre · tono · bpm. Si cambias de canción con cambios pendientes, la app pregunta antes. <b>Deshacer y rehacer:</b> botones <i data-ic="undo-2"></i> <i data-ic="redo-2"></i> de la barra inferior (en la tableta) o Ctrl+Z / Ctrl+Y, para cualquier cambio en la progresión. El botón <i data-ic="sun-moon"></i> cambia entre tema automático, claro y oscuro.</li>
@@ -1266,6 +1281,11 @@
       </div>
       <div class="tprow" title="Qué se ilumina mientras suena: cada acorde, o solo la sección entera — en directo, si la banda no va clavada al clic, la sección es más fiable que el acorde exacto"><b>resaltar</b>
         <select id="hlmode"><option value="chord" selected>cada acorde</option><option value="sec">solo la sección</option></select>
+      </div>
+      <div class="tprow" title="En el modo directo, aunque NO le des a reproducir, la pantalla va bajando sola, sección a sección, desde que la canción sale en pantalla. «Al tempo» usa los compases y las repeticiones de cada sección con el tempo de la canción; «cada N s» da el mismo tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca la sección que suena en la tira de abajo y sigue desde ahí. Vale para todas las canciones de este aparato."><b>avance</b>
+        <select id="autoadv"><option value="">solo al reproducir</option><option value="tempo">sin reproducir · al tempo</option>
+          <option value="10">sin reproducir · cada 10 s</option><option value="15">sin reproducir · cada 15 s</option><option value="20">sin reproducir · cada 20 s</option>
+          <option value="30">sin reproducir · cada 30 s</option><option value="45">sin reproducir · cada 45 s</option><option value="60">sin reproducir · cada 60 s</option></select>
       </div>
       <div class="tswrow">
         <label class="tpill tsw"><input type="checkbox" id="countin"><span>cuenta de entrada</span></label>
@@ -1320,7 +1340,6 @@
     <button class="lbtn" id="lnext" title="Canción siguiente del set"><i data-ic="skip-forward"></i></button>
     <button class="lbtn" id="lview" title="Vista simple / diagramas"><i data-ic="rectangle-horizontal"></i></button>
     <button class="lbtn sm" id="lhid" title="Ver también las secciones ocultas" hidden><i data-ic="eye-off"></i></button>
-    <button class="lbtn sm" id="lfull" title="Pantalla completa"><i data-ic="maximize"></i></button>
   </div>
 </div>
 
@@ -1598,35 +1617,57 @@ function getVoicings(ch){
 /* ════════ diagramas SVG ════════ */
 /* trastes con marcador (punto) en el mástil real — para orientarse como en la guitarra */
 const INLAY_FRETS=[3,5,7,9,12,15,17,19,21,24];
-function chordSVG(v,cls,ghost){
+/* ── diagramas cortos (2026-10-22): en las secciones, cada diagrama enseña solo los trastes que hacen falta ──
+   · Cuántos: los del acorde que más se estira DENTRO de la sección (de 2 a 5). Todos los de una sección miden
+     lo mismo: la fila la marca el más alto, así que recortar uno solo no ahorraría nada y descuadraría la fila.
+   · Cada traste mide lo mismo que en el diagrama de 5: se recorta, no se encoge (las formas se ven igual).
+   · Dónde empieza: en la cejuela si el acorde tiene cuerdas al aire o empieza en el traste 1; si no, en su
+     traste más bajo, con el número al lado (como hoy en los acordes de arriba del mástil). Así una cejilla
+     en el traste 3 ocupa 3 trastes y no 5.
+   · La biblioteca de voicings sigue con 5 trastes (allí se comparan formas). */
+function dgBase(F,played,crop){
+  if(!played.length)return 1;
+  const mx=Math.max(...played),mn=Math.min(...played);
+  if(!crop)return mx>5?mn:1;
+  if(mx<=3||mn<=1||F.some(f=>f===0))return mx>5?mn:1; /* al aire, en el traste 1 o en la primera posición: desde la cejuela */
+  return mn;
+}
+function vFrets(v){
+  const F=(v&&v.frets)||[],pl=F.filter(f=>f>0);if(!pl.length)return 1;
+  return Math.max(...pl)-dgBase(F,pl,true)+1;
+}
+function secFrets(sec){
+  let n=2;(sec&&sec.slots||[]).forEach(sl=>{if(sl&&!sl.nc&&sl.voicing)n=Math.max(n,vFrets(sl.voicing));});
+  return Math.min(5,n);
+}
+function chordSVG(v,cls,ghost,nf){
   const F=v.frets,R=v.roles;
   const played=F.concat(ghost||[]).filter(f=>f>0); /* con forma en tenue, la ventana la incluye entera */
-  let base=1;
-  if(played.length&&Math.max(...played)>5)base=Math.min(...played);
-  const L=26,T=27,W=85,H=95,cw=W/5,rh=H/5;
-  let s='<svg class="'+cls+'" viewBox="0 0 124 136" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="diagrama de acorde">';
+  const N=nf||5,base=dgBase(F,played,!!nf);
+  const L=26,T=27,W=85,cw=W/5,rh=19,H=rh*N;
+  let s='<svg class="'+cls+'" viewBox="0 0 124 '+(T+H+14)+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="diagrama de acorde">';
   /* banda gris neutra en los trastes 3·5·7·9·12… (el 12/24 más marcada, como el doble punto):
      no compite con los colores de los intervalos ni con el color de la sección */
-  for(let row=1;row<=5;row++){
+  for(let row=1;row<=N;row++){
     const fr=base+row-1;
     if(INLAY_FRETS.includes(fr))
       s+='<rect x="'+L+'" y="'+(T+(row-1)*rh)+'" width="'+W+'" height="'+rh+'" fill="'+(fr%12===0?'var(--inlay12)':'var(--inlay)')+'"/>';
   }
   for(let i=0;i<6;i++){const x=L+i*cw;
     s+='<line x1="'+x+'" y1="'+T+'" x2="'+x+'" y2="'+(T+H)+'" stroke="var(--dgline)" stroke-width="1.1"/>';}
-  for(let j=0;j<=5;j++){const y=T+j*rh;
+  for(let j=0;j<=N;j++){const y=T+j*rh;
     s+='<line x1="'+L+'" y1="'+y+'" x2="'+(L+W)+'" y2="'+y+'" stroke="var(--dgline)" stroke-width="1.1"/>';}
   if(base===1)s+='<rect x="'+(L-1.2)+'" y="'+(T-3.4)+'" width="'+(W+2.4)+'" height="4" rx="1.6" fill="var(--ink)"/>';
   else s+='<text x="'+(L-17)+'" y="'+(T+rh*0.5+5)+'" font-size="14.5" font-weight="bold" fill="var(--ink)" text-anchor="middle" font-family="IBM Plex Mono,Consolas,monospace">'+base+'</text>';
   /* número de traste junto a cada banda gris (3·5·7·9·12…): segunda referencia para ubicar el acorde en el mástil */
-  for(let row=1;row<=5;row++){const fr=base+row-1;
+  for(let row=1;row<=N;row++){const fr=base+row-1;
     if(INLAY_FRETS.includes(fr)&&!(row===1&&base>1))
       s+='<text x="'+(L-17)+'" y="'+(T+(row-0.5)*rh+4.5)+'" font-size="12.5" font-weight="700" fill="var(--mut2)" text-anchor="middle" font-family="IBM Plex Mono,Consolas,monospace">'+fr+'</text>';}
   /* tríadas: el resto de su forma CAGED en círculos huecos tenues (no se tocan en la tríada); el × queda solo
      en las cuerdas que no entran ni en la tríada ni en su forma */
   if(ghost)ghost.forEach((g,i)=>{if(g<0||F[i]>=0)return;const x=L+i*cw;
     if(g===0){s+='<circle cx="'+x+'" cy="'+(T-11)+'" r="6" fill="none" stroke="var(--mut)" stroke-width="1.4" opacity=".6"/>';return;}
-    const row=g-base+1;if(row<1||row>5)return;
+    const row=g-base+1;if(row<1||row>N)return;
     s+='<circle cx="'+x+'" cy="'+(T+(row-0.5)*rh)+'" r="7.6" fill="none" stroke="var(--mut)" stroke-width="1.4" opacity=".6"/>';});
   F.forEach((f,i)=>{const x=L+i*cw;
     if(f<0){if(!(ghost&&ghost[i]>=0))s+='<text x="'+x+'" y="'+(T-8)+'" font-size="11" fill="var(--mut)" text-anchor="middle" font-weight="bold">×</text>';}
@@ -1635,7 +1676,7 @@ function chordSVG(v,cls,ghost){
         s+='<circle cx="'+x+'" cy="'+(T-11)+'" r="7" fill="'+col+'" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>';
         s+='<text x="'+x+'" y="'+(T-8)+'" font-size="'+(role.length>1?7:8.5)+'" font-weight="800" fill="#151514" text-anchor="middle" font-family="Archivo,Segoe UI,sans-serif">'+role+'</text>';
       }else{s+='<circle cx="'+x+'" cy="'+(T-11)+'" r="4" fill="none" stroke="var(--ink)" stroke-width="1.4"/>';}}
-    else{let row=f-base+1;if(row<1)row=1;if(row>5)row=5;
+    else{let row=f-base+1;if(row<1)row=1;if(row>N)row=N;
       const y=T+(row-0.5)*rh, role=R[i]||'1', col=ROLE_COLORS[role]||'var(--ink)';
       s+='<circle cx="'+x+'" cy="'+y+'" r="8.2" fill="'+col+'" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>';
       s+='<text x="'+x+'" y="'+(y+3.2)+'" font-size="'+(role.length>1?8:9.5)+'" font-weight="800" fill="#151514" text-anchor="middle" font-family="Archivo,Segoe UI,sans-serif">'+role+'</text>';}
@@ -1647,7 +1688,7 @@ function chordSVG(v,cls,ghost){
 let S={key:2,minorView:false,tempo:90,ts:4,metro:true,drums:'rock',drumsOn:true,loop:true,vol:0.8,countIn:false,
   attack:0.02,sustain:1.7,viewMode:'diag',volChords:0.9,volDrums:0.85,volMetro:0.5,
   selChord:null,sections:[{name:'Sección A',slots:[],note:''}],groups:[],active:0,songName:'',songId:null,
-  fbTonic:null,fbArp:'',fbScale:''};
+  fbTonic:null,fbArp:'play',fbScale:'key'};
 let PALETTE=[],TRICKLIST=[],VOICINGS=[],dragPayload=null;
 
 const PRESETS=[
@@ -2156,7 +2197,7 @@ function slotHTML(sl,si,ei,mids){
     '<div class="sl-top"><span class="sl-deg '+txtOn(sl.chord.degNum)+'" style="background:'+sl.chord.color+'">'+esc(sl.chord.deg)+'</span>'+
     '<span class="sl-name">'+esc(sl.voicing.disp||sl.chord.label)+'</span>'+
     '<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">'+ICO('copy')+'</button><button class="sl-x" title="Quitar">'+ICO('x')+'</button></div>'+
-    chordSVG(sl.voicing,'dg-sm')+
+    chordSVG(sl.voicing,'dg-sm',null,secFrets(S.sections[si]))+
     '<div class="sl-bot">'+mc+
     '<span class="sl-v">'+esc(sl.voicing.vname)+'</span>'+
     brb+'</div></div>';
@@ -2450,8 +2491,6 @@ function renderSections(){
         const falta=rnd(S.ts-resto);
         inner+='<span class="barwarn" title="Esta sección suma '+esc(beatsWord(bm.total))+': su último compás es corto, de '+esc(beatsWord(resto))+(Number.isInteger(resto)?' (como un '+resto+'/4)':'')+'. La batería y el metrónomo lo respetan y la sección siguiente empieza en el «1». Si no es a propósito, '+(falta<=1?'falta ':'faltan ')+esc(beatsWord(falta))+'.">compás de '+numTxt(resto)+'t</span>';
       }
-      const reps=sec.repeat||1;
-      inner+='<button class="secrep'+(reps>1?' big':'')+'" data-rep="'+si+'" title="La sección se toca '+reps+(reps===1?' vez':' veces')+' — clic para cambiar (1–12) · Mayús+clic para bajar">×'+reps+'</button>';
     }
     const showNote=!!(sec.note&&sec.note.trim())||!!sec.noteOpen||(!sec.slots.length&&!!(sec.licks&&sec.licks.length));
     const noteArea='<textarea class="secnote" data-si="'+si+'" rows="1" placeholder="notas para el directo: solo de guitarra, dinámica…">'+esc(sec.note||'')+'</textarea>';
@@ -2471,7 +2510,7 @@ function renderSections(){
         (lk.name?'<figcaption>'+esc(lk.name)+'</figcaption>':'')+lickCapHTML(lk)+
         '</figure>').join('')+'</div>';
     }
-    /* margen izquierdo: corchete del bloque repetido (y zona para crearlo arrastrando) */
+    /* columna de la derecha: corchete del bloque repetido (y zona para crearlo arrastrando) y ×N de la sección */
     const g=gmap[si],lg=lmap[si];
     /* extremos y ×N se calculan sobre las secciones VISIBLES (en el directo las ocultas no cuentan) */
     const G=g||lg,vis=[];
@@ -2483,14 +2522,20 @@ function renderSections(){
         :lg?'Anotación del directo: este bloque vuelve ×'+lg.repeat+' con variaciones (no cambia lo que suena)'
         :'Arrastra por aquí, de arriba abajo, para repetir un bloque de secciones (en el directo: para anotar que se repite con variaciones)')+'">';
     if(g&&si===vMid)
-      gut+='<button class="grep" data-grep="'+si+'" data-def="×'+g.repeat+'" title="El bloque se toca '+g.repeat+' veces — clic para subir (hasta 12) · Mayús+clic para bajar · en ×2, Mayús+clic quita el corchete">×'+g.repeat+'</button>';
+      gut+='<button class="grep rqb'+(g.repeat>=10?' dd':'')+'" data-grep="'+si+'" data-n="'+g.repeat+'" title="El bloque se toca '+g.repeat+' veces — clic para subir (hasta 12) · Mayús+clic para bajar · en ×2, Mayús+clic quita el corchete">'+repHTML(g.repeat)+'</button>';
     if(lg&&si===vMid)
-      gut+='<button class="lrep" data-lrep="'+si+'" data-def="×'+lg.repeat+'~" title="Anotación: vuelve ×'+lg.repeat+' con variaciones — toca para cambiar (×2 → ×3 → ×4 → quitar)">×'+lg.repeat+'~</button>';
+      gut+='<button class="lrep rqb'+(lg.repeat>=10?' dd':'')+'" data-lrep="'+si+'" data-n="'+lg.repeat+'" title="Anotación: vuelve ×'+lg.repeat+'~ con variaciones — toca para cambiar (×2 → ×3 → ×4 → quitar)">'+repHTML(lg.repeat)+'</button>';
+    /* carril de dentro: el ×N de la sección (con acordes); ×1 tenue en edición para darle vueltas */
+    if(sec.slots.length){
+      const reps=sec.repeat||1;
+      if(reps>1)gut+='<span class="sbr" aria-hidden="true"></span>';
+      gut+='<button class="secrep rqb'+(reps>1?'':' ghost')+(reps>=10?' dd':'')+'" data-rep="'+si+'" data-n="'+reps+'" title="La sección se toca '+reps+(reps===1?' vez':' veces')+' — clic para cambiar (1–12) · Mayús+clic para bajar">'+repHTML(reps)+'</button>';
+    }
     gut+='</div>';
     const cpt=isCompact(sec);
     return '<div class="secrow'+(si===S.active?' on':'')+(cpt?' compact':'')+(!sec.slots.length?' noslots':'')+(sec.lh?' lhid':'')+'" data-si="'+si+'"'+(sec.lh?' data-nm="'+esc(sec.name)+'"':'')+(sec.color?' data-c="'+sec.color+'" style="--secc:var(--'+sec.color+')"':'')+'>'+
-      '<div class="secleft">'+gut+
-      '<div class="secname" data-selsec="'+si+'" draggable="true" role="button" tabindex="0" title="clic = sección activa · arrastra = reordenar · doble clic = renombrar · en directo: toca para plegar/abrir"><span class="tname">'+esc(sec.name)+'</span><span class="vmark">'+ICO(cpt?'grid-3x3':'rectangle-horizontal')+'</span>'+((sec.repeat||1)>1&&sec.slots.length?'<span class="lrepn">×'+sec.repeat+'</span>':'')+(sec.lh?'<span class="lhmark" title="Oculta en el modo directo">'+ICO('eye-off')+'</span>':'')+'</div>'+
+      '<div class="secleft">'+
+      '<div class="secname" data-selsec="'+si+'" draggable="true" role="button" tabindex="0" title="clic = sección activa · arrastra = reordenar · doble clic = renombrar · en directo: toca para plegar/abrir"><span class="tname">'+esc(sec.name)+'</span><span class="vmark">'+ICO(cpt?'grid-3x3':'rectangle-horizontal')+'</span>'+(sec.lh?'<span class="lhmark" title="Oculta en el modo directo">'+ICO('eye-off')+'</span>':'')+'</div>'+
       '<div class="secctl"><button class="scbtn playsec" data-playsec="'+si+'" title="'+(S.loop?'Toca esta sección sola, en bucle (el bucle está encendido)':'Empieza en esta sección y sigue hasta el final (el bucle está apagado)')+'">'+ICO('play')+'</button>'+
       '<button class="scbtn" data-viewsec="'+si+'" title="'+(cpt?'Abrir esta sección con diagramas (en esta vista)':'Plegar esta sección a vista simple (en esta vista)')+'">'+ICO(cpt?'grid-3x3':'rectangle-horizontal')+'</button>'+
       '<button class="scbtn" data-colorsec="'+si+'" title="Color de fondo de la sección — para localizar el solo, el estribillo… de un vistazo">'+ICO('palette')+'</button>'+
@@ -2502,7 +2547,7 @@ function renderSections(){
       (S.sections.length>1?'<button class="scbtn del" data-delsec="'+si+'" title="Eliminar sección">'+ICO('x')+'</button>':'')+
       lvBtnHTML(si)+
       '</div></div>'+
-      '<div class="secbody"><div class="slots" data-si="'+si+'">'+inner+'</div>'+noteHTML+lickHTML+'</div>'+
+      '<div class="secbody"><div class="slots" data-si="'+si+'">'+inner+'</div>'+noteHTML+lickHTML+'</div>'+gut+
       '</div>';
   }).join('');
   wrap.querySelectorAll('.secnote').forEach(autoGrow);
@@ -2564,6 +2609,7 @@ function alignSimple(){
    Se recalcula al redibujar las secciones y al girar la tableta. Fuera del directo lo deja todo como estaba. */
 function fitLive(){
   const prog=document.querySelector('.progress');if(!prog)return;
+  prog.classList.remove('rcfit');prog.style.removeProperty('--bodyw'); /* se mide a lo ancho; fitRepCol recorta luego */
   const live=document.body.classList.contains('live');
   document.querySelectorAll('#sections .secname').forEach(n=>{
     n.style.minHeight='';const t=n.querySelector('.tname');if(t)t.style.fontSize='';
@@ -2599,19 +2645,45 @@ function fitLive(){
   });
 }
 window.addEventListener('resize',()=>{clearTimeout(fitLive._t);fitLive._t=setTimeout(()=>{fitLive();positionReps();},150);});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(document.body.classList.contains('live'))fitLive();});
-/* coloca el ×N a la derecha de los acordes, centrado en vertical (aunque haya varias líneas) */
-function positionReps(){
-  document.querySelectorAll('#sections .slots').forEach(box=>{
-    const rep=box.querySelector('.secrep');
-    if(!rep)return;
-    const base=box.getBoundingClientRect().left;
-    let right=0;
-    box.querySelectorAll('.slot,.barline,.barwarn').forEach(el=>{
-      const r=el.getBoundingClientRect();
-      if(r.right>right)right=r.right;
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(document.body.classList.contains('live'))fitLive();positionReps();});
+/* pastilla ×N (2026-10-22): «×» arriba y la cifra abajo · al sonar, la vuelta arriba y «/total» abajo */
+function repHTML(n){return '<i>×</i><b>'+n+'</b>';}
+function repNowHTML(p,n){return '<b>'+p+'</b><i>/'+n+'</i>';}
+/* la pastilla de un bloque (corchete real o de anotación) va centrada en el alto de TODO el bloque, no de su fila */
+/* 2026-10-22: la columna de las repeticiones va a la DERECHA, pegada al final de las líneas de acordes.
+   Todas las filas miden lo que la línea más larga de la canción: así el corchete de un bloque sigue siendo
+   una raya continua y el ×N queda junto al último acorde, no al borde de la pantalla. No cambia cómo se
+   parten las líneas (cada fila ya cabía en ese ancho): solo quita el hueco sobrante de la derecha.
+   root: la canción (.progress) o la imagen del set (.xport). */
+function fitRepCol(root){
+  root=root||document.querySelector('#sections')&&document.querySelector('#sections').closest('.progress');if(!root)return;
+  root.classList.remove('rcfit');root.style.removeProperty('--bodyw');
+  const notes=root.classList.contains('xport')||document.body.classList.contains('live'); /* en edición la nota es un campo a todo lo ancho */
+  let w=0,full=0;
+  root.querySelectorAll('.secbody').forEach(bd=>{
+    if(!bd.offsetWidth)return;
+    const r=bd.getBoundingClientRect();full=Math.max(full,r.width);
+    bd.querySelectorAll('.slots>.slot,.slots>.barline,.slots>.barwarn,.noterow>*,.licks>.lickfig'+(notes?',.secbody>.secnote':'')).forEach(el=>{
+      const e=el.getBoundingClientRect();if(e.width)w=Math.max(w,e.right-r.left);
     });
-    rep.style.left=Math.max(0,Math.min(Math.round(right-base+8),box.clientWidth-84))+'px';
+  });
+  w=Math.ceil(w+12); /* el aire de la derecha de la fila */
+  if(!w||w>=full-2)return;
+  root.style.setProperty('--bodyw',w+'px');root.classList.add('rcfit');
+}
+function positionReps(){
+  fitRepCol();
+  document.querySelectorAll('#sections .grep,#sections .lrep').forEach(b=>{
+    const gut=b.parentNode,i=+gut.dataset.gut;
+    const G=b.classList.contains('grep')?groupOf(i):lgroupOf(i);if(!G)return;
+    let top=Infinity,bot=-Infinity;
+    for(let k=G.a;k<=G.b;k++){
+      const r=document.querySelector('#sections .secrow[data-si="'+k+'"]');
+      if(!r||!r.offsetHeight)continue;
+      const rc=r.getBoundingClientRect();top=Math.min(top,rc.top);bot=Math.max(bot,rc.bottom);
+    }
+    if(top===Infinity)return;
+    b.style.top=Math.round((top+bot)/2-gut.getBoundingClientRect().top)+'px';
   });
 }
 window.addEventListener('resize',()=>{clearTimeout(positionReps._t);positionReps._t=setTimeout(positionReps,120);});
@@ -3062,7 +3134,7 @@ function drumDemo(){
 }
 
 /* ════════ secuenciador ════════ */
-const play={on:false,beat:0,nextT:0,timer:null,evs:[],total:0,countIn:0,scope:null,solo:false,from:null,curSecMark:null};
+const play={on:false,beat:0,nextT:0,timer:null,evs:[],total:0,countIn:0,scope:null,solo:false,from:null,curSecMark:null,curRepMark:null};
 /* qué se resalta al reproducir: 'chord' = cada acorde, 'sec' = solo la sección entera
    (ajuste del dispositivo, no de la canción: en directo la banda no siempre va al clic) */
 let HLMODE='chord';
@@ -3263,6 +3335,7 @@ function updatePlayUI(){
 }
 function startPlay(scopeSi){
   ac();
+  advHalt(); /* la reproducción manda: la pantalla la sigue ella */
   stopDemo(); /* la muestra de batería y la canción no suenan a la vez */
   if(play.on)stopPlay();
   play.scope=(scopeSi==null?null:scopeSi);
@@ -3275,7 +3348,7 @@ function startPlay(scopeSi){
   play.evs=tl.evs;play.total=tl.total;
   if(!play.evs.length&&!S.metro&&!S.drumsOn){toast('Añade acordes o activa el metrónomo 😉');return;}
   play.countIn=S.countIn?S.ts:0;
-  play.on=true;play.beat=0;play.curSecMark=null;play.nextT=AC.currentTime+0.15;
+  play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.nextT=AC.currentTime+0.15;
   play.timer=setInterval(tick,25);
   updatePlayUI();
   if(!play.evs.length)toast('Sin acordes: suena solo el ritmo');
@@ -3284,7 +3357,7 @@ function startPlay(scopeSi){
   else if(S.loop&&!document.body.classList.contains('live'))toast('Canción entera en bucle 🔁 · para repetir solo una sección, usa su ▶');
 }
 function stopPlay(){
-  play.on=false;play.scope=null;play.solo=false;play.from=null;play.curSecMark=null;clearInterval(play.timer);
+  play.on=false;play.scope=null;play.solo=false;play.from=null;play.curSecMark=null;play.curRepMark=null;clearInterval(play.timer);
   document.querySelectorAll('.slot.playing').forEach(el=>el.classList.remove('playing'));
   clearPlayMarks();updateStrip(null);
   updatePlayUI();
@@ -3351,6 +3424,8 @@ function scheduleBeat(g,t){
   /* sección en curso: se ilumina la fila entera (también las partes sin acordes) */
   const cur=play.evs.find(ev=>rb>=ev.start-1e-6&&rb<ev.start+ev.dur-1e-6);
   if(cur&&cur.si!==play.curSecMark){play.curSecMark=cur.si;flashSec(cur.si,t,cur.gp,rb);}
+  /* vuelta del ×N de la sección: también cuando la MISMA sección vuelve a empezar */
+  if(cur){const k=cur.si+'|'+(cur.rp||0);if(k!==play.curRepMark){play.curRepMark=k;flashRep(cur.si,cur.rp||0,cur.rn||1,t);}}
 }
 function flash(si,ei,t){
   setTimeout(()=>{
@@ -3369,7 +3444,7 @@ function flashSec(si,t,gp,rb){
     /* en el directo, una sección oculta con pareja ilumina la visible que repite, con su vuelta («2ª») */
     const mp=liveMap()[si],ti=mp?mp.t:si;
     const el=document.querySelector('.secrow[data-si="'+ti+'"]');
-    if(el){el.classList.add('playing');
+    if(el){el.classList.add('playing');liveFollow(ti);
       if(mp){
         const nm=el.querySelector('.secname');
         if(nm)nm.insertAdjacentHTML('beforeend','<span class="passmark">'+mp.p+'ª</span>');
@@ -3377,22 +3452,102 @@ function flashSec(si,t,gp,rb){
         const bd=el.querySelector('.secbody');
         if(nt&&bd)bd.insertAdjacentHTML('afterbegin','<div class="varnote">'+mp.p+'ª · '+esc(nt)+'</div>');
       }
-      if(document.body.classList.contains('live'))el.scrollIntoView({block:'nearest',behavior:'smooth'});}
-    /* vuelta en curso en los ×N: «2/2» (real) · «2/2~» (anotación) */
+    }
+    /* vuelta en curso del bloque: «2/2» en su pastilla (real o de anotación) */
     const lg=(S.lgroups||[]).find(g=>ti>=g.a&&ti<=g.b);
     if(lg){
-      document.querySelectorAll('.lrep').forEach(x=>{const k=+x.dataset.lrep;if(k>=lg.a&&k<=lg.b)x.textContent=(mp?mp.p:1)+'/'+lg.repeat+'~';});}
+      document.querySelectorAll('.lrep').forEach(x=>{const k=+x.dataset.lrep;if(k>=lg.a&&k<=lg.b){x.classList.add('now');x.innerHTML=repNowHTML(mp?mp.p:1,lg.repeat);}});}
     if(gp){const g=(S.groups||[]).find(x=>si>=x.a&&si<=x.b);
-      if(g)document.querySelectorAll('.grep').forEach(x=>{const k=+x.dataset.grep;if(k>=g.a&&k<=g.b)x.textContent=gp+'/'+g.repeat;});}
+      if(g)document.querySelectorAll('.grep').forEach(x=>{const k=+x.dataset.grep;if(k>=g.a&&k<=g.b){x.classList.add('now');x.innerHTML=repNowHTML(gp,g.repeat);}});}
     updateStrip(rb);
+  },Math.max(0,(t-AC.currentTime)*1000));
+}
+/* vuelta en curso del ×N de una sección («1/2», «2/2»): la misma pastilla que la del bloque */
+function flashRep(si,rp,rn,t){
+  setTimeout(()=>{
+    if(!play.on)return;
+    document.querySelectorAll('.secrep.now').forEach(x=>{x.classList.remove('now');x.innerHTML=repHTML(+x.dataset.n);});
+    if(rn<2)return;
+    const mp=liveMap()[si],ti=mp?mp.t:si;
+    const x=document.querySelector('.secrep[data-rep="'+ti+'"]');
+    if(x&&+x.dataset.n===rn){x.classList.add('now');x.innerHTML=repNowHTML(rp+1,rn);}
   },Math.max(0,(t-AC.currentTime)*1000));
 }
 /* quita las marcas de la reproducción: «2ª», nota de variación, «2/2» */
 function clearPlayMarks(){
   document.querySelectorAll('.secrow.playing').forEach(el=>el.classList.remove('playing'));
   document.querySelectorAll('.passmark,.varnote').forEach(el=>el.remove());
-  document.querySelectorAll('.grep[data-def],.lrep[data-def]').forEach(x=>{x.textContent=x.dataset.def;});
+  document.querySelectorAll('.rqb.now').forEach(x=>{x.classList.remove('now');x.innerHTML=repHTML(+x.dataset.n);});
 }
+/* ── directo: la pantalla sigue a la canción (2026-10-22) ─────────────────
+   Antes se usaba scrollIntoView «nearest», que dejaba la sección que suena pegada al borde de abajo, tapada por
+   la barra del directo: la pantalla parecía quedarse atrás. Ahora, cuando la sección en curso sale de la mitad
+   de arriba de lo visible, la pantalla baja (o sube, en la segunda vuelta de un bloque) hasta dejarla arriba,
+   con la sección anterior asomando por encima. Si la canción cabe entera, no se mueve. */
+function liveVisH(){const lb=document.getElementById('livebar');return window.innerHeight-(lb&&lb.offsetHeight||0);}
+function liveHeadH(){const h=document.querySelector('.proghead');return h?h.getBoundingClientRect().height:0;} /* barra del título, fija arriba */
+function liveFollow(si,force){
+  if(!document.body.classList.contains('live'))return;
+  const lb=document.getElementById('livebar'),hh=liveHeadH();
+  document.documentElement.style.scrollPaddingBottom=((lb&&lb.offsetHeight)||0)+8+'px'; /* el acorde que suena no se esconde bajo ninguna barra */
+  document.documentElement.style.scrollPaddingTop=Math.round(hh)+4+'px';
+  const row=document.querySelector('#sections .secrow[data-si="'+si+'"]');if(!row||!row.offsetHeight)return;
+  const vh=liveVisH(),r=row.getBoundingClientRect();
+  if(!force&&r.top>=hh&&r.top<=hh+(vh-hh)*0.5&&r.bottom<=vh)return; /* ya está arriba y entera */
+  let ref=row,p=row.previousElementSibling;
+  while(p&&!(p.classList.contains('secrow')&&p.offsetHeight))p=p.previousElementSibling;
+  if(p&&r.top-p.getBoundingClientRect().top<=(vh-hh)*0.3)ref=p; /* la anterior asoma, si no es enorme */
+  window.scrollTo({top:Math.max(0,Math.round(ref.getBoundingClientRect().top+window.scrollY-hh-4)),behavior:'smooth'});
+}
+/* avance sin reproducir: «al tempo» (compases × repeticiones al tempo de la canción) o «cada N s» por vuelta de sección.
+   Arranca cuando la canción sale en el directo; se para al reproducir, al salir del directo o al acabar la canción.
+   Tocar un tramo de la tira lleva la pantalla a esa sección y, si el avance está puesto, sigue contando desde ahí. */
+const ADV={timer:null,segs:[],idx:-1,song:null};
+function advMode(){try{return localStorage.getItem('gc-autoadv')||'';}catch(e){return '';}}
+function advSongKey(){return (S.songId==null?'':S.songId)+'|'+(S.songName||'');}
+function advSegs(){
+  const m=advMode(),tl=buildTimeline(null),spb=60/S.tempo,out=[];
+  tl.evs.forEach(ev=>{
+    const k=ev.si+'|'+(ev.rp||0)+'|'+(ev.gp||0),last=out[out.length-1];
+    if(last&&last.k===k&&Math.abs(last.end-ev.start)<1e-6)last.end=ev.start+ev.dur;
+    else out.push({k,si:ev.si,start:ev.start,end:ev.start+ev.dur});
+  });
+  out.forEach(x=>{x.sec=m==='tempo'?(x.end-x.start)*spb:(+m||20);});
+  return out;
+}
+function advHalt(){clearTimeout(ADV.timer);ADV.timer=null;} /* se para, pero esta canción no vuelve a arrancar sola */
+function advStop(){advHalt();ADV.idx=-1;ADV.song=null;}
+function advGo(i){
+  advHalt();
+  if(!document.body.classList.contains('live')||play.on||!advMode()||i<0||i>=ADV.segs.length)return;
+  ADV.idx=i;const sg=ADV.segs[i],mp=liveMap()[sg.si];
+  liveFollow(mp?mp.t:sg.si,i===0?false:undefined);
+  advStrip(sg.start);
+  ADV.timer=setTimeout(()=>advGo(i+1),Math.max(1,sg.sec)*1000);
+}
+function advStart(fromBeat){
+  ADV.song=advSongKey();ADV.segs=advSegs();
+  let i=0;if(fromBeat!=null)ADV.segs.forEach((x,k)=>{if(x.start<=fromBeat+1e-6)i=k;});
+  advGo(i);
+}
+/* en la tira: el tramo en el que va el avance (los anteriores, apagados) */
+function advStrip(beat){
+  document.querySelectorAll('#livestrip .lss').forEach(el=>{const sg=LSTRIP[+el.dataset.i];if(!sg)return;
+    el.classList.toggle('cur',beat>=sg.start-1e-6&&beat<sg.end-1e-6);el.classList.toggle('done',beat>=sg.end-1e-6);});
+}
+/* arranca solo al salir una canción nueva en el directo (no al replegar una sección ni tras parar la reproducción) */
+function advSync(){
+  if(!document.body.classList.contains('live')||play.on){return;}
+  if(!advMode()){if(ADV.timer)advStop();return;}
+  if(ADV.song!==advSongKey())advStart(0);
+}
+document.getElementById('livestrip').addEventListener('click',e=>{
+  const el=e.target.closest('.lss');if(!el||play.on)return;
+  const sg=LSTRIP[+el.dataset.i];if(!sg)return;
+  const mp=liveMap()[sg.si];
+  liveFollow(mp?mp.t:sg.si,true);
+  if(advMode()&&document.body.classList.contains('live'))advStart(sg.start);
+});
 /* ── tira de progreso del directo ─────────────────── */
 let LSTRIP=[];
 function renderStrip(){
@@ -3405,7 +3560,8 @@ function renderStrip(){
   });
   box.innerHTML=LSTRIP.length<2?'':LSTRIP.map((sg,i)=>{
     const sec=S.sections[sg.si]||{};
-    return '<span class="lss'+(sec.lh?' hid':'')+'" data-i="'+i+'" style="flex-grow:'+(sg.end-sg.start)+(sec.color?';--secc:var(--'+sec.color+')':'')+'" title="'+esc(sec.name||'')+(sec.lh?' (oculta)':'')+'">'+esc(sec.name||'')+'</span>';
+    const n=(sec.slots&&sec.slots.length&&!sec.lh&&(sec.repeat||1)>1)?sec.repeat:1;
+    return '<span class="lss'+(sec.lh?' hid':'')+(n>1?' rpass':'')+'" data-i="'+i+'" style="flex-grow:'+(sg.end-sg.start)+(sec.color?';--secc:var(--'+sec.color+')':'')+(n>1?';--rpn:'+n:'')+'" title="'+esc(sec.name||'')+(sec.lh?' (oculta)':'')+(n>1?' ×'+n:'')+' · toca para ir ahí">'+esc(sec.name||'')+(n>1?'<span class="lssx">×'+n+'</span>':'')+'</span>';
   }).join('');
   fitStrip();
 }
@@ -4302,7 +4458,7 @@ function downloadJSON(data,name){
 }
 
 /* ════════ exportar el set como imágenes ════════ */
-function xSlotHTML(sl,simple,ts,mids){
+function xSlotHTML(sl,simple,ts,mids,nf){
   const mc='<span class="mchip">'+durTxt(slBeats(sl,ts),ts)+'</span>';
   if(sl.nc)return '<div class="slot ncslot">'+midsHTML(mids)+
     '<div class="sl-top"><span class="sl-deg ncdeg">—</span><span class="sl-name">N.C.</span></div>'+
@@ -4311,7 +4467,7 @@ function xSlotHTML(sl,simple,ts,mids){
   return '<div class="slot">'+midsHTML(mids)+
     '<div class="sl-top"><span class="sl-deg '+txtOn(sl.chord.degNum)+'" style="background:'+sl.chord.color+'">'+esc(sl.chord.deg)+'</span>'+
     '<span class="sl-name">'+esc(sl.voicing.disp||sl.chord.label)+'</span></div>'+
-    (simple?'':chordSVG(sl.voicing,'dg-sm'))+
+    (simple?'':chordSVG(sl.voicing,'dg-sm',null,nf))+
     '<div class="sl-bot">'+mc+
     (simple?'':'<span class="sl-v">'+esc(sl.voicing.vname)+'</span>')+'</div></div>';
 }
@@ -4329,7 +4485,7 @@ function xSectionsHTML(d,simple){
       const bm=barMarks(sec.slots,ts);
       inner='<span class="barline"></span>';
       sec.slots.forEach((sl,ei)=>{
-        inner+=xSlotHTML(sl,simple,ts,bm[ei].mids);
+        inner+=xSlotHTML(sl,simple,ts,bm[ei].mids,secFrets(sec));
         const closed=bm[ei].closed;
         if(closed)inner+='<span class="barline"></span>';
         if(sl.br){
@@ -4337,8 +4493,6 @@ function xSectionsHTML(d,simple){
           if(closed&&ei<sec.slots.length-1)inner+='<span class="barline"></span>';
         }
       });
-      const reps=sec.repeat||1;
-      if(reps>1)inner+='<span class="secrep big">×'+reps+'</span>';
     }
     const note=(sec.note||'').trim();
     const dTon=(CIRCLE[d.key]||CIRCLE[0]).pc+(d.minorView?9:0);
@@ -4347,13 +4501,15 @@ function xSectionsHTML(d,simple){
     const col=(typeof sec.color==='string'&&/^g[1-7]$/.test(sec.color))?sec.color:null;
     const g=gmap[si];
     let gut='<div class="secgut'+(g?' gon'+(si===g.a?' gs':'')+(si===g.b?' ge':''):'')+'">';
-    if(g&&si===Math.floor((g.a+g.b)/2))gut+='<span class="grep">×'+(g.repeat||2)+'</span>';
+    if(g&&si===Math.floor((g.a+g.b)/2))gut+='<span class="grep rqb'+((g.repeat||2)>=10?' dd':'')+'">'+repHTML(g.repeat||2)+'</span>';
+    const xr=has?(sec.repeat||1):1;
+    if(xr>1)gut+='<span class="sbr"></span><span class="secrep rqb'+(xr>=10?' dd':'')+'">'+repHTML(xr)+'</span>';
     gut+='</div>';
     return '<div class="secrow'+(simple?' compact':'')+(has?'':' noslots')+'"'+(col?' data-c="'+col+'" style="--secc:var(--'+col+')"':'')+'>'+
-      '<div class="secleft">'+gut+'<div class="secname"><span class="tname">'+esc(sec.name)+'</span></div></div>'+
+      '<div class="secleft"><div class="secname"><span class="tname">'+esc(sec.name)+'</span></div></div>'+
       '<div class="secbody">'+(has?'<div class="slots">'+inner+'</div>':'')+
       (note?'<div class="secnote">'+esc(note).replace(/\n/g,'<br>')+'</div>':'')+
-      licks+'</div></div>';
+      licks+'</div>'+gut+'</div>';
   }).join('');
 }
 function xBuild(d,opts){
@@ -4382,6 +4538,7 @@ function xBuild(d,opts){
     if(cw)wrap.style.setProperty('--chw',Math.ceil(cw)+'px');
     if(nw)wrap.style.setProperty('--namew',Math.ceil(nw)+'px');
   }
+  fitRepCol(wrap);
   return wrap;
 }
 function xRasterize(wrap,scale){
@@ -5181,6 +5338,12 @@ document.getElementById('loop').addEventListener('change',e=>{
   updatePlayUI();
   persist();
 });
+document.getElementById('autoadv').addEventListener('change',e=>{
+  const v=e.target.value;try{localStorage.setItem('gc-autoadv',v);}catch(er){}
+  toast(!v?'En el directo la pantalla solo sigue a la canción al reproducir'
+    :'En el directo la pantalla bajará sola, '+(v==='tempo'?'al tempo de cada canción':'cada '+v+' s por sección')+', aunque no reproduzcas');
+});
+try{const v=localStorage.getItem('gc-autoadv');if(v!=null)document.getElementById('autoadv').value=v;}catch(e){}
 document.getElementById('hlmode').addEventListener('change',e=>{
   HLMODE=e.target.value==='sec'?'sec':'chord';
   try{localStorage.setItem('gc-hl',HLMODE);}catch(err){}
@@ -5230,7 +5393,7 @@ function paintGSel(){
 }
 document.addEventListener('pointerdown',e=>{
   if(!e.target||!e.target.closest)return;
-  if(e.target.closest('[data-grep],[data-lrep]'))return; /* el ×N tiene su propio clic */
+  if(e.target.closest('[data-grep],[data-lrep],[data-rep]'))return; /* el ×N tiene su propio clic */
   const g=e.target.closest('.secgut');
   if(!g)return;
   e.preventDefault();
@@ -5509,6 +5672,7 @@ function enterLive(){
   toast('Modo directo · desliza ⇄ o ⏮ ⏭ cambian de canción · toca el nombre de una sección para abrirla o plegarla');
 }
 function exitLive(){
+  advStop();document.documentElement.style.scrollPaddingBottom='';document.documentElement.style.scrollPaddingTop='';
   document.body.classList.remove('live');
   document.body.classList.remove('showhid');
   hideSwipeHint();
@@ -5545,7 +5709,7 @@ function updateLiveBar(){
   const lv=document.getElementById('lview');
   lv.innerHTML=ICO(S.viewMode==='simple'?'grid-3x3':'rectangle-horizontal');
   lv.title=S.viewMode==='simple'?'Cambiar a vista diagramas':'Cambiar a vista simple (chuleta)';
-  if(document.body.classList.contains('live'))renderStrip();
+  if(document.body.classList.contains('live')){renderStrip();if(ADV.timer&&ADV.idx>=0&&ADV.segs[ADV.idx])advStrip(ADV.segs[ADV.idx].start);advSync();}
   const lh=document.getElementById('lhid');
   if(lh){
     const n=S.sections.filter(x=>x.lh).length,on=document.body.classList.contains('showhid');
@@ -5564,14 +5728,7 @@ document.getElementById('lhid').addEventListener('click',()=>{
   document.body.classList.toggle('showhid');renderSections();
 });
 document.getElementById('lview').addEventListener('click',()=>{document.getElementById('compactbtn').click();});
-document.getElementById('lfull').addEventListener('click',()=>{
-  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
-  else document.documentElement.requestFullscreen().catch(()=>toast('Pantalla completa no disponible aquí'));
-});
-document.addEventListener('fullscreenchange',()=>{
-  const b=document.getElementById('lfull');
-  if(b)b.classList.toggle('on',!!document.fullscreenElement);
-});
+/* 2026-10-22: el botón de pantalla completa del directo se quitó — la app instalada ya abre a pantalla completa */
 
 /* El pedal MIDI (Web MIDI: aprender botones, panel del pedal, «abrir en pestaña propia») se QUITÓ el 2026-09-30:
    nunca llegó a funcionar y el navegador pedía permiso al entrar en el directo. El código completo está en
@@ -6073,7 +6230,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.16';
+const APP_VER='2026.10.22';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
