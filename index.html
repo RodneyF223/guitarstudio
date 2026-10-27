@@ -979,7 +979,7 @@
   body.live .secbody>.varnote{flex-basis:calc(100% - 20px)}
   body.live .slots,body.live .secrow.compact .slots{flex:0 1 auto;min-width:0;min-height:0;padding:5px 10px 4px}
   body.live .slots{gap:6px}
-  body.live .secnote,body.live .secrow.compact .secnote{align-self:center;margin:4px 10px;padding:3px 10px;min-height:0;font-size:16px;line-height:1.3}
+  body.live .secnote,body.live .secrow.compact .secnote{align-self:center;margin:4px 10px;padding:3px 10px;min-height:0;font-size:20px;line-height:1.3}
   body.live .secrow.noslots .secbody{justify-content:flex-start;align-items:center}
   body.live .secrow.noslots .noterow{margin:5px 10px}
   body.live .secrow.noslots .noterow .secnote{margin:0}
@@ -1021,6 +1021,34 @@
   body.live .livebtns{grid-column:1/-1}
   body.live .lbtn{min-height:64px;font-size:30px}
   body.live .lbtn.sm{font-size:22px}
+  /* ── 2026-10-27 (Rodney): barra del título más grande, para leer de lejos el tono, el tempo y el compás.
+     Una sola línea: si el nombre es muy largo, se recorta con «…» antes que bajar el tono a otra línea */
+  body.live .proghead{flex-wrap:nowrap;gap:12px;padding:5px 12px 6px}
+  body.live .proghead h2{font-size:36px;min-width:0;flex:0 1 auto}
+  body.live .prkey{height:42px;padding:0 13px;font-family:var(--font-d);font-weight:900;font-stretch:110%;font-size:30px;flex:none}
+  body.live .prmeta{font-size:22px;white-space:nowrap;flex:none}
+  body.live .tschip{font-size:22px;padding:2px 9px;white-space:nowrap;flex:none}
+  body.live .prnum:not([hidden]){height:42px;padding:0 10px;font-size:24px;flex:none}
+  /* ── directo que crece (2026-10-27): growLive() pone a cada fila su factor --f (acordes, grados, duraciones,
+     diagramas), --fc (grado y duración: crecen menos, √f, para dejar el sitio al nombre) y --fn (notas y licks). Solo crece lo que se lee: márgenes, huecos, barras y relleno de las filas
+     se quedan igual, así el espacio vacío no aumenta. Sin .fz la fila está exactamente como antes. */
+  body.live .secrow.fz.compact .slot{grid-template-columns:calc(var(--degw,30px)*var(--fc)) calc(var(--chw,40px)*var(--f))}
+  body.live .secrow.fz.compact .sl-name{font-size:calc(var(--lchfs,46px)*var(--f))}
+  body.live .secrow.fz.compact .sl-deg{font-size:calc(13.5px*var(--fc));min-width:calc(30px*var(--fc));padding:1px calc(6px*var(--fc))}
+  body.live .secrow.fz.compact .mchip{font-size:calc(13px*var(--fc));min-width:calc(30px*var(--fc));padding:0 calc(5px*var(--fc))}
+  body.live .secrow.fz:not(.compact) .slot{width:calc(152px*var(--f))}
+  body.live .secrow.fz:not(.compact) .dg-sm{width:calc(116px*var(--f))}
+  body.live .secrow.fz:not(.compact) .sl-name{font-size:calc(25px*var(--f))}
+  body.live .secrow.fz:not(.compact) .sl-deg{font-size:calc(13px*var(--fc))}
+  body.live .secrow.fz:not(.compact) .mchip{font-size:calc(12px*var(--fc))}
+  body.live .secrow.fz .secnote{font-size:calc(20px*var(--fn))}
+  /* 2026-10-27 (Rodney): en el directo la nota de la sección va ENCIMA de sus acordes, en su propia línea:
+     la pantalla baja sola y así se lee lo que viene (dinámica, quién entra…) antes que los acordes.
+     La nota sube al principio (order) y un salto invisible (::before, todo el ancho, 0 de alto) baja los
+     acordes a la línea siguiente. Las secciones sin acordes siguen igual (la nota ya es lo que se ve). */
+  body.live .secrow:not(.noslots) .secbody>.secnote{order:-2;align-self:flex-start;margin:5px 10px 0}
+  body.live .secrow:not(.noslots) .secbody:has(>.secnote)::before{content:'';order:-1;flex-basis:100%;height:0}
+  body.live .secrow.fz .lickfig svg:not(.ic){width:calc(236px*var(--fn))}
   .mixmenu.panel{border:1.5px solid var(--line2);box-shadow:var(--pop)}
 
   /* ── pista visual del gesto ⇄ en el directo ── */
@@ -2588,9 +2616,10 @@ function alignSimple(){
     let dw=0,cw=0;
     slots.forEach(s=>{
       const d=s.querySelector('.sl-deg'),m=s.querySelector('.mchip'),n=s.querySelector('.sl-name');
-      if(d)dw=Math.max(dw,d.getBoundingClientRect().width);
-      if(m)dw=Math.max(dw,m.getBoundingClientRect().width);
-      if(n)cw=Math.max(cw,n.getBoundingClientRect().width);
+      const rs=s.closest('.secrow').style,f=parseFloat(rs.getPropertyValue('--f'))||1,fc=parseFloat(rs.getPropertyValue('--fc'))||1; /* fila agrandada en el directo (growLive) */
+      if(d)dw=Math.max(dw,d.getBoundingClientRect().width/fc);
+      if(m)dw=Math.max(dw,m.getBoundingClientRect().width/fc);
+      if(n)cw=Math.max(cw,n.getBoundingClientRect().width/f);
     });
     if(dw)prog.style.setProperty('--degw',Math.ceil(dw)+'px');
     if(cw)prog.style.setProperty('--chw',Math.ceil(cw)+'px');
@@ -2614,6 +2643,7 @@ function fitLive(){
   document.querySelectorAll('#sections .secname').forEach(n=>{
     n.style.minHeight='';const t=n.querySelector('.tname');if(t)t.style.fontSize='';
   });
+  if(growReset())document.querySelectorAll('#sections .secnote').forEach(autoGrow);
   if(prog.style.getPropertyValue('--lchfs')){prog.style.removeProperty('--lchfs');alignSimple();}
   if(!live)return;
   const visSlot=()=>[...document.querySelectorAll('#sections .secrow.compact .slot:not(.ncslot)')].find(x=>x.offsetWidth);
@@ -2635,6 +2665,7 @@ function fitLive(){
       sl=visSlot();
     }
   }
+  growLive();
   document.querySelectorAll('#sections .secname .tname').forEach(t=>{
     if(!t.clientHeight)return;
     let f=parseFloat(getComputedStyle(t).fontSize)||17;
@@ -2643,6 +2674,116 @@ function fitLive(){
       const n=t.parentNode;n.style.minHeight=Math.ceil(n.offsetHeight+t.scrollHeight-t.clientHeight+2)+'px';
     }
   });
+}
+/* ── directo que crece (2026-10-27, Rodney): aprovechar el sitio que sobra ───────────────────────────────
+   Solo si la canción entera ya cabe en la pantalla (si hay que bajar, se queda como estaba).
+   UN solo tamaño para toda la canción: todos los acordes de la vista simple crecen lo mismo, así las columnas
+   siguen una debajo de otra en toda la canción (la «rejilla»). Crece hasta llenar el alto libre, con dos topes:
+   · el ancho: la línea con más acordes no puede pasar del ancho de su fila (nada salta de línea ni se sale);
+   · ×2,4 como mucho (unos 110 px).
+   Crece el TEXTO, nunca el aire: márgenes, barras, huecos y relleno de las filas se quedan igual. El grado y la
+   duración crecen menos (√f) para dejarle el sitio al nombre. Los diagramas crecen igual, hasta donde les deje
+   el ancho de su fila (sin frenar a la vista simple). Notas y licks, como mucho ×1,5.
+   Cada fila lleva su factor en --f (--fc grado y duración, --fn notas y licks) con la clase .fz; sin .fz la
+   fila queda exactamente como antes. 1ª versión (sin publicar) agrandaba aparte las secciones cortas: se quitó
+   porque rompía la rejilla. */
+const GROW={max:2.4,note:1.5};
+function growReset(){
+  const rs=document.querySelectorAll('#sections .secrow.fz');
+  rs.forEach(r=>{r.classList.remove('fz');r.style.removeProperty('--f');r.style.removeProperty('--fc');r.style.removeProperty('--fn');});
+  return rs.length;
+}
+function growLive(){
+  growReset();
+  if(!document.body.classList.contains('live'))return;
+  const rows=[...document.querySelectorAll('#sections .secrow')].filter(r=>r.offsetHeight);
+  if(!rows.length)return;
+  /* la tira de abajo aún es la de la canción anterior (o está vacía al entrar): se pinta ya, para medir
+     el alto libre con la barra de abajo como va a quedar */
+  renderStrip();
+  const lb=document.getElementById('livebar');
+  const H=window.innerHeight-((lb&&lb.offsetHeight)||0)-6;
+  const bottom=()=>{let b=0;rows.forEach(r=>{b=Math.max(b,r.getBoundingClientRect().bottom);});return b+window.scrollY;};
+  if(bottom()>H)return; /* no cabe entera: no se toca */
+  /* líneas de una fila: los acordes agrupados por altura */
+  const lines=r=>{const out=[];let top=null;
+    r.querySelectorAll('.slots>.slot').forEach(s=>{const t=s.offsetTop;if(top===null||Math.abs(t-top)>3){out.push([]);top=t;}out[out.length-1].push(s);});
+    return out;};
+  const sig=r=>lines(r).map(l=>l.length).join(',');
+  const base=rows.map(sig);
+  /* techo por el ancho de cada fila, con su línea más larga: ancho = fijo + escalable(f) */
+  const ps=document.querySelector('.progress').style;
+  const degw=parseFloat(ps.getPropertyValue('--degw'))||0,chw=parseFloat(ps.getPropertyValue('--chw'))||0;
+  const caps=rows.map(r=>{
+    const ls=lines(r);if(!ls.length)return Infinity;
+    const L=ls.reduce((a,l)=>l.length>a.length?l:a),bx=L[0].parentNode,cs=getComputedStyle(bx);
+    const aw=bx.parentNode.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+    let fix=(L.length-1)*(parseFloat(cs.columnGap)||0),w=0;
+    L.forEach(s=>{fix+=parseFloat(getComputedStyle(s).marginLeft)||0;w+=s.getBoundingClientRect().width;});
+    let lw;
+    if(r.classList.contains('compact')){ /* fijo (relleno, hueco) + grado·√f + nombre·f */
+      const chip=L.length*degw,name=L.length*chw;fix+=w-chip-name;
+      lw=f=>fix+chip*Math.sqrt(f)+name*f;
+    }else lw=f=>fix+w*f; /* diagramas: la tarjeta entera escala */
+    if(lw(GROW.max)<=aw)return GROW.max;
+    let a=1,b=GROW.max;for(let k=0;k<14;k++){const m=(a+b)/2;if(lw(m)<=aw)a=m;else b=m;}
+    return a;
+  });
+  /* la vista simple lleva un solo tamaño: el techo de toda la canción es el de su fila más justa */
+  let hi=GROW.max;
+  rows.forEach((r,i)=>{if(r.classList.contains('compact'))hi=Math.min(hi,caps[i]);});
+  /* notas: su ancho y alto se escalan a mano mientras se busca (autoGrow mide de verdad solo al final) */
+  const notes=[...document.querySelectorAll('#sections .secnote')].filter(t=>t.offsetWidth).map(t=>{
+    const cs=getComputedStyle(t);return {t,w:parseFloat(t.style.width)||t.offsetWidth,h:parseFloat(t.style.height)||t.offsetHeight,
+      fv:parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+2};});
+  const apply=G=>{
+    const fn=Math.min(G,GROW.note);
+    rows.forEach((r,i)=>{
+      const f=r.classList.contains('compact')?G:Math.min(G,Math.max(1,caps[i]));
+      if(f<=1.0005&&fn<=1.0005){r.classList.remove('fz');r.style.removeProperty('--f');r.style.removeProperty('--fc');r.style.removeProperty('--fn');}
+      else{r.classList.add('fz');r.style.setProperty('--f',f.toFixed(4));r.style.setProperty('--fc',Math.sqrt(f).toFixed(4));r.style.setProperty('--fn',fn.toFixed(4));}
+    });
+    notes.forEach(n=>{n.t.style.width=Math.ceil((n.w-34)*fn+34)+'px';n.t.style.height=Math.ceil((n.h-n.fv)*fn+n.fv)+'px';});
+  };
+  /* mide: alto que ocupa y si el reparto de líneas sigue igual (y nada se sale por el lado) */
+  const probe=()=>{
+    const B=bottom();
+    for(let i=0;i<rows.length;i++){
+      if(sig(rows[i])!==base[i])return {B,ok:false,lines:false};
+      const bd=rows[i].querySelector('.secbody');if(!bd)continue;
+      const R=bd.getBoundingClientRect().right+1;
+      for(const e of bd.querySelectorAll('.slots>.slot,.secnote,.lickfig'))if(e.getBoundingClientRect().right>R)return {B,ok:false,lines:false};
+    }
+    return {B,ok:B<=H,lines:true};
+  };
+  if(hi<=1.005)return;
+  /* búsqueda (cada prueba es un redibujo de verdad, que en la tableta cuesta; se busca hacer pocas):
+     1 · el techo por el ancho (calculado): en vertical casi siempre manda él y basta esa prueba;
+     2 · si se pasa de alto, se interpola el alto entre lo que cabe y lo que no (2–3 pruebas);
+     3 · si rompe una línea (el cálculo del ancho es aproximado), se prueba un 4 % por debajo y si no, a medias. */
+  let lo=1,Blo=bottom(),r;
+  apply(hi);r=probe();
+  if(r.ok)lo=hi;
+  else{
+    let Bhi=r.lines?r.B:Infinity,narrow=!r.lines;
+    for(let k=0;k<6&&hi-lo>0.012;k++){
+      let m;
+      if(narrow){m=Math.max(lo,hi*0.96);narrow=false;}
+      else if(isFinite(Bhi)&&Bhi>Blo)m=lo+(hi-lo)*(H-4-Blo)/(Bhi-Blo);
+      else m=(lo+hi)/2;
+      m=Math.min(hi-(hi-lo)*0.03,Math.max(lo+(hi-lo)*0.03,m));
+      apply(m);r=probe();
+      if(r.ok){lo=m;Blo=r.B;if(H-r.B<14||(isFinite(Bhi)?false:hi-lo<0.05))break;}
+      else{hi=m;Bhi=r.lines?r.B:Infinity;}
+    }
+  }
+  /* el tamaño elegido, con las notas medidas de verdad; si así no cabe (una nota que salta de línea), un paso atrás */
+  for(let k=0;k<4;k++){
+    apply(lo);notes.forEach(n=>autoGrow(n.t));
+    if(lo<=1||probe().ok)break;
+    lo=Math.max(1,lo-0.05);
+  }
+  if(lo<=1){growReset();notes.forEach(n=>autoGrow(n.t));}
 }
 window.addEventListener('resize',()=>{clearTimeout(fitLive._t);fitLive._t=setTimeout(()=>{fitLive();positionReps();},150);});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(document.body.classList.contains('live'))fitLive();positionReps();});
@@ -6230,7 +6371,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.22';
+const APP_VER='2026.10.27';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
