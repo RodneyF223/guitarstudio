@@ -735,9 +735,18 @@
   .lss.done{opacity:.35}
   .lss.cur{background:var(--play);color:#fff;opacity:1}
   body.live .lss{cursor:pointer}
-  /* sección ×N: un tramo con una marca por vuelta y su «×N» (los bloques ya salen vuelta a vuelta) */
-  .lss.rpass{background-image:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--rpn) - 3px),var(--bg) calc(100% / var(--rpn) - 3px) calc(100% / var(--rpn)))}
-  .lss .lssx{font-family:var(--font-n);font-weight:700;font-size:.72em;margin-left:4px;opacity:.9}
+  /* sección ×N (2026-10-27, opción A): UN tramo con su nombre y la pastilla roja ×N de la fila (antes, un tramo partido
+     por rayas: parecían varias secciones y solo la 1ª llevaba nombre). Una marca corta abajo por vuelta. Al sonar (o con
+     el avance) la pastilla cuenta la vuelta («2/4») y el tramo se rellena hasta el final de la vuelta en curso.
+     Los bloques de varias secciones no cambian: salen vuelta a vuelta, cada sección con su nombre. */
+  .lss.rpass{position:relative}
+  .lss .lsn{overflow:hidden}
+  .lss .lsp{display:inline-flex;align-items:center;margin-left:6px;padding:0 5px;height:1.15em;border-radius:2px;vertical-align:.08em;
+    background:var(--accent);color:var(--on);font-family:var(--font-n);font-weight:700;font-size:.72em;line-height:1;letter-spacing:0}
+  .lss.cur .lsp{background:#fff;color:var(--play)}
+  .lss .lst{position:absolute;bottom:0;width:2px;height:28%;margin-left:-1px;background:var(--ink);opacity:.45;pointer-events:none}
+  .lss.cur .lst{background:#fff;opacity:.8}
+  .lss.rpass.cur{background:linear-gradient(90deg,var(--play) 0 calc(var(--rpc,0)*100%),color-mix(in srgb,var(--play) 38%,var(--panel)) calc(var(--rpc,0)*100%))}
   .secbody{flex:1;min-width:0;display:flex;flex-direction:column}
   .slots{position:relative;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;min-height:120px;padding:12px 14px 8px}
   .slots.dropping{background:color-mix(in srgb, var(--focus) 9%, transparent)}
@@ -3612,6 +3621,7 @@ function flashRep(si,rp,rn,t){
     const mp=liveMap()[si],ti=mp?mp.t:si;
     const x=document.querySelector('.secrep[data-rep="'+ti+'"]');
     if(x&&+x.dataset.n===rn){x.classList.add('now');x.innerHTML=repNowHTML(rp+1,rn);}
+    const st=document.querySelector('#livestrip .lss.rpass.cur');if(st&&+st.dataset.n===rn)stripSetPass(st,rp,rn);
   },Math.max(0,(t-AC.currentTime)*1000));
 }
 /* quita las marcas de la reproducción: «2ª», nota de variación, «2/2» */
@@ -3675,6 +3685,7 @@ function advStart(fromBeat){
 function advStrip(beat){
   document.querySelectorAll('#livestrip .lss').forEach(el=>{const sg=LSTRIP[+el.dataset.i];if(!sg)return;
     el.classList.toggle('cur',beat>=sg.start-1e-6&&beat<sg.end-1e-6);el.classList.toggle('done',beat>=sg.end-1e-6);});
+  stripPass(beat);
 }
 /* arranca solo al salir una canción nueva en el directo (no al replegar una sección ni tras parar la reproducción) */
 function advSync(){
@@ -3702,7 +3713,10 @@ function renderStrip(){
   box.innerHTML=LSTRIP.length<2?'':LSTRIP.map((sg,i)=>{
     const sec=S.sections[sg.si]||{};
     const n=(sec.slots&&sec.slots.length&&!sec.lh&&(sec.repeat||1)>1)?sec.repeat:1;
-    return '<span class="lss'+(sec.lh?' hid':'')+(n>1?' rpass':'')+'" data-i="'+i+'" style="flex-grow:'+(sg.end-sg.start)+(sec.color?';--secc:var(--'+sec.color+')':'')+(n>1?';--rpn:'+n:'')+'" title="'+esc(sec.name||'')+(sec.lh?' (oculta)':'')+(n>1?' ×'+n:'')+' · toca para ir ahí">'+esc(sec.name||'')+(n>1?'<span class="lssx">×'+n+'</span>':'')+'</span>';
+    const nm=esc(sec.name||'');
+    let inner=nm;
+    if(n>1){inner='<span class="lsn">'+nm+'</span><b class="lsp">×'+n+'</b>';for(let k=1;k<n;k++)inner+='<i class="lst" style="left:'+(k*100/n)+'%"></i>';}
+    return '<span class="lss'+(sec.lh?' hid':'')+(n>1?' rpass':'')+'" data-i="'+i+'" data-n="'+n+'" style="flex-grow:'+(sg.end-sg.start)+(sec.color?';--secc:var(--'+sec.color+')':'')+'" title="'+nm+(sec.lh?' (oculta)':'')+(n>1?' ×'+n:'')+' · toca para ir ahí">'+inner+'</span>';
   }).join('');
   fitStrip();
 }
@@ -3720,6 +3734,18 @@ function fitStrip(){
   els.forEach((el,i)=>{el.style.fontSize=Math.min(common,fs[i])+'px';});
 }
 window.addEventListener('resize',()=>{clearTimeout(fitStrip._t);fitStrip._t=setTimeout(fitStrip,150);});
+/* tira: vuelta k (0 = la 1ª; -1 = ninguna) de un tramo ×n · stripPass la saca de la posición (en tiempos) */
+function stripSetPass(el,k,n){
+  el.style.setProperty('--rpc',k>=0?((k+1)/n).toFixed(4):'0');
+  const p=el.querySelector('.lsp');if(p)p.textContent=k>=0?(k+1)+'/'+n:'×'+n;
+}
+function stripPass(beat){
+  document.querySelectorAll('#livestrip .lss.rpass').forEach(el=>{
+    const sg=LSTRIP[+el.dataset.i],n=+el.dataset.n||1;if(!sg)return;
+    const inside=beat!=null&&beat>=sg.start-1e-6&&beat<sg.end-1e-6;
+    stripSetPass(el,inside?Math.min(n-1,Math.floor((beat-sg.start)/((sg.end-sg.start)/n)+1e-6)):-1,n);
+  });
+}
 function updateStrip(rb){
   const box=document.getElementById('livestrip');if(!box||!LSTRIP.length)return;
   let idx=-1;
@@ -3729,7 +3755,9 @@ function updateStrip(rb){
     let b=rb;
     if(play.from!=null){const f=LSTRIP.find(s=>s.si===play.from);b+=f?f.start:0;}
     idx=LSTRIP.findIndex(s=>b>=s.start&&b<s.end);
+    stripPass(b);
   }
+  if(rb==null||play.solo)stripPass(null);
   box.querySelectorAll('.lss').forEach(el=>{const i=+el.dataset.i;
     el.classList.toggle('cur',i===idx);el.classList.toggle('done',idx>=0&&i<idx);});
 }
@@ -6371,7 +6399,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.27';
+const APP_VER='2026.10.27b';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
