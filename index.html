@@ -803,6 +803,27 @@
   .sl-br.on{color:var(--focus);font-weight:800}
   .sl-br.on .ic{stroke-width:2.8}
   .lbreak{flex-basis:100%;height:0}
+  /* ── ×N de una LÍNEA (2026-10-27) ──────────────────────────────────────────────────────────────
+     En las secciones de dos líneas o más (salto ↵), al final de cada línea: la misma pastilla roja que la de la
+     sección, pero DENTRO de la fila, pegada a su último acorde. Esa línea se toca N veces antes de pasar a la
+     siguiente; la pastilla de la columna de la derecha sigue repitiendo la sección entera. ×1 tenue solo en edición
+     (para darle vueltas); al sonar se pone azul y cuenta la vuelta («1/2»), como las demás. */
+  .lnend{position:relative;display:flex;align-items:center;flex:none;margin:0 0 0 3px} /* sin margen a la derecha: fitRepCol mide hasta su borde */
+  .lnrep.rqb{position:relative;top:auto;left:auto;transform:none}
+  .lnrep.rqb.ghost{background:transparent;color:var(--mut);box-shadow:inset 0 0 0 1.5px var(--line);opacity:.55}
+  .secrow:hover .lnrep.ghost,.secrow.on .lnrep.ghost{opacity:1}
+  /* el ×1 tenue de cada línea solo en la sección activa (o con el ratón encima): sin llenar de ×1 toda la canción */
+  .secrow:not(.on):not(:hover) .lnend.lg1{visibility:hidden}
+  .lnrep.rqb.ghost:hover{filter:none;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+  body.live .lnend.lg1,.xport .lnend.lg1{display:none}
+  body.live .lnrep{cursor:default;pointer-events:none}
+  /* directo «reticulado»: la línea repetida se cierra con su barra y luego la pastilla («| G |×2») */
+  body.live .secrow.compact .slots>.lnend{margin:0 0 0 16px}
+  body.live .secrow.compact .slots>.lnend::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
+    background:var(--ink);opacity:.7;pointer-events:none}
+  body.live .secrow:not(.compact) .slots>.lnend{margin:0 0 0 12.5px}
+  body.live .secrow:not(.compact) .slots>.lnend::before{content:'';position:absolute;left:-12px;top:4px;bottom:4px;width:2.5px;
+    background:var(--ink);opacity:.8;pointer-events:none}
   .scbtn.playsec.on{color:#fff;background:var(--play);border-color:var(--play)}
   /* vista simple por sección: grado+duración a la izquierda, acorde grande a la derecha */
   .secrow.compact .slot{display:grid;grid-template-columns:var(--degw,auto) var(--chw,auto);grid-template-rows:auto auto;
@@ -1271,7 +1292,7 @@
     <li><b>Tonalidad:</b> haz clic en cualquier nota gris del círculo para elegir la tonalidad. El anillo exterior fija una tonalidad <b>mayor</b> (y desactiva «ver como menor» si estaba puesta) y el anillo medio fija una tonalidad <b>menor</b>. Los acordes de la escala se colorean por grado (I, ii, iii…).</li>
     <li><b>Voicings:</b> haz clic en un acorde coloreado (círculo o paleta) para ver acorde abierto, cejillas, quintas rock, tríadas con inversiones y una fila de <b>tensiones · sus · jazz</b> (sus2, sus4, maj7, m7, 6, add9, 9, 13…). Clic en un diagrama = escucharlo. Los puntos indican la función de cada nota: <b class="hlchip" style="background:var(--r1)">1 = fundamental</b>, <b class="hlchip" style="background:var(--r3)">3 = tercera</b>, <b class="hlchip" style="background:var(--r5)">5 = quinta</b>, <b class="hlchip" style="background:var(--r7)">7 = séptima</b> — también en las cuerdas al aire.</li>
     <li><b>Progresión:</b> arrastra acordes a una sección, o usa «<i data-ic="plus"></i> añadir» (va a la sección activa, la que lleva el nombre enmarcado). «×N» abre la duración: compases (1·2·3·4·6·8) o tiempos (½·1·2·3); con «<i data-ic="plus"></i>» se suman (1 compás + 2 tiempos = 1½). La ficha <b>N.C.</b> del final de la paleta es un silencio que corta el sonido (la batería sigue o para). Las barras | separan compases; si un acorde empieza o acaba a mitad de compás, una <b>raya discontinua</b> dentro de su tarjeta marca dónde cae la barra, y si una sección no cierra en compases enteros, su último compás es <b>corto</b> (p. ej. «compás de 2t», como un 2/4): la batería y el metrónomo lo respetan y la sección siguiente empieza en el «1». <i data-ic="corner-down-left"></i> salta a la siguiente línea para ordenar los acordes como frases musicales. <i data-ic="copy"></i> duplica un acorde o una sección y <i data-ic="corner-right-down"></i> fusiona una sección con la siguiente. La <b>vista simple</b> muestra cada acorde superdenso: grado y duración a la izquierda y el nombre bien grande. La canción tiene <b>dos vistas</b> — «simple» (chuleta) y «diagramas» — y el botón <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> de la cabecera cambia entre ellas. El <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> de cada fila abre o pliega solo esa sección <b>dentro de la vista actual</b>, y cada vista recuerda ese estado por separado: encoge las partes que ya te sabes y deja con diagramas las difíciles.</li>
-    <li><b>Canción completa:</b> cada sección es una fila con su nombre en vertical (clic = activar, <i data-ic="pencil"></i> o doble clic = renombrar, arrastra el nombre = reordenar) y sus botones al lado: <i data-ic="play"></i> la toca — con el <b>bucle encendido</b> repite esa sección sola una y otra vez; con el <b>bucle apagado</b> arranca ahí y sigue con el resto de la canción —, <i data-ic="palette"></i> le pone un <b>color de fondo</b> — p. ej. amarillo al solo, para localizarlo de un vistazo; se ve también en el directo y en las imágenes exportadas —, <i data-ic="copy"></i> duplica, <i data-ic="x"></i> elimina y <i data-ic="sticky-note"></i> añade una nota para el directo. Las repeticiones van todas en la <b>columna de la derecha</b>, justo detrás de los acordes, y con la misma <b>pastilla roja «×N»</b>: pegada al último acorde, la de la <b>sección</b> (la repite hasta 12 veces sin duplicarla; el «×1» tenue sirve para darle vueltas); por fuera, sobre un <b>corchete rojo</b>, la de un <b>bloque entero de secciones</b>, que marcas arrastrando de arriba abajo por esa columna (p. ej. Intro-Verso-Coro ×2). Clic en la pastilla sube las repeticiones, Mayús+clic las baja y, en un bloque ×2, quita el corchete. Las secciones nuevas se crean justo detrás de la sección activa. Si la sección no tiene acordes, la nota se muestra en grande.</li>
+    <li><b>Canción completa:</b> cada sección es una fila con su nombre en vertical (clic = activar, <i data-ic="pencil"></i> o doble clic = renombrar, arrastra el nombre = reordenar) y sus botones al lado: <i data-ic="play"></i> la toca — con el <b>bucle encendido</b> repite esa sección sola una y otra vez; con el <b>bucle apagado</b> arranca ahí y sigue con el resto de la canción —, <i data-ic="palette"></i> le pone un <b>color de fondo</b> — p. ej. amarillo al solo, para localizarlo de un vistazo; se ve también en el directo y en las imágenes exportadas —, <i data-ic="copy"></i> duplica, <i data-ic="x"></i> elimina y <i data-ic="sticky-note"></i> añade una nota para el directo. Las repeticiones van todas en la <b>columna de la derecha</b>, justo detrás de los acordes, y con la misma <b>pastilla roja «×N»</b>: pegada al último acorde, la de la <b>sección</b> (la repite hasta 12 veces sin duplicarla; el «×1» tenue sirve para darle vueltas); por fuera, sobre un <b>corchete rojo</b>, la de un <b>bloque entero de secciones</b>, que marcas arrastrando de arriba abajo por esa columna (p. ej. Intro-Verso-Coro ×2). Clic en la pastilla sube las repeticiones, Mayús+clic las baja y, en un bloque ×2, quita el corchete. Si la sección tiene <b>varias líneas</b> (<i data-ic="corner-down-left"></i>), cada línea lleva al final su <b>propia pastilla</b>: esa línea suena ×N antes de pasar a la siguiente (un Verso que repite su progresión y remata distinto cabe en una sola sección); la de la columna repite la sección entera. Fusionar «Verso ×2» con «Verso 2» los deja así, sonando igual. Las secciones nuevas se crean justo detrás de la sección activa. Si la sección no tiene acordes, la nota se muestra en grande.</li>
     <li><b>Escuchar:</b> todos los controles de reproducción viven en la barra inferior. <i data-ic="play"></i> (o barra espaciadora) toca toda la canción; el <i data-ic="play"></i> de cada sección toca solo esa parte, ideal para estudiar. TAP marca el tempo con clics, «cuenta de entrada» da un compás de claqueta y la batería se enciende con su casilla. La <b>guitarra</b> da un rasgueo completo al empezar cada acorde y, en cada tiempo siguiente mientras dure, un golpe en <b>palm mute</b> (las 3 cuerdas graves, corto y apagado); un acorde de ½ o 1 tiempo solo lleva el rasgueo, y cada golpe corta lo que sonaba en esa cuerda. <b>ataque</b> controla la velocidad del rasgueo (izquierda = todas las notas a la vez) y <b>sustain</b> la caída máxima del rasgueo inicial. En <i data-ic="sliders-horizontal"></i> mezcla ajustas el volumen de acordes, batería y metrónomo por separado. También suenan las notas del diapasón al hacer clic. La tarjeta que suena se ilumina; con <b>resaltar</b> eliges si se ilumina <b>cada acorde</b> o <b>solo la sección</b> entera — en directo, si la banda no va clavada al clic del tempo, saber la sección es más fiable que el acorde exacto. Este ajuste se recuerda en el dispositivo, para todas las canciones.</li>
     <li><b>Batería y energía por sección:</b> en el panel de ritmo eliges el <b>estilo</b> de la canción (rock, pop 80, rock rápido (movida), medio tiempo, balada, rumba, ska, funk o vals en 3/4); se guarda con ella. <b><i data-ic="play"></i> oír el estilo</b> toca un compás de cada nivel y luego el redoble y el final. Cada estilo tiene <b>4 niveles de energía</b> — 1 suave (charles o aro) · 2 verso · 3 estribillo (crash y charles abierto) · 4 clímax (ride o bombo doblado) — y la app elige el nivel <b>por el nombre de cada sección</b> (en inglés o en castellano; «Verse 2» cuenta como «Verse»): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3; un nombre desconocido toma el de la sección anterior. Cuando la sección siguiente cambia de nivel suena un <b>redoble</b> en el último compás, y si sube a 3 o 4 entra con <b>crash</b>; en las repeticiones (×N o corchete rojo) el redoble va solo en la última vuelta. Con el bucle apagado, la canción acaba con redoble y <b>golpe final</b>. Para forzarlo a mano, pasa el ratón por una sección: asoma un <b><i data-ic="zap"></i></b> tenue al final de sus botones; su panel elige nivel (auto · — · 1–4) y redoble al final (auto · sí · no). No se ve en el directo ni en las imágenes. Un <b>N.C.</b> (silencio) puede dejar la batería sonando o pararla.</li>
     <li><b>Modo directo:</b> el botón <b><i data-ic="monitor-play"></i> directo</b> abre la vista de escenario: solo la canción, con botones grandes — <i data-ic="skip-back"></i> <i data-ic="skip-forward"></i> o un <b>deslizamiento lateral con el dedo</b> (al entrar, una mano animada te recuerda el gesto hasta que lo uses una vez) cambian de canción siguiendo el set activo — o, si no hay set, el orden de tu biblioteca, <i data-ic="play"></i> toca, <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> alterna entre vista simple y vista diagramas y <i data-ic="x"></i> (o Esc) sale. La barra del título queda fija arriba. En el directo, <b>toca el nombre de una sección</b> para abrirla con diagramas dentro de la vista simple, o plegarla a simple dentro de la vista diagramas ; las secciones abiertas con diagramas muestran además su botón <i data-ic="play"></i> (tocar solo esa parte), y las simples quedan limpias. <b>Cada vista recuerda qué secciones dejaste abiertas o plegadas, canción por canción</b>, aunque cambies de tema en pleno set. Mientras suena, la pantalla baja (o sube) sola para dejar arriba la sección que suena, y la sección en curso queda enmarcada en azul y la pantalla la sigue sola. Las partes sin acordes (un solo, una intro hablada…) <b>duran ×N compases</b> en la reproducción — toca su ×N (sale siempre, aunque la sección esté vacía) y elige de 1 a 16, 20, 24 o 32 compases, o ajusta de uno en uno con −1/+1 (— las salta).</li>
@@ -2253,6 +2274,32 @@ function slBeats(sl,ts){
   return rnd(((sl&&typeof sl.measures==='number'&&sl.measures>0)?sl.measures:1)*ts);
 }
 function setBeats(sl,b){sl.beats=rnd(b);sl.measures=rnd(b/S.ts);}
+/* ── repetición por línea (2026-10-27) ──────────────────────────────────────────────────────────────
+   Una línea = los acordes hasta un salto ↵ (sl.br) o hasta el final de la sección. Su ×N va en el ÚLTIMO acorde de
+   la línea (sl.lr), al lado del salto que la cierra. Solo cuenta con dos líneas o más: con una, el ×N de la sección
+   ya hace eso. secLines(sec) → [{a,b,n}]: primer y último acorde de cada línea y cuántas veces suena. */
+function secLines(sec){
+  const sl=(sec&&sec.slots)||[],L=[];let a=0;
+  sl.forEach((x,i)=>{if(x.br||i===sl.length-1){L.push({a,b:i,n:1});a=i+1;}});
+  if(L.length>1)L.forEach(l=>{const n=sl[l.b].lr|0;if(n>1)l.n=Math.min(12,n);});
+  return L;
+}
+/* tras cualquier cambio: el ×N solo vive en el acorde que cierra una línea, y nunca en una sección de una línea */
+function lineTidy(sec){
+  const sl=(sec&&sec.slots)||[],one=secLines(sec).length<2;
+  sl.forEach((x,i)=>{if(x.lr&&(one||!(x.br||i===sl.length-1)||x.lr<2))delete x.lr;});
+}
+/* antes de quitar el acorde ei: si cierra su línea, el anterior de esa línea hereda el salto y el ×N */
+function lineEndOff(slots,ei){
+  const x=slots[ei],p=slots[ei-1];if(!x)return;
+  if((x.br||ei===slots.length-1)&&p&&!p.br){if(ei<slots.length-1)p.br=true;if(x.lr)p.lr=x.lr;}
+}
+/* un acorde que entra al FINAL de la sección pasa a cerrar la última línea: se lleva su ×N */
+function lineEndOn(slots,ns){
+  const o=slots[slots.length-1];
+  if(o&&!o.br&&o.lr){ns.lr=o.lr;delete o.lr;}
+}
+function bareSlot(x){delete x.br;delete x.lr;return x;}
 function normSlots(slots,ts){
   (slots||[]).forEach(sl=>{if(sl&&!(typeof sl.beats==='number'&&sl.beats>0))sl.beats=slBeats(sl,ts);});
   return slots;
@@ -2292,8 +2339,9 @@ function durTitle(b){
    compás al acabar y en qué % de su ancho cruza una barra (solo si el acorde empieza
    o acaba a mitad de compás: un ×2 normal no lleva marca). Devuelve también el total. */
 function barMarks(slots,ts){
-  let cum=0;
-  const out=(slots||[]).map(sl=>{
+  let cum=0,ls=0;
+  const L=secLines({slots:slots||[]}),lend={};L.forEach(l=>{lend[l.b]=l.n;});
+  const out=(slots||[]).map((sl,i)=>{
     const b=slBeats(sl,ts),start=cum;cum=rnd(cum+b);
     const closed=Math.abs(cum/ts-Math.round(cum/ts))<1e-6;
     const sOn=Math.abs(start/ts-Math.round(start/ts))<1e-6,mids=[];
@@ -2301,6 +2349,7 @@ function barMarks(slots,ts){
       let nb=(Math.floor(start/ts+1e-6)+1)*ts;
       while(nb<cum-1e-6){if(nb>start+1e-6)mids.push(rnd((nb-start)/b*100));nb+=ts;}
     }
+    if(lend[i]!=null){if(lend[i]>1)cum=rnd(cum+(cum-ls)*(lend[i]-1));ls=cum;} /* la línea suena ×N */
     return {closed,mids};
   });
   out.total=cum;
@@ -2511,6 +2560,7 @@ function renderSections(){
     if(!sec.slots.length)inner='<div class="empty">arrastra acordes aquí '+ICO('guitar')+'</div>';
     else{
       const bm=barMarks(sec.slots,S.ts);
+      const LN=secLines(sec),lnAt={};if(LN.length>1)LN.forEach((l,li)=>{lnAt[l.b]=[li,l.n];});
       inner='<span class="barline" aria-hidden="true"></span>';
       sec.slots.forEach((sl,ei)=>{
         let sh=slotHTML(sl,si,ei,bm[ei].mids);
@@ -2519,6 +2569,8 @@ function renderSections(){
         inner+=sh;
         const closed=bm[ei].closed;
         if(closed)inner+='<span class="barline'+(ei===sec.slots.length-1?' bend':'')+'" aria-hidden="true"></span>';
+        if(lnAt[ei]){const [li,n]=lnAt[ei]; /* ×N de la línea, pegado a su último acorde */
+          inner+='<span class="lnend'+(n>1?'':' lg1')+'"><button class="lnrep rqb'+(n>1?'':' ghost')+(n>=10?' dd':'')+'" data-lnrep="'+si+':'+li+'" data-n="'+n+'" title="La línea '+(li+1)+' se toca '+n+(n===1?' vez':' veces')+' antes de seguir — clic para cambiar (1–12) · Mayús+clic para bajar">'+repHTML(n)+'</button></span>';}
         if(sl.br){
           inner+='<span class="lbreak" aria-hidden="true"></span>';
           if(closed&&ei<sec.slots.length-1)inner+='<span class="barline" aria-hidden="true"></span>';
@@ -2664,13 +2716,15 @@ function fitLive(){
     const box=sl.closest('.slots'),bd=sl.closest('.secbody'),cs=getComputedStyle(box);
     const avail=bd.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
     const gap=parseFloat(cs.columnGap)||0;
+    const pe=[...document.querySelectorAll('#sections .secrow.compact .slots>.lnend')].find(x=>x.offsetWidth);
+    const pw=pe?pe.getBoundingClientRect().width+(parseFloat(getComputedStyle(pe).marginLeft)||0)+gap:0; /* pastilla ×N de línea */
     for(let k=0;k<5&&sl;k++){
       const ml=parseFloat(getComputedStyle(sl).marginLeft)||0,W=sl.getBoundingClientRect().width;
-      if(4*(W+ml)+3*gap<=avail+0.5)break;
+      if(4*(W+ml)+3*gap+pw<=avail+0.5)break;
       const nm=sl.querySelector('.sl-name');if(!nm)break;
       const fs=parseFloat(getComputedStyle(nm).fontSize),cw=nm.getBoundingClientRect().width;
       if(fs<=28||!cw)break;
-      const target=(avail-3*gap)/4-ml-(W-cw);
+      const target=(avail-3*gap-pw)/4-ml-(W-cw);
       let nf=Math.floor(fs*target/cw);
       nf=Math.max(28,Math.min(nf,fs-1));
       prog.style.setProperty('--lchfs',nf+'px');alignSimple();
@@ -2719,7 +2773,7 @@ function growLive(){
   if(bottom()>H)return; /* no cabe entera: no se toca */
   /* líneas de una fila: los acordes agrupados por altura */
   const lines=r=>{const out=[];let top=null;
-    r.querySelectorAll('.slots>.slot').forEach(s=>{const t=s.offsetTop;if(top===null||Math.abs(t-top)>3){out.push([]);top=t;}out[out.length-1].push(s);});
+    r.querySelectorAll('.slots>.slot,.slots>.lnend').forEach(s=>{if(!s.offsetWidth)return;const t=s.offsetTop;if(top===null||Math.abs(t-top)>3){out.push([]);top=t;}out[out.length-1].push(s);});
     return out;};
   const sig=r=>lines(r).map(l=>l.length).join(',');
   const base=rows.map(sig);
@@ -2733,10 +2787,11 @@ function growLive(){
     let fix=(L.length-1)*(parseFloat(cs.columnGap)||0),w=0;
     L.forEach(s=>{fix+=parseFloat(getComputedStyle(s).marginLeft)||0;w+=s.getBoundingClientRect().width;});
     let lw;
-    if(r.classList.contains('compact')){ /* fijo (relleno, hueco) + grado·√f + nombre·f */
-      const chip=L.length*degw,name=L.length*chw;fix+=w-chip-name;
+    if(r.classList.contains('compact')){ /* fijo (relleno, hueco, pastilla de línea) + grado·√f + nombre·f */
+      const ns=L.filter(x=>x.classList.contains('slot')).length,chip=ns*degw,name=ns*chw;fix+=w-chip-name;
       lw=f=>fix+chip*Math.sqrt(f)+name*f;
-    }else lw=f=>fix+w*f; /* diagramas: la tarjeta entera escala */
+    }else{const pw=L.filter(x=>!x.classList.contains('slot')).reduce((a,x)=>a+x.getBoundingClientRect().width,0);
+      fix+=pw;w-=pw;lw=f=>fix+w*f;} /* diagramas: la tarjeta entera escala (la pastilla, no) */
     if(lw(GROW.max)<=aw)return GROW.max;
     let a=1,b=GROW.max;for(let k=0;k<14;k++){const m=(a+b)/2;if(lw(m)<=aw)a=m;else b=m;}
     return a;
@@ -2764,7 +2819,7 @@ function growLive(){
       if(sig(rows[i])!==base[i])return {B,ok:false,lines:false};
       const bd=rows[i].querySelector('.secbody');if(!bd)continue;
       const R=bd.getBoundingClientRect().right+1;
-      for(const e of bd.querySelectorAll('.slots>.slot,.secnote,.lickfig'))if(e.getBoundingClientRect().right>R)return {B,ok:false,lines:false};
+      for(const e of bd.querySelectorAll('.slots>.slot,.slots>.lnend,.secnote,.lickfig'))if(e.getBoundingClientRect().right>R)return {B,ok:false,lines:false};
     }
     return {B,ok:B<=H,lines:true};
   };
@@ -2816,8 +2871,9 @@ function fitRepCol(root){
   root.querySelectorAll('.secbody').forEach(bd=>{
     if(!bd.offsetWidth)return;
     const r=bd.getBoundingClientRect();full=Math.max(full,r.width);
-    bd.querySelectorAll('.slots>.slot,.slots>.barline,.slots>.barwarn,.noterow>*,.licks>.lickfig'+(notes?',.secbody>.secnote':'')).forEach(el=>{
-      const e=el.getBoundingClientRect();if(e.width)w=Math.max(w,e.right-r.left);
+    bd.querySelectorAll('.slots>.slot,.slots>.barline,.slots>.barwarn,.slots>.lnend,.noterow>*,.licks>.lickfig'+(notes?',.secbody>.secnote':'')).forEach(el=>{
+      const e=el.getBoundingClientRect(),ex=el.classList.contains('lnend')?4:0; /* la pastilla de línea va al borde: un poco de aire para que no salte */
+      if(e.width)w=Math.max(w,e.right-r.left+ex);
     });
   });
   w=Math.ceil(w+12); /* el aire de la derecha de la fila */
@@ -2860,7 +2916,7 @@ function openColPop(si,btn){
 function addSlot(chord,voicing,noUndo){
   if(!noUndo)pushUndo();
   const sec=S.sections[S.active];
-  sec.slots.push(newSlot(chord,voicing));
+  const ns=newSlot(chord,voicing);lineEndOn(sec.slots,ns);sec.slots.push(ns);
   renderSections();
 }
 function applyPreset(p){
@@ -3450,12 +3506,14 @@ function buildTimeline(scope,desde){
       if(dm>0){evs.push(Object.assign({start:beat,dur:dm*S.ts,si,rp:0,rn:1},gx));beat+=dm*S.ts;}
       return;
     }
-    const reps=sec.repeat||1;
+    const reps=sec.repeat||1,LN=secLines(sec);
     for(let r=0;r<reps;r++){
-      sec.slots.forEach((sl,ei)=>{
-        const dur=slBeats(sl); /* en tiempos: ½, 1, 3… o compases enteros */
-        evs.push(Object.assign({start:beat,dur,sl,si,ei,rp:r,rn:reps},gx));
-        beat=rnd(beat+dur);
+      LN.forEach((l,li)=>{ /* cada línea, las veces de su ×N (li/lp/ln: línea, vuelta de la línea, total) */
+        for(let lp=0;lp<l.n;lp++)for(let ei=l.a;ei<=l.b;ei++){
+          const sl=sec.slots[ei],dur=slBeats(sl); /* en tiempos: ½, 1, 3… o compases enteros */
+          evs.push(Object.assign({start:beat,dur,sl,si,ei,rp:r,rn:reps,li,lp,ln:l.n},gx));
+          beat=rnd(beat+dur);
+        }
       });
     }
   };
@@ -3501,7 +3559,7 @@ function startPlay(scopeSi){
   play.evs=tl.evs;play.total=tl.total;
   if(!play.evs.length&&!S.metro&&!S.drumsOn){toast('Añade acordes o activa el metrónomo 😉');return;}
   play.countIn=S.countIn?S.ts:0;
-  play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.nextT=AC.currentTime+0.15;
+  play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;play.nextT=AC.currentTime+0.15;
   play.timer=setInterval(tick,25);
   updatePlayUI();
   if(!play.evs.length)toast('Sin acordes: suena solo el ritmo');
@@ -3510,7 +3568,7 @@ function startPlay(scopeSi){
   else if(S.loop&&!document.body.classList.contains('live'))toast('Canción entera en bucle 🔁 · para repetir solo una sección, usa su ▶');
 }
 function stopPlay(){
-  play.on=false;play.scope=null;play.solo=false;play.from=null;play.curSecMark=null;play.curRepMark=null;clearInterval(play.timer);
+  play.on=false;play.scope=null;play.solo=false;play.from=null;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;clearInterval(play.timer);
   document.querySelectorAll('.slot.playing').forEach(el=>el.classList.remove('playing'));
   clearPlayMarks();updateStrip(null);
   updatePlayUI();
@@ -3579,6 +3637,18 @@ function scheduleBeat(g,t){
   if(cur&&cur.si!==play.curSecMark){play.curSecMark=cur.si;flashSec(cur.si,t,cur.gp,rb);}
   /* vuelta del ×N de la sección: también cuando la MISMA sección vuelve a empezar */
   if(cur){const k=cur.si+'|'+(cur.rp||0);if(k!==play.curRepMark){play.curRepMark=k;flashRep(cur.si,cur.rp||0,cur.rn||1,t);}}
+  /* vuelta del ×N de la LÍNEA («1/2», «2/2») */
+  if(cur){const k=cur.si+'|'+(cur.rp||0)+'|'+(cur.li||0)+'|'+(cur.lp||0);if(k!==play.curLineMark){play.curLineMark=k;flashLine(cur.si,cur.li||0,cur.lp||0,cur.ln||1,t);}}
+}
+function flashLine(si,li,lp,ln,t){
+  setTimeout(()=>{
+    if(!play.on)return;
+    document.querySelectorAll('.lnrep.now').forEach(x=>{x.classList.remove('now');x.innerHTML=repHTML(+x.dataset.n);});
+    if(ln<2)return;
+    const mp=liveMap()[si],ti=mp?mp.t:si;
+    const x=document.querySelector('.lnrep[data-lnrep="'+ti+':'+li+'"]');
+    if(x&&+x.dataset.n===ln){x.classList.add('now');x.innerHTML=repNowHTML(lp+1,ln);}
+  },Math.max(0,(t-AC.currentTime)*1000));
 }
 function flash(si,ei,t){
   setTimeout(()=>{
@@ -4655,11 +4725,13 @@ function xSectionsHTML(d,simple){
     const has=sec.slots&&sec.slots.length;
     if(has){
       const bm=barMarks(sec.slots,ts);
+      const LN=secLines(sec),lnAt={};if(LN.length>1)LN.forEach(l=>{if(l.n>1)lnAt[l.b]=l.n;});
       inner='<span class="barline"></span>';
       sec.slots.forEach((sl,ei)=>{
         inner+=xSlotHTML(sl,simple,ts,bm[ei].mids,secFrets(sec));
         const closed=bm[ei].closed;
         if(closed)inner+='<span class="barline"></span>';
+        if(lnAt[ei])inner+='<span class="lnend"><span class="lnrep rqb'+(lnAt[ei]>=10?' dd':'')+'">'+repHTML(lnAt[ei])+'</span></span>';
         if(sl.br){
           inner+='<span class="lbreak"></span>';
           if(closed&&ei<sec.slots.length-1)inner+='<span class="barline"></span>';
@@ -4912,7 +4984,7 @@ document.addEventListener('click',e=>{
   const ncc=e.target.closest&&e.target.closest('[data-nc]');
   if(ncc){ /* ficha N.C. de la paleta: añade un silencio a la sección activa */
     pushUndo();
-    S.sections[S.active].slots.push(newNC());
+    {const ss=S.sections[S.active].slots,ns=newNC();lineEndOn(ss,ns);ss.push(ns);}
     renderSections();
     toast('Silencio (N.C.) añadido a '+S.sections[S.active].name);
     return;
@@ -4934,14 +5006,17 @@ document.addEventListener('click',e=>{
   if(dup){
     const sEl=dup.closest('.slot'),si=+sEl.dataset.si,ei=+sEl.dataset.ei;
     pushUndo();
-    S.sections[si].slots.splice(ei+1,0,JSON.parse(JSON.stringify(S.sections[si].slots[ei])));
+    const ss=S.sections[si].slots,o=ss[ei],c=JSON.parse(JSON.stringify(o));
+    if(o.br||ei===ss.length-1){delete o.br;delete o.lr;}else bareSlot(c);
+    ss.splice(ei+1,0,c);
     renderSections();return;
   }
   const del=e.target.closest&&e.target.closest('.sl-x');
   if(del){
     const sEl=del.closest('.slot');
     pushUndo();
-    S.sections[+sEl.dataset.si].slots.splice(+sEl.dataset.ei,1);
+    const sec=S.sections[+sEl.dataset.si],ei=+sEl.dataset.ei;
+    lineEndOff(sec.slots,ei);sec.slots.splice(ei,1);lineTidy(sec);
     renderSections();return;
   }
   const dpb=e.target.closest&&e.target.closest('[data-dp]');
@@ -4976,8 +5051,9 @@ document.addEventListener('click',e=>{
   if(br){
     const sEl=br.closest('.slot');
     pushUndo();
-    const sl=S.sections[+sEl.dataset.si].slots[+sEl.dataset.ei];
-    sl.br=!sl.br;
+    const sec=S.sections[+sEl.dataset.si],sl=sec.slots[+sEl.dataset.ei];
+    sl.br=!sl.br;if(!sl.br)delete sl.lr;
+    lineTidy(sec);
     renderSections();return;
   }
   const lr=e.target.closest&&e.target.closest('[data-lrep]');
@@ -5004,6 +5080,16 @@ document.addEventListener('click',e=>{
       renderSections();
     }
     return;
+  }
+  const lnb=e.target.closest&&e.target.closest('[data-lnrep]');
+  if(lnb){
+    if(document.body.classList.contains('live'))return;
+    const [si,li]=lnb.dataset.lnrep.split(':').map(Number),sec=S.sections[si],l=sec&&secLines(sec)[li];
+    if(!l)return;
+    pushUndo();
+    const x=sec.slots[l.b],paso=(e.shiftKey||e.altKey)?-1:1,n=((x.lr||1)-1+paso+12)%12+1;
+    if(n>1)x.lr=n;else delete x.lr;
+    renderSections();return;
   }
   const rp=e.target.closest&&e.target.closest('.secrep');
   if(rp){
@@ -5093,13 +5179,28 @@ document.addEventListener('click',e=>{
     if(i>=S.sections.length-1)return;
     pushUndo();
     const a=S.sections[i],b=S.sections[i+1];
+    /* 2026-10-27: «Verso ×2» + «Verso 2» → «Verso» con su línea ×2 y la línea del remate: suena igual que antes.
+       Se puede siempre que cada parte sea de una línea o no se repita entera; si no, como antes (el ×N de arriba
+       vale para todo) y se avisa. */
+    const ra=a.repeat||1,rb=b.repeat||1,la=secLines(a).length,lb=secLines(b).length;
+    let msg='';
+    if(a.slots.length&&b.slots.length){
+      const exact=(ra===1||la===1)&&(rb===1||lb===1);
+      if(exact){
+        if(la===1&&ra>1)a.slots[a.slots.length-1].lr=ra;
+        if(lb===1&&rb>1)b.slots[b.slots.length-1].lr=rb;
+        if(ra>1||rb>1){a.repeat=1;msg=' · cada parte conserva su ×N, ahora en su línea';}
+      }else if(ra>1||rb>1)msg=' · ojo: las repeticiones no caben línea a línea, revisa los ×N';
+      a.slots[a.slots.length-1].br=true; /* la de abajo, en línea nueva */
+    }
     a.slots=a.slots.concat(b.slots);
+    lineTidy(a);
     a.note=[a.note,b.note].filter(x=>x&&x.trim()).join(' · ');
     gRemove(i+1);
     S.sections.splice(i+1,1);
     if(S.active>=S.sections.length)S.active=S.sections.length-1;
     renderSections();
-    toast('«'+b.name+'» fusionada en «'+a.name+'» · Ctrl+Z para deshacer');
+    toast('«'+b.name+'» fusionada en «'+a.name+'»'+msg+' · Ctrl+Z para deshacer');
     return;
   }
   const dupsec=e.target.closest&&e.target.closest('[data-dupsec]');
@@ -5372,18 +5473,22 @@ document.addEventListener('drop',e=>{
   const slots=S.sections[si].slots;
   const over=e.target.closest('.slot');
   let at=over?+over.dataset.ei:slots.length;
-  if(dragPayload.kind==='chord'){
-    slots.splice(at,0,newSlot(dragPayload.chord,dragPayload.voicing));
-  }else if(dragPayload.kind==='nc'){
-    slots.splice(at,0,newNC());
-  }else if(dragPayload.kind==='copy'){
-    slots.splice(at,0,JSON.parse(JSON.stringify(S.sections[dragPayload.si].slots[dragPayload.ei])));
-  }else{
+  /* el acorde que llega entra DENTRO de una línea (delante del que tiene debajo): no trae salto ni ×N.
+     Si entra al final de la sección, pasa a cerrar la última línea. El que se va deja su salto y su ×N al anterior. */
+  let ns;
+  if(dragPayload.kind==='chord')ns=newSlot(dragPayload.chord,dragPayload.voicing);
+  else if(dragPayload.kind==='nc')ns=newNC();
+  else if(dragPayload.kind==='copy')ns=bareSlot(JSON.parse(JSON.stringify(S.sections[dragPayload.si].slots[dragPayload.ei])));
+  else{
     const src=S.sections[dragPayload.si].slots;
-    const [moved]=src.splice(dragPayload.ei,1);
+    lineEndOff(src,dragPayload.ei);
+    ns=bareSlot(src.splice(dragPayload.ei,1)[0]);
     if(dragPayload.si===si&&at>dragPayload.ei)at--;
-    slots.splice(at,0,moved);
+    lineTidy(S.sections[dragPayload.si]);
   }
+  if(at>=slots.length)lineEndOn(slots,ns);
+  slots.splice(at,0,ns);
+  lineTidy(S.sections[si]);
   S.active=si;
   dragPayload=null;
   renderSections();
@@ -6402,7 +6507,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.27c';
+const APP_VER='2026.10.27d';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
