@@ -131,12 +131,12 @@
   #tapbtn{padding:5px 13px;border-radius:2px;border:1.5px solid var(--line2);background:var(--panel);
     color:var(--ink);font-family:var(--font-n);font-weight:700;font-size:13px;letter-spacing:.08em}
   #tapbtn.hit{background:var(--ink);color:var(--panel)}
-  #themebtn{margin-left:auto}
+  #livebtn{margin-left:auto}
   .topbar .sbtn{height:34px;padding-top:0;padding-bottom:0}
   /* tableta (Galaxy Tab S8+ en vertical ≈ 876 px): la barra superior cabe en UNA línea */
   @media (max-width:1180px){.brand small{display:none}}
   @media (max-width:1000px){.topbar{gap:8px 10px;padding:9px 14px}.keychip .klab{display:none}}
-  @media (max-width:860px){#themebtn .thlab{display:none}}
+  @media (max-width:640px){.brand small{display:none}.brand h1{font-size:19px}}
 
   /* ── transporte (barra inferior fija) ────── */
   .transport{position:fixed;bottom:0;left:0;right:0;z-index:60;display:flex;flex-wrap:wrap;align-items:center;
@@ -221,6 +221,30 @@
   .tpsld>span{display:flex;justify-content:space-between}
   .tpsld b{color:var(--ink);font-weight:600}
   .tpsld input[type=range]{width:100%;height:22px}
+  /* ── ajustes (2026-10-28): volumen, mezcla, guitarra, tema, resaltar y avance del directo en un solo panel ── */
+  .setpop{width:min(590px,calc(100vw - 24px));max-height:calc(100vh - 110px);overflow:auto}
+  .setgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+  .setcol{display:flex;flex-direction:column;gap:9px;min-width:0}
+  .setsub{font-family:var(--font-n);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);
+    border-bottom:1px dashed var(--line);padding:6px 0 4px;margin-top:4px}
+  .setsub small{font-weight:500;text-transform:none;letter-spacing:0}
+  .setcol>.setsub:first-child{margin-top:0}
+  .setpop .setvol{display:flex;align-items:center;gap:10px;height:auto;padding:0;border:none;background:none}
+  .setpop .setvol input[type=range]{flex:1;width:auto;height:24px}
+  .setpop .setvol .volico{font-size:19px}
+  .setval{font-family:var(--font-n);font-size:12.5px;font-weight:700;color:var(--ink);min-width:62px;text-align:right}
+  .setpop .mixrow{flex-direction:row;align-items:center;gap:10px}
+  .setpop .mixrow b{width:76px;flex:none}
+  .setpop .mixrow input[type=range]{flex:1;width:auto;height:24px}
+  .setrow{display:flex;flex-direction:column;gap:6px;font-size:13px}
+  .setrow>b{color:var(--ink);font-weight:600}
+  .setrow .tseg button{flex:1;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+  .setrow select{height:38px;padding:0 10px;border:1px solid var(--line);border-radius:2px;background-color:var(--panel);color:var(--ink);font-size:13.5px}
+  .setlink{flex:none;height:38px;display:inline-flex;align-items:center;gap:8px;justify-content:flex-start;text-align:left}
+  .setlink .ic{fill:none}
+  .setmute{display:inline-flex;color:var(--danger);font-size:15px;margin-left:-2px}
+  .setmute[hidden]{display:none}
+  @media (max-width:620px){.setgrid{grid-template-columns:1fr}}
   /* por debajo de 1100 px (tableta en vertical) metrónomo, batería, sonido y mezcla se quedan solo con su icono:
      así la barra cabe en UNA línea. El nombre sigue en el «title» */
   @media (max-width:1100px){
@@ -267,8 +291,16 @@
   .sdot{width:9px;height:9px;border-radius:50%;background:var(--g3);flex:none}
   .sdot.dirty{background:var(--g2);box-shadow:0 0 0 3px color-mix(in srgb, var(--g2) 25%, transparent)}
   /* un título largo no empuja ni mueve los botones de la barra superior: la pestaña tiene ancho fijo y encoge */
-  .songbox{flex:1 1 170px;max-width:300px;min-width:120px}
-  .songtab{width:100%;min-width:0}
+  .songbox{flex:1 1 230px;max-width:372px;min-width:180px;display:flex;align-items:stretch}
+  .songtab{width:100%;min-width:0;flex:1;border-radius:0}
+  /* ⏮ ⏭ pegados a la pestaña de la canción (2026-10-28): pasan a la anterior / siguiente del set, como en el directo */
+  .snav{flex:none;width:36px;height:34px;display:inline-flex;align-items:center;justify-content:center;padding:0;
+    border:1.5px solid var(--line2);background:var(--panel);color:var(--ink);font-size:15px}
+  .snav:first-child{border-right:none;border-radius:2px 0 0 2px}
+  .snav:last-child{border-left:none;border-radius:0 2px 2px 0}
+  .snav:hover{background:var(--ink);color:var(--panel)}
+  .snav:active{transform:translate(1px,1px)}
+  .snav .ic{fill:currentColor;stroke-width:1.6}
   .songtab .stitle{flex:1;min-width:0;text-align:left}
   .lrename{padding:3px 8px;border:1.5px solid var(--focus);border-radius:2px;background:var(--panel);color:var(--ink);font-size:13.5px}
   /* ── panel lateral «Canciones» ─────────────── */
@@ -406,6 +438,23 @@
   .modal p{margin:0 0 16px;font-size:14.5px}
   .modal b{font-family:var(--font-d)}
   .modalbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+  /* aviso de cambios sin guardar (2026-10-28): título, texto y los tres botones en UNA fila —
+     Cancelar a la izquierda (no hace nada) y las dos salidas juntas a la derecha; en pantallas estrechas, en columna */
+  .askmodal{width:min(500px,100%);max-width:none;padding:20px 22px 18px}
+  .askmodal h3{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:900;font-stretch:120%;letter-spacing:-.01em;margin:0 0 8px}
+  .askmodal .mdot{width:12px;height:12px;border-radius:50%;background:var(--g2);flex:none}
+  .askmodal p{margin:0 0 18px;font-size:15px;line-height:1.45}
+  .askmodal .modalbtns{flex-wrap:nowrap;align-items:center;gap:10px}
+  .askmodal .modalbtns .sbtn{height:42px;padding:0 16px;white-space:nowrap;font-size:13px}
+  .askmodal .mgap{flex:1}
+  .askmodal .mghost{border-color:transparent;background:transparent;color:var(--mut2);padding:0 8px}
+  .askmodal .mghost:hover{box-shadow:none;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+  .askmodal .mdanger{color:var(--danger);border-color:var(--danger)}
+  .askmodal .mdanger:hover{box-shadow:2px 2px 0 0 var(--danger)}
+  @media (max-width:460px){
+    .askmodal .modalbtns{flex-direction:column-reverse;align-items:stretch;gap:8px}
+    .askmodal .mgap{display:none}
+  }
 
   /* ── circle ──────────────────────────────── */
   #circle{background-image:var(--dots);background-size:6px 6px}
@@ -417,6 +466,34 @@
 
   /* ── legend ──────────────────────────────── */
   .legendrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:7px}
+  /* leyenda visual (2026-10-28) */
+  .lgd{display:flex;flex-direction:column;gap:9px}
+  .lgrow{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;align-items:start}
+  .lglab{font-family:var(--font-n);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding-top:4px}
+  .lgbody{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .lgdegs{display:flex;gap:4px;flex-wrap:wrap}
+  .lgdeg{display:flex;flex-direction:column;width:38px}
+  .lgdeg b{display:block;text-align:center;font-family:var(--font-d);font-weight:800;font-style:italic;font-size:12.5px;color:var(--on);padding:3px 0}
+  .lgdeg i{display:block;text-align:center;font-style:normal;font-family:var(--font-n);font-weight:700;font-size:10px;color:var(--on);padding:1px 0;opacity:.95}
+  .lgkeys{display:flex;flex-wrap:wrap;gap:4px 12px}
+  .lgk{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--mut2)}
+  .lgk i{font-style:normal;font-family:var(--font-n);font-weight:700;font-size:10px;color:var(--on);padding:1px 5px}
+  .lgdots{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  .lgdot{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:800;
+    font-size:11px;color:#151514;box-shadow:inset 0 0 0 .8px rgba(0,0,0,.2)}
+  .lgsep{width:1px;height:18px;background:var(--line);margin:0 3px}
+  .lgcap{font-size:11.5px;color:var(--mut)}
+  .lgdg{display:flex;align-items:center;gap:12px}
+  .lgsvg{width:78px;height:auto;display:block;flex:none}
+  .lgdgl{margin:0;padding:0;list-style:none;font-size:12px;color:var(--mut2);display:flex;flex-direction:column;gap:2px}
+  .lgdgl b{color:var(--ink);font-weight:700}
+  .lgsongs{flex-direction:row;flex-wrap:wrap;gap:6px 14px}
+  .lgsong{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut2)}
+  .lgmc{background:var(--ink);color:var(--panel);font-family:var(--font-n);font-weight:700;font-size:11.5px;padding:0 5px}
+  .lgbar{width:2.5px;height:18px;background:var(--ink)}
+  .lgmid{width:0;height:18px;border-left:2px dashed var(--ink);opacity:.45}
+  .lgrep{background:var(--accent);color:var(--on);font-family:var(--font-n);font-weight:700;font-size:11.5px;padding:0 5px;border-radius:2px}
+  .lgnc{border:1.5px dashed var(--mut);font-family:var(--font-d);font-weight:800;font-size:11px;padding:0 4px;color:var(--ink)}
   .legendrow:last-child{margin-bottom:0}
   .lgchip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:2px 8px;
     border-radius:0;font-family:var(--font-d);font-weight:800;font-size:12.5px;color:var(--on)}
@@ -460,6 +537,17 @@
   .tchip .nm{font-size:15.5px;font-weight:900;line-height:1.1}
   .tchip.bor{border-style:dashed}
   .tchip.sel{outline:none;box-shadow:3px 3px 0 0 var(--line2);transform:translate(-1px,-1px)}
+  /* pestañas de los trucos (2026-10-28) */
+  .ttabs{display:flex;border:1.5px solid var(--line2);margin:0 0 12px}
+  .ttab{flex:1;height:32px;border:none;border-right:1.5px solid var(--line2);background:var(--panel);color:var(--ink);font-family:var(--font-n);
+    font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:0 4px;white-space:nowrap}
+  .ttab:last-child{border-right:none}
+  .ttab.on{background:var(--ink);color:var(--panel)}
+  .trickrow.presets{gap:6px}
+  .presetbtn small{display:block;font-family:var(--font-n);font-size:10.5px;font-weight:500;color:var(--mut);margin-top:1px;letter-spacing:0}
+  .presetbtn b{font-weight:700}
+  .trickrow.presets .presetbtn{border-radius:2px;text-align:left;padding:5px 10px 4px;line-height:1.25}
+  .trickrow.presets .presetbtn:hover small{color:inherit;opacity:.8}
   .presetbtn{padding:5px 11px;border-radius:999px;border:1.5px solid var(--line2);background:var(--panel);
     color:var(--ink);font-size:12.5px;font-weight:600}
   .presetbtn:hover{background:var(--ink);color:var(--panel)}
@@ -468,6 +556,37 @@
 
   /* ── voicings ────────────────────────────── */
   #vhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}
+  /* ── buscador de acordes (2026-10-28): escribir cualquier acorde, o raíz + tipo, y ver todos sus voicings ── */
+  #vfind{margin:0 0 12px}
+  .vfbar{display:flex;align-items:center;border:1.5px solid var(--line2);background:var(--panel);height:42px}
+  .vfbar:focus-within{box-shadow:var(--hov)}
+  .vfico{display:inline-flex;padding:0 6px 0 11px;color:var(--mut);font-size:17px}
+  .vfbar input{flex:1;min-width:0;height:100%;border:none;background:transparent;color:var(--ink);font-size:15.5px;font-family:var(--font-d);font-weight:800;outline:none;padding:0 4px}
+  .vfbar input::placeholder{font-weight:500;color:var(--mut)}
+  .vfbar .sbtn{height:100%;border:none;border-left:1.5px solid var(--line2);border-radius:0;padding:0 16px}
+  #vfpick{margin-top:9px;display:flex;flex-direction:column;gap:7px}
+  #vfpick:empty{display:none}
+  .vfquick{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .vflab{font-family:var(--font-n);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+  .vfrow{display:flex;align-items:flex-start;gap:8px}
+  .vfrow>.vflab{padding-top:8px;flex:none;width:78px}
+  .vfchips{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+  .vfq{height:31px;padding:0 9px;border:1.5px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);font-family:var(--font-d);
+    font-weight:800;font-size:13.5px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+  .vfq:hover{border-color:var(--line2)}
+  .vfq.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .vfall{border-style:dashed;border-color:var(--line2)}
+  .vfseg{display:flex;flex-wrap:wrap;border:1.5px solid var(--line2);min-width:0}
+  .vfr{min-width:40px;height:33px;padding:0 6px;border:none;border-right:1px solid var(--line);background:var(--panel);color:var(--ink);font-family:var(--font-d);font-weight:800;font-size:14px}
+  .vfr:last-child{border-right:none}
+  .vfr:hover{background:var(--wedge)}
+  .vfr.on{background:var(--ink);color:var(--panel)}
+  .vfopts{flex-wrap:wrap;align-items:center;gap:8px;padding-top:2px}
+  .vfchk{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mut2);cursor:pointer}
+  .vfnote{font-size:13px;color:var(--mut2)}
+  .vfexit{margin-left:auto;font-weight:600;font-family:var(--font-b);color:var(--mut2)}
+  .tone.topt{opacity:.5}
+  @media (max-width:700px){.vfrow{flex-direction:column;gap:4px}.vfrow>.vflab{padding-top:0;width:auto}}
   .vbadge{display:inline-flex;flex-direction:column;align-items:center;padding:6px 16px;border-radius:0;color:var(--on);font-family:var(--font-d);
     border:1.5px solid var(--line2);box-shadow:3px 3px 0 0 var(--line2)}
   .vbadge .deg{font-size:11px;font-style:italic;font-weight:800}
@@ -768,6 +887,30 @@
   .coldot:hover{border-color:var(--ink)}
   .coldot.sel{border-color:var(--ink);box-shadow:0 0 0 2.5px var(--panel) inset}
   .coldot.none{background:var(--bg);color:var(--mut);font-size:16px;line-height:1}
+  .colauto{grid-column:1/-1;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;margin-top:2px;
+    border:1.5px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);font-size:12.5px;font-weight:600}
+  .colauto:hover{border-color:var(--line2)}
+  /* diálogo de colores automáticos */
+  .modal.dlg.acdlg{max-width:700px}
+  .acdlg .dsec>.dlab{width:auto;display:block}
+  .achead{display:flex;align-items:center;gap:9px}
+  .acintro{font-size:13.5px;color:var(--mut2);margin:0 0 10px;line-height:1.45}
+  .aclist{display:flex;flex-direction:column;gap:6px}
+  .acrule{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 8px;border:1.5px solid var(--line);background:var(--surf1)}
+  .acnum{font-family:var(--font-n);font-size:12px;font-weight:700;color:var(--mut);width:16px;text-align:center;flex:none}
+  .acrule .acw{flex:1 1 180px;min-width:150px;height:34px;padding:0 9px;border:1.5px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);font-size:14px}
+  .acdots{display:flex;gap:5px;flex:none}
+  .acdots .coldot{width:24px;height:24px;border-width:2px}
+  .acdots .coldot.none{font-size:14px}
+  .acbtns{display:flex;gap:4px;flex:none}
+  .acmini{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1.5px solid var(--line);border-radius:2px;background:var(--panel);color:var(--mut2);font-size:14px;font-weight:700}
+  .acmini:hover{border-color:var(--line2);color:var(--ink)}
+  .acmini.ph{visibility:hidden}
+  .acrowbtns{display:flex;justify-content:space-between;gap:8px;margin:8px 0 2px}
+  .acapply{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}
+  .acapply .sbtn{height:38px;text-transform:none;letter-spacing:0;font-size:13.5px}
+  .achint{font-size:12px;color:var(--mut);margin:7px 0 0}
+  .acundo{margin-top:8px;text-transform:none;letter-spacing:0;font-size:13px;display:inline-flex;align-items:center;gap:6px}
   /* sección sin acordes: la nota manda, a la izquierda y centrada en vertical */
   .secrow.noslots .secbody{align-items:flex-start;justify-content:center}
   .secrow.noslots .secnote{order:1;margin:12px 14px 8px}
@@ -841,7 +984,8 @@
   .secrow.compact .secnote{align-self:flex-start;width:auto;max-width:calc(100% - 20px);margin:0 10px 5px;line-height:1.35}
   .secrow.compact.noslots .secnote{margin:8px 10px}
   .secrow.compact .slot.playing{background:color-mix(in srgb, var(--play) 14%, transparent)}
-  .secrow.compact .secctl{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:6px 5px;align-content:start}
+  .secrow.compact .secctl{display:flex;flex-direction:column;gap:3px;padding:6px 5px}
+  .secrow.compact .secctl.xopen{display:grid;gap:5px;padding:8px}
   .secrow.compact .scbtn{font-size:13px;padding:2px 4px}
   .secrow.compact .secname{font-size:16px;padding:8px 3px;width:var(--namew,auto)}
   .secrow.compact .secname.editing{width:auto}
@@ -870,10 +1014,22 @@
   .pchip.ncchip{background:var(--panel);color:var(--ink);border:1.5px dashed var(--mut);box-shadow:none}
   .fnlab.ncfn{background:var(--mut);color:var(--panel);cursor:default}
   /* energía de la batería por sección: indicador oculto que asoma al pasar el ratón por la fila */
-  .scbtn.lvbtn{opacity:0;transition:opacity .12s;font-family:var(--font-n);font-weight:700;font-size:12px;padding:2px 4px}
-  .secrow:hover .scbtn.lvbtn,.scbtn.lvbtn:focus-visible,.scbtn.lvbtn.open{opacity:.6}
-  .secrow:hover .scbtn.lvbtn:hover,.scbtn.lvbtn.open{opacity:1}
   .scbtn.lvbtn.man{color:var(--focus);border-color:var(--focus)}
+  /* ── botones de la sección (2026-10-28): cerrados = ▷ ▭ ⋯ en una columna; ⋯ abre todos con nombre en 2 columnas ── */
+  .secctl .scx,.secctl .sclab{display:none}
+  .scbtn{position:relative}
+  .scmore.man::after{content:'';position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--focus)}
+  .secctl.xopen{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;align-content:start;width:300px;padding:8px}
+  .secctl.xopen .scx{display:flex}
+  .secctl.xopen .scbtn,.secrow.compact .secctl.xopen .scbtn{display:flex;align-items:center;gap:7px;justify-content:flex-start;text-align:left;
+    font-size:14px;padding:5px 8px;min-height:34px;min-width:0}
+  .secctl.xopen .sclab{display:inline;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.15;min-width:0}
+  .secctl.xopen .scbtn.del .sclab{color:var(--danger)}
+  .secctl.xopen .scmore{order:99;grid-column:1/-1;justify-content:center;background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .secctl.xopen .scmore .sclab{color:inherit}
+  .secctl.xopen .scmore.man::after{display:none}
+  .secctl.xopen .lvbtn{font-family:var(--font-b)}
+  .secctl.xopen .lvbtn.man .sclab{color:var(--focus)}
   body.live .scbtn.lvbtn{display:none}
   .lvpop{position:fixed;z-index:90;padding:10px 12px;display:flex;flex-direction:column;gap:7px;border:1.5px solid var(--line2);box-shadow:var(--pop)}
   .lvpop .dplab{width:84px}
@@ -1041,13 +1197,24 @@
      anterior: así, cuando una fila salta de línea, la línea nueva empieza con su barra. Todos los acordes
      reservan el mismo hueco a su izquierda (lleven barra o no), de modo que las columnas quedan alineadas
      entre líneas. Las barras sueltas se ocultan, salvo la que cierra la sección (.bend). */
-  body.live .slots>.barline:not(.bend){display:none}
-  body.live .secrow.compact .slots>.slot{margin-left:16px}
-  body.live .secrow.compact .slots>.slot.bs::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
+  /* 2026-10-28 (Rodney): también en el modo normal. Antes, al partirse sola una progresión larga por falta de ancho,
+     la línea nueva empezaba sin barra y la rejilla se descolocaba; ahora cada acorde que empieza compás lleva su barra
+     delante, igual que en el directo. La pastilla ×N de una línea repetida se cierra con su barra en los dos modos. */
+  .slots>.barline:not(.bend){display:none}
+  .secrow.compact .slots>.slot{margin-left:16px}
+  .secrow.compact .slots>.slot.bs::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
     background:var(--ink);opacity:.7;pointer-events:none}
-  body.live .secrow:not(.compact) .slots>.slot{margin-left:12.5px}
-  body.live .secrow:not(.compact) .slots>.slot.bs::before{content:'';position:absolute;left:-12px;top:4px;bottom:4px;width:2.5px;
+  .secrow:not(.compact) .slots>.slot{margin-left:12.5px}
+  .secrow:not(.compact) .slots>.slot.bs::before{content:'';position:absolute;left:-12px;top:7px;bottom:7px;width:2.5px;
     background:var(--ink);opacity:.8;pointer-events:none}
+  body.live .secrow:not(.compact) .slots>.slot.bs::before{top:4px;bottom:4px}
+  .secrow.compact .slots>.lnend:not(.lg1){margin:0 0 0 16px}
+  .secrow.compact .slots>.lnend:not(.lg1)::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
+    background:var(--ink);opacity:.7;pointer-events:none}
+  .secrow:not(.compact) .slots>.lnend:not(.lg1){margin:0 0 0 12.5px}
+  .secrow:not(.compact) .slots>.lnend:not(.lg1)::before{content:'';position:absolute;left:-12px;top:7px;bottom:7px;width:2.5px;
+    background:var(--ink);opacity:.8;pointer-events:none}
+  body.live .secrow:not(.compact) .slots>.lnend::before{top:4px;bottom:4px}
   body.live .livebtns{grid-column:1/-1}
   body.live .lbtn{min-height:64px;font-size:30px}
   body.live .lbtn.sm{font-size:22px}
@@ -1100,6 +1267,40 @@
   @media (min-width:1500px){details.help{margin:12px auto 20px}}
   details.help summary{cursor:pointer;font-weight:700;color:var(--ink);gap:8px}
   details.help ol{margin:6px 0 10px;padding-left:22px}
+  /* manual por capítulos (2026-10-28) */
+  details.help{color:var(--ink)}
+  details.help summary{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid var(--line);background:var(--panel)}
+  .mansum{display:inline-flex;align-items:center;gap:9px;font-family:var(--font-d);font-size:16px;font-weight:900;font-stretch:115%}
+  .man{display:grid;grid-template-columns:250px minmax(0,1fr);border:1px solid var(--line);border-top:none;background:var(--panel)}
+  .mannav{border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--surf1)}
+  .manq{display:flex;align-items:center;gap:6px;height:36px;padding:0 9px;border:1.5px solid var(--line);background:var(--panel);color:var(--mut)}
+  .manq:focus-within{border-color:var(--line2)}
+  .manq input{flex:1;min-width:0;border:none;background:transparent;color:var(--ink);font-size:13.5px;outline:none}
+  .manlist{display:flex;flex-direction:column;gap:2px}
+  .manch{display:flex;align-items:center;gap:8px;padding:7px 8px;border:none;background:none;color:var(--ink);text-align:left;font-size:13.5px;font-weight:600;border-radius:2px}
+  .manch:hover{background:var(--wedge)}
+  .manch.on{background:var(--ink);color:var(--panel)}
+  .mann{font-family:var(--font-n);font-size:11px;font-weight:700;width:18px;text-align:right;opacity:.65;flex:none}
+  .mant{min-width:0}
+  .mannone{font-size:13px;color:var(--mut);margin:6px 4px}
+  .manbody{padding:16px 22px 18px;min-width:0;font-size:14.5px;line-height:1.55}
+  .manhead{display:flex;align-items:center;gap:10px;font-size:20px}
+  .manhead h3{font-size:24px;font-weight:900;font-stretch:115%;letter-spacing:-.01em}
+  .mannum{font-family:var(--font-n);font-size:12px;font-weight:700;color:var(--mut);border:1.5px solid var(--line);padding:1px 6px}
+  .manp{margin:8px 0 10px;color:var(--mut2);font-size:15px}
+  .manul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:78ch}
+  .manul li::marker{color:var(--mut)}
+  .manul .ic,.manp .ic{color:var(--ink)}
+  .manul mark{background:#f5e27a;color:#151514;padding:0 1px}
+  .manfoot{display:flex;justify-content:space-between;gap:10px;margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}
+  .manfoot .sbtn{display:inline-flex;align-items:center;gap:6px;height:36px;text-transform:none;letter-spacing:0;font-size:13px}
+  @media (max-width:760px){
+    .man{grid-template-columns:1fr}
+    .mannav{border-right:none;border-bottom:1px solid var(--line)}
+    .manlist{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:2px}
+    .manch{flex:none;white-space:nowrap}
+    .manbody{padding:14px 14px 16px}
+  }
   details.help>:not(summary) .ic{color:var(--ink)}
   /* en la ayuda, los colores de función van como fichas (el texto de color sobre blanco se leía mal) */
   .hlchip{color:var(--on);padding:0 5px;white-space:nowrap}
@@ -1125,14 +1326,15 @@
 <header class="topbar">
   <div class="brand"><h1>GuitarStudio</h1><small>compón · ensaya · toca</small><span class="appver" id="appver" role="button" tabindex="0"></span></div>
   <div class="songbox">
+    <button class="snav" id="songprev" title="Canción anterior del set" aria-label="Canción anterior"><i data-ic="skip-back"></i></button>
     <button class="songtab" id="songtab" title="Mis canciones: sets, carpetas, archivo">
       <span class="sdot" id="sdot"></span><span class="stitle" id="stitle">Sin título</span><span class="caret"><i data-ic="chevron-down"></i></span>
     </button>
+    <button class="snav" id="songnext" title="Canción siguiente del set" aria-label="Canción siguiente"><i data-ic="skip-forward"></i></button>
   </div>
   <button class="sbtn primary" id="savebtn" title="Guardar la canción actual (Ctrl+S)">Guardar</button>
   <span class="keychip" id="keychip"></span>
   <button class="sbtn" id="livebtn" title="Modo directo: pantalla de escenario con botones grandes (también responde a pasapáginas Bluetooth y al teclado)"><i data-ic="monitor-play"></i> directo</button>
-  <button class="sbtn" id="themebtn" title="Cambiar tema: automático / claro / oscuro"><i data-ic="sun-moon"></i> auto</button>
 </header>
 
 <!-- ════ panel lateral «Canciones» (sets · biblioteca en carpetas · archivo) ════ -->
@@ -1206,9 +1408,7 @@
     </div>
     <details class="panel boxpad fold" data-fold="leyenda" open>
       <summary><span class="boxtitle">leyenda</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
-      <div class="legendrow" id="legendgrades"></div>
-      <div class="legendrow" id="legendfuncs"></div>
-      <div class="legendrow" id="legendroles"></div>
+      <div class="lgd" id="legend"></div>
     </details>
     <details class="panel boxpad fold" data-fold="trucos" open>
       <summary><span class="boxtitle">trucos de composición</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
@@ -1223,6 +1423,7 @@
     </div>
     <div class="panel boxpad">
       <div class="boxtitle">voicings del acorde</div>
+      <div id="vfind"></div>
       <div id="vhead"></div>
       <div id="voicings"></div>
     </div>
@@ -1286,23 +1487,12 @@
   <div id="sections"></div>
 </section>
 
-<details class="help fold">
-  <summary><span>¿Cómo se usa?</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
-  <ol>
-    <li><b>Tonalidad:</b> haz clic en cualquier nota gris del círculo para elegir la tonalidad. El anillo exterior fija una tonalidad <b>mayor</b> (y desactiva «ver como menor» si estaba puesta) y el anillo medio fija una tonalidad <b>menor</b>. Los acordes de la escala se colorean por grado (I, ii, iii…).</li>
-    <li><b>Voicings:</b> haz clic en un acorde coloreado (círculo o paleta) para ver acorde abierto, cejillas, quintas rock, tríadas con inversiones y una fila de <b>tensiones · sus · jazz</b> (sus2, sus4, maj7, m7, 6, add9, 9, 13…). Clic en un diagrama = escucharlo. Los puntos indican la función de cada nota: <b class="hlchip" style="background:var(--r1)">1 = fundamental</b>, <b class="hlchip" style="background:var(--r3)">3 = tercera</b>, <b class="hlchip" style="background:var(--r5)">5 = quinta</b>, <b class="hlchip" style="background:var(--r7)">7 = séptima</b> — también en las cuerdas al aire.</li>
-    <li><b>Progresión:</b> arrastra acordes a una sección, o usa «<i data-ic="plus"></i> añadir» (va a la sección activa, la que lleva el nombre enmarcado). «×N» abre la duración: compases (1·2·3·4·6·8) o tiempos (½·1·2·3); con «<i data-ic="plus"></i>» se suman (1 compás + 2 tiempos = 1½). La ficha <b>N.C.</b> del final de la paleta es un silencio que corta el sonido (la batería sigue o para). Las barras | separan compases; si un acorde empieza o acaba a mitad de compás, una <b>raya discontinua</b> dentro de su tarjeta marca dónde cae la barra, y si una sección no cierra en compases enteros, su último compás es <b>corto</b> (p. ej. «compás de 2t», como un 2/4): la batería y el metrónomo lo respetan y la sección siguiente empieza en el «1». <i data-ic="corner-down-left"></i> salta a la siguiente línea para ordenar los acordes como frases musicales. <i data-ic="copy"></i> duplica un acorde o una sección y <i data-ic="corner-right-down"></i> fusiona una sección con la siguiente. La <b>vista simple</b> muestra cada acorde superdenso: grado y duración a la izquierda y el nombre bien grande. La canción tiene <b>dos vistas</b> — «simple» (chuleta) y «diagramas» — y el botón <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> de la cabecera cambia entre ellas. El <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> de cada fila abre o pliega solo esa sección <b>dentro de la vista actual</b>, y cada vista recuerda ese estado por separado: encoge las partes que ya te sabes y deja con diagramas las difíciles.</li>
-    <li><b>Canción completa:</b> cada sección es una fila con su nombre en vertical (clic = activar, <i data-ic="pencil"></i> o doble clic = renombrar, arrastra el nombre = reordenar) y sus botones al lado: <i data-ic="play"></i> la toca — con el <b>bucle encendido</b> repite esa sección sola una y otra vez; con el <b>bucle apagado</b> arranca ahí y sigue con el resto de la canción —, <i data-ic="palette"></i> le pone un <b>color de fondo</b> — p. ej. amarillo al solo, para localizarlo de un vistazo; se ve también en el directo y en las imágenes exportadas —, <i data-ic="copy"></i> duplica, <i data-ic="x"></i> elimina y <i data-ic="sticky-note"></i> añade una nota para el directo. Las repeticiones van todas en la <b>columna de la derecha</b>, justo detrás de los acordes, y con la misma <b>pastilla roja «×N»</b>: pegada al último acorde, la de la <b>sección</b> (la repite hasta 12 veces sin duplicarla; el «×1» tenue sirve para darle vueltas); por fuera, sobre un <b>corchete rojo</b>, la de un <b>bloque entero de secciones</b>, que marcas arrastrando de arriba abajo por esa columna (p. ej. Intro-Verso-Coro ×2). Clic en la pastilla sube las repeticiones, Mayús+clic las baja y, en un bloque ×2, quita el corchete. Si la sección tiene <b>varias líneas</b> (<i data-ic="corner-down-left"></i>), cada línea lleva al final su <b>propia pastilla</b>: esa línea suena ×N antes de pasar a la siguiente (un Verso que repite su progresión y remata distinto cabe en una sola sección); la de la columna repite la sección entera. Fusionar «Verso ×2» con «Verso 2» los deja así, sonando igual. Las secciones nuevas se crean justo detrás de la sección activa. Si la sección no tiene acordes, la nota se muestra en grande.</li>
-    <li><b>Escuchar:</b> todos los controles de reproducción viven en la barra inferior. <i data-ic="play"></i> (o barra espaciadora) toca toda la canción; el <i data-ic="play"></i> de cada sección toca solo esa parte, ideal para estudiar. TAP marca el tempo con clics, «cuenta de entrada» da un compás de claqueta y la batería se enciende con su casilla. La <b>guitarra</b> da un rasgueo completo al empezar cada acorde y, en cada tiempo siguiente mientras dure, un golpe en <b>palm mute</b> (las 3 cuerdas graves, corto y apagado); un acorde de ½ o 1 tiempo solo lleva el rasgueo, y cada golpe corta lo que sonaba en esa cuerda. <b>ataque</b> controla la velocidad del rasgueo (izquierda = todas las notas a la vez) y <b>sustain</b> la caída máxima del rasgueo inicial. En <i data-ic="sliders-horizontal"></i> mezcla ajustas el volumen de acordes, batería y metrónomo por separado. También suenan las notas del diapasón al hacer clic. La tarjeta que suena se ilumina; con <b>resaltar</b> eliges si se ilumina <b>cada acorde</b> o <b>solo la sección</b> entera — en directo, si la banda no va clavada al clic del tempo, saber la sección es más fiable que el acorde exacto. Este ajuste se recuerda en el dispositivo, para todas las canciones.</li>
-    <li><b>Batería y energía por sección:</b> en el panel de ritmo eliges el <b>estilo</b> de la canción (rock, pop 80, rock rápido (movida), medio tiempo, balada, rumba, ska, funk o vals en 3/4); se guarda con ella. <b><i data-ic="play"></i> oír el estilo</b> toca un compás de cada nivel y luego el redoble y el final. Cada estilo tiene <b>4 niveles de energía</b> — 1 suave (charles o aro) · 2 verso · 3 estribillo (crash y charles abierto) · 4 clímax (ride o bombo doblado) — y la app elige el nivel <b>por el nombre de cada sección</b> (en inglés o en castellano; «Verse 2» cuenta como «Verse»): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3; un nombre desconocido toma el de la sección anterior. Cuando la sección siguiente cambia de nivel suena un <b>redoble</b> en el último compás, y si sube a 3 o 4 entra con <b>crash</b>; en las repeticiones (×N o corchete rojo) el redoble va solo en la última vuelta. Con el bucle apagado, la canción acaba con redoble y <b>golpe final</b>. Para forzarlo a mano, pasa el ratón por una sección: asoma un <b><i data-ic="zap"></i></b> tenue al final de sus botones; su panel elige nivel (auto · — · 1–4) y redoble al final (auto · sí · no). No se ve en el directo ni en las imágenes. Un <b>N.C.</b> (silencio) puede dejar la batería sonando o pararla.</li>
-    <li><b>Modo directo:</b> el botón <b><i data-ic="monitor-play"></i> directo</b> abre la vista de escenario: solo la canción, con botones grandes — <i data-ic="skip-back"></i> <i data-ic="skip-forward"></i> o un <b>deslizamiento lateral con el dedo</b> (al entrar, una mano animada te recuerda el gesto hasta que lo uses una vez) cambian de canción siguiendo el set activo — o, si no hay set, el orden de tu biblioteca, <i data-ic="play"></i> toca, <i data-ic="rectangle-horizontal"></i>/<i data-ic="grid-3x3"></i> alterna entre vista simple y vista diagramas y <i data-ic="x"></i> (o Esc) sale. La barra del título queda fija arriba. En el directo, <b>toca el nombre de una sección</b> para abrirla con diagramas dentro de la vista simple, o plegarla a simple dentro de la vista diagramas ; las secciones abiertas con diagramas muestran además su botón <i data-ic="play"></i> (tocar solo esa parte), y las simples quedan limpias. <b>Cada vista recuerda qué secciones dejaste abiertas o plegadas, canción por canción</b>, aunque cambies de tema en pleno set. Mientras suena, la pantalla baja (o sube) sola para dejar arriba la sección que suena, y la sección en curso queda enmarcada en azul y la pantalla la sigue sola. Las partes sin acordes (un solo, una intro hablada…) <b>duran ×N compases</b> en la reproducción — toca su ×N (sale siempre, aunque la sección esté vacía) y elige de 1 a 16, 20, 24 o 32 compases, o ajusta de uno en uno con −1/+1 (— las salta).</li>
-    <li><b>Directo con repeticiones que cambian (ocultar y anotar):</b> cuando una parte vuelve <b>casi igual</b> (Verso-Coro-Puente otra vez, pero con un corte o un final distinto), escribe la canción entera en modo normal para ensayarla tal cual y después aligera el directo: <b>① Ocultar:</b> el botón <b><i data-ic="eye"></i></b> de cada sección (junto al <i data-ic="palette"></i>) la oculta <b>solo en el directo</b> — pasa a <i data-ic="eye-off"></i> y su nombre se atenúa; en modo normal la sigues viendo y <b>al reproducir suena igual</b>, porque ocultar solo afecta a lo que ves. En el directo, el botón <b><i data-ic="eye-off"></i></b> de la barra de abajo (solo aparece si la canción tiene secciones ocultas) las enseña un momento, semitransparentes; al volver a entrar al directo quedan ocultas otra vez. <b>② Anotar:</b> en el directo, arrastra por la columna de la derecha de arriba abajo para dibujar un <b>corchete discontinuo «×2~»</b>: es un <b>recordatorio</b> de que ese bloque vuelve con variaciones y <b>no cambia lo que suena</b> (el corchete rojo continuo, que se dibuja en modo normal, sí repite de verdad). Toca el «×2~» para pasar a ×3, ×4 y, al siguiente toque, quitarlo. No puede pisar un corchete real (gana el real). Las anotaciones se guardan solas en la canción de la biblioteca — sin marcarla como «sin guardar» —, siempre que la canción esté guardada al menos una vez; en modo normal se ven tenues. <b>③ Al reproducir:</b> cuando suena una sección oculta, se ilumina la sección visible a la que corresponde con la marca <b>«2ª»</b>, el corchete muestra la vuelta («2/2~») y, si la oculta tiene nota, aparece encima (p. ej. «2ª · corte en el compás 4») — así las variaciones siguen a la vista sin ocupar sitio. La pareja se busca entre las ocultas que van <b>dentro del corchete o justo detrás</b>: primero por nombre («Verso 2», «Verso II» o «Verso (bis)» van con «Verso») y, si los nombres no coinciden, por orden cuando las cuentas cuadran. Si una oculta no tiene pareja, en su sitio se enciende una <b>barra de luz</b> fina con su nombre. Al sonar, la pastilla ×N de la sección o del bloque se pone azul y muestra la vuelta en curso («1/2», «2/2»), y la tira de abajo marca cada vuelta. <b>④ Tira de progreso:</b> encima de los botones del directo, una tira con un tramo por sección — también las ocultas, rayadas — te enseña la canción entera: lo ya tocado se atenúa y el tramo actual va en azul.</li>
-    <li><b>Pedal pasapáginas:</b> en el directo sirven los pedales-teclado (pasapáginas Bluetooth) y el propio teclado: <b>Av Pág / Re Pág o las flechas ← →</b> cambian de canción y la barra espaciadora toca / para.</li>
-    <li><b>Diapasón y licks:</b> el diapasón usa siempre la <b>tónica de la canción</b>. Cada nota son dos cajas: la <b>nota</b> (blanca, fija) y su <b>grado</b> (de color, contado desde la tónica). Un <b>clic</b> hace sonar la nota; con <b>doble clic</b> esa nota pasa a ser la tónica (<b>modular</b>): los grados cambian, las notas no, y junto a la pantallita aparece «modulado» con una × para volver. Con <b>escala</b> ves solo sus notas y con <b>acorde</b> resaltas su arpegio; «el que suena» lo va cambiando mientras reproduces la canción. Debajo, la <b>regla de semitonos</b> enseña la escala casilla a casilla (1 casilla = ½ tono = 1 traste) y el salto entre notas: T o ½. En el <b>editor de licks</b> dibujas en la rejilla («pos» = traste de la primera fila); cada nota lleva su grado. Botones: nota, secundaria, <b>→ flecha</b>, <b>sl</b> slide, <b>h</b> hammer-on y <b>p</b> pull-off (toca dos notas), <b>bnd</b> bend (toca una nota: ½, 1 o 1½ tono) y <b>▭ agrupar</b> (toca las notas y pulsa «cerrar grupo»). <b>Arrastra una nota para moverla</b>, borra con <b>doble clic</b> cualquier cosa del dibujo (nota, flecha, slide, bend o grupo) y deshaz el dibujo con <i data-ic="undo-2"></i> o Ctrl+Z. Con <b><i data-ic="plus"></i></b> el diagrama va a la sección activa; toca un diagrama en la canción para reabrirlo en el editor y «<i data-ic="check"></i> actualizar»lo, o quítalo con su ×.</li>
-    <li><b>Canciones:</b> el nombre de la canción y la tonalidad están siempre en la barra superior; el punto naranja avisa de cambios sin guardar (verde = guardada). Pulsa <b>Guardar</b> o Ctrl+S; <b>doble clic en el título</b> de la progresión la renombra. La pestaña de la canción abre el <b>panel lateral «Canciones»</b> (Esc o <i data-ic="x"></i> lo cierra), con el nombre de la canción actual y Guardar arriba, y dos pestañas: <b>SET</b> — eliges el set (o «♪ todas las canciones»), creas, renombras o borras sets, ves solo sus canciones en orden, las ordenas arrastrando <i data-ic="grip-vertical"></i> y un clic carga la canción — y <b>BIBLIOTECA</b> — tus canciones en <b>carpetas</b> (un solo nivel) que se abren y cierran con un clic y recuerdan cómo las dejaste; el buscador abre las carpetas que tienen coincidencias y la ✓ marca las canciones del set activo. Arrastrar una canción a otra carpeta la mueve allí. Cada fila es siempre una sola línea: nº · nombre · tono · bpm. Si cambias de canción con cambios pendientes, la app pregunta antes. <b>Deshacer y rehacer:</b> botones <i data-ic="undo-2"></i> <i data-ic="redo-2"></i> de la barra inferior (en la tableta) o Ctrl+Z / Ctrl+Y, para cualquier cambio en la progresión. El botón <i data-ic="sun-moon"></i> cambia entre tema automático, claro y oscuro.</li>
-    <li><b><i data-ic="plus"></i> Nueva · <i data-ic="square"></i> Editar · <i data-ic="arrow-down-up"></i> Archivo</b> (pie del panel): <b><i data-ic="plus"></i> Nueva</b> pide el nombre (propone «Idea» con la fecha, p. ej. «Idea 29-sep»; Enter acepta), la carpeta, la plantilla — vacía o Intro · Verse · Chorus · Verse · Chorus · Bridge · Chorus · Outro, que ya encaja con la energía de la batería — y si la añades al set activo; se guarda al momento. Guardar una canción por primera vez ya no la mete sola en el set. <b><i data-ic="square"></i> Editar</b> pone casillas en las filas (y «marcar todas» de la vista o de una carpeta; en edición un clic marca en vez de cargar) y una barra de acciones: <b><i data-ic="plus"></i> al set / − del set</b>, <b>mover a carpeta</b>, <b>duplicar</b>, <b>renombrar</b> (con una marcada), <b><i data-ic="download"></i> .json</b> y <b>borrar</b> (pide confirmación). En edición también creas, renombras y borras carpetas (sus canciones pasan a «Sin carpeta»). <b><i data-ic="arrow-down-up"></i> Archivo</b> exporta la canción actual, el set activo o la <b>biblioteca completa</b> (copia de seguridad con carpetas y sets), e importa cualquier .json — también los antiguos: antes de tocar nada te enseña qué es (canción, set, biblioteca o lista), cuántas canciones ya tienes iguales (se reutilizan, no se copian), cuántas han cambiado (actualizar, mantener la tuya o guardar copia — para todas o una a una) y cuántas son nuevas, y a qué carpeta irán. Si el set ya existe, lo reemplazas o se crea «Nombre (2)»; importar dos veces lo mismo no duplica nada.</li>
-    <li><b>Set lists e imágenes:</b> un set = las canciones y el orden de una banda o un bolo. Las canciones se añaden desde BIBLIOTECA con <i data-ic="square"></i> Editar → «<i data-ic="plus"></i> al set»; un set no borra nada de la biblioteca. El <b>modo directo</b> recorre el set activo en su orden (o toda la biblioteca si no hay set). Con <b><i data-ic="images"></i> Imágenes</b> (pestaña SET) entras en una pantalla completa con las canciones del set marcadas y una <b>vista previa real</b> de la que elijas: vista simple o con diagramas, tema blanco o negro, ancho, nitidez y destino (ZIP o una carpeta de tu equipo); «Exportar N imágenes» genera una por canción marcada, numeradas según el orden del set (<b>01-Canción-Tono.png</b>). Esc sale.</li>
-  </ol>
+<details class="help fold" id="manual" data-fold="manual">
+  <summary><span class="mansum"><i data-ic="book-open"></i> Manual de GuitarStudio</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
+  <div class="man">
+    <nav class="mannav" id="mannav" aria-label="Capítulos del manual"></nav>
+    <article class="manbody" id="manbody"></article>
+  </div>
 </details>
 
 <div class="transport">
@@ -1340,14 +1530,6 @@
       <div class="tprow"><b></b>
         <button type="button" id="drumdemo" class="tpdemo" title="Escucha el estilo elegido: un compás de cada nivel — 1 suave · 2 verso · 3 estribillo · 4 clímax — y luego el redoble y el final"><i data-ic="play"></i> oír el estilo</button>
       </div>
-      <div class="tprow" title="Qué se ilumina mientras suena: cada acorde, o solo la sección entera — en directo, si la banda no va clavada al clic, la sección es más fiable que el acorde exacto"><b>resaltar</b>
-        <select id="hlmode"><option value="chord" selected>cada acorde</option><option value="sec">solo la sección</option></select>
-      </div>
-      <div class="tprow" title="En el modo directo, aunque NO le des a reproducir, la pantalla va bajando sola, sección a sección, desde que la canción sale en pantalla. «Al tempo» usa los compases y las repeticiones de cada sección con el tempo de la canción; «cada N s» da el mismo tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca la sección que suena en la tira de abajo y sigue desde ahí. Vale para todas las canciones de este aparato."><b>avance</b>
-        <select id="autoadv"><option value="">solo al reproducir</option><option value="tempo">sin reproducir · al tempo</option>
-          <option value="10">sin reproducir · cada 10 s</option><option value="15">sin reproducir · cada 15 s</option><option value="20">sin reproducir · cada 20 s</option>
-          <option value="30">sin reproducir · cada 30 s</option><option value="45">sin reproducir · cada 45 s</option><option value="60">sin reproducir · cada 60 s</option></select>
-      </div>
       <div class="tswrow">
         <label class="tpill tsw"><input type="checkbox" id="countin"><span>cuenta de entrada</span></label>
         <label class="tpill tsw"><input type="checkbox" id="loop" checked><span>bucle</span></label>
@@ -1367,27 +1549,42 @@
 
   <div class="tright">
     <div class="tgrp">
-      <button class="tpill" id="soundbtn" title="Ataque y sustain de los acordes"><i class="tico"><i data-ic="audio-lines"></i></i><span class="tlab">sonido</span></button>
-      <div class="tpop tpop-r panel" id="pop-sonido" hidden>
-        <div class="tpophead"><span class="tpoptitle">sonido</span><button class="tpopx" data-popclose title="Cerrar"><i data-ic="x"></i></button></div>
-        <label class="tpsld" title="Velocidad del rasgueo: izquierda = todas las cuerdas a la vez (plaqué), derecha = rasgueo lento">
-          <span><b>ataque</b></span><input type="range" id="attack" min="0" max="50" step="2" value="20">
-        </label>
-        <label class="tpsld" title="Caída máxima del rasgueo inicial de cada acorde: izquierda = corto y seco, derecha = largo. Los tiempos siguientes del acorde van en palm mute">
-          <span><b>sustain</b></span><input type="range" id="sustain" min="0.3" max="3" step="0.1" value="1.7">
-        </label>
+      <button class="tpill" id="setbtn" title="Ajustes: volumen, mezcla, sonido de la guitarra, tema, resaltado y avance del directo"><i class="tico" id="setico"><i data-ic="settings-2"></i></i><span class="tlab">ajustes</span><span class="setmute" id="setmute" hidden title="Silenciado"><i data-ic="volume-x"></i></span></button>
+      <div class="tpop tpop-r panel setpop" id="pop-ajustes" hidden>
+        <div class="tpophead"><span class="tpoptitle">ajustes</span><button class="tpopx" data-popclose title="Cerrar"><i data-ic="x"></i></button></div>
+        <div class="setgrid">
+          <div class="setcol">
+            <div class="setsub">volumen</div>
+            <div class="setvol tvol" id="tvol" title="Volumen general"><button class="volico" id="volico" title="Silenciar / restablecer el volumen"><i data-ic="volume-2"></i></button><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen general"><span class="setval" id="volval">80%</span></div>
+            <div class="setsub">mezcla</div>
+            <label class="mixrow" title="Volumen de la guitarra (acordes)"><b>acordes</b><input type="range" id="volchords" min="0" max="1" step="0.01" value="0.9"></label>
+            <label class="mixrow" title="Volumen de la batería"><b>batería</b><input type="range" id="voldrums" min="0" max="1" step="0.01" value="0.85"></label>
+            <label class="mixrow" title="Volumen del metrónomo"><b>metrónomo</b><input type="range" id="volmetro" min="0" max="1" step="0.01" value="0.5"></label>
+            <div class="setsub">guitarra</div>
+            <label class="mixrow" title="Velocidad del rasgueo: izquierda = todas las cuerdas a la vez (plaqué), derecha = rasgueo lento"><b>ataque</b><input type="range" id="attack" min="0" max="50" step="2" value="20"></label>
+            <label class="mixrow" title="Caída máxima del rasgueo inicial de cada acorde: izquierda = corto y seco, derecha = largo. Los tiempos siguientes del acorde van en palm mute"><b>sustain</b><input type="range" id="sustain" min="0.3" max="3" step="0.1" value="1.7"></label>
+          </div>
+          <div class="setcol">
+            <div class="setsub">pantalla <small>· de este aparato</small></div>
+            <div class="setrow"><b>tema</b>
+              <div class="tseg" id="themeseg" role="group" aria-label="Tema"><button type="button" data-theme="auto" title="Según el sistema">auto</button><button type="button" data-theme="light" title="Tema claro"><i data-ic="sun"></i> claro</button><button type="button" data-theme="dark" title="Tema oscuro"><i data-ic="moon"></i> oscuro</button></div>
+            </div>
+            <div class="setrow" title="Qué se ilumina mientras suena: cada acorde, o solo la sección entera — en directo, si la banda no va clavada al clic, la sección es más fiable que el acorde exacto"><b>resaltar</b>
+              <div class="tseg" id="hlseg" role="group" aria-label="Resaltar al reproducir"><button type="button" data-hl="chord">cada acorde</button><button type="button" data-hl="sec">la sección</button></div>
+              <select id="hlmode" hidden><option value="chord" selected>cada acorde</option><option value="sec">solo la sección</option></select>
+            </div>
+            <div class="setrow setcolrow" title="En el modo directo, aunque NO le des a reproducir, la pantalla va bajando sola, sección a sección, desde que la canción sale en pantalla. «Al tempo» usa los compases y las repeticiones de cada sección con el tempo de la canción; «cada N s» da el mismo tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca la sección que suena en la tira de abajo y sigue desde ahí."><b>avance en el directo</b>
+              <select id="autoadv"><option value="">solo al reproducir</option><option value="tempo">sin reproducir · al tempo</option>
+                <option value="10">sin reproducir · cada 10 s</option><option value="15">sin reproducir · cada 15 s</option><option value="20">sin reproducir · cada 20 s</option>
+                <option value="30">sin reproducir · cada 30 s</option><option value="45">sin reproducir · cada 45 s</option><option value="60">sin reproducir · cada 60 s</option></select>
+            </div>
+            <div class="setsub">secciones</div>
+            <button type="button" class="tpdemo setlink" id="autocolbtn" title="Reglas palabra → color para pintar de golpe las secciones de tus canciones"><i data-ic="palette"></i> colores automáticos…</button>
+            <button type="button" class="tpdemo setlink" id="manualbtn" title="Abrir el manual de GuitarStudio"><i data-ic="book-open"></i> manual</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="tgrp mixbox">
-      <button class="tpill" id="mixbtn" title="Volumen de cada pista: acordes, batería y metrónomo"><i class="tico"><i data-ic="sliders-horizontal"></i></i><span class="tlab">mezcla</span></button>
-      <div class="mixmenu tpop tpop-r panel" id="mixmenu" hidden>
-        <div class="tpophead"><span class="tpoptitle">mezcla</span><button class="tpopx" data-popclose title="Cerrar"><i data-ic="x"></i></button></div>
-        <label class="mixrow"><b>acordes</b><input type="range" id="volchords" min="0" max="1" step="0.01" value="0.9"></label>
-        <label class="mixrow"><b>batería</b><input type="range" id="voldrums" min="0" max="1" step="0.01" value="0.85"></label>
-        <label class="mixrow"><b>metrónomo</b><input type="range" id="volmetro" min="0" max="1" step="0.01" value="0.5"></label>
-      </div>
-    </div>
-    <span class="tpill tvol" id="tvol" title="Volumen general"><button class="volico" id="volico" title="Silenciar / restablecer el volumen"><i data-ic="volume-2"></i></button><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8"></span>
   </div>
 </div>
 
@@ -1412,12 +1609,14 @@
 </div>
 
 <div class="modalwrap" id="modal" hidden>
-  <div class="modal panel">
+  <div class="modal panel askmodal" role="alertdialog" aria-labelledby="modaltitle" aria-describedby="modaltext">
+    <h3 id="modaltitle"><span class="mdot" aria-hidden="true"></span>Cambios sin guardar</h3>
     <p id="modaltext"></p>
     <div class="modalbtns">
-      <button class="sbtn" id="mcancel">Cancelar</button>
-      <button class="sbtn" id="mdiscard">Descartar cambios</button>
-      <button class="sbtn primary" id="msave">Guardar y continuar</button>
+      <button class="sbtn mghost" id="mcancel">Cancelar</button>
+      <span class="mgap" aria-hidden="true"></span>
+      <button class="sbtn mdanger" id="mdiscard">Descartar</button>
+      <button class="sbtn primary" id="msave">Guardar y seguir</button>
     </div>
   </div>
 </div>
@@ -1477,7 +1676,18 @@ const ICONS={
   'list-music':'<path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/>',
   'corner-left-up':'<path d="M14 9 9 4 4 9"/><path d="M20 20h-7a4 4 0 0 1-4-4V4"/>',
   'corner-right-down':'<polyline points="10 15 15 20 20 15"/><path d="M4 4h7a4 4 0 0 1 4 4v12"/>',
-  'grip-vertical':'<circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>'
+  'grip-vertical':'<circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>',
+  'settings-2':'<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
+  'book-open':'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  'search':'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  'ellipsis':'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  'chevron-left':'<path d="m15 18-6-6 6-6"/>',
+  'chevrons-left':'<path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/>',
+  'chevrons-right':'<path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/>',
+  'lightbulb':'<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  'wand':'<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/>',
+  'unlock':'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  'trash':'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>'
 };
 function ICO(n){return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+(ICONS[n]||'')+'</svg>';}
 /* los iconos escritos en el HTML como <i data-ic="nombre"></i> se dibujan aquí, al arrancar */
@@ -1510,7 +1720,8 @@ const FUNC_MAJ=['T','S','T','S','D','T','D'],FUNC_MIN=['T','S','T','S','D','S','
 function chordFunc(ch){return (S.minorView?FUNC_MIN:FUNC_MAJ)[(ch.degNum||1)-1]||'T';}
 /* color por función en el acorde: 1 rojo · 3 azul · 5 verde · 7 naranja; ♭3 y ♭7 en un tono más claro del mismo color */
 const ROLE_COLORS={'1':'var(--r1)','3':'var(--r3)','♭3':'var(--r3b)','5':'var(--r5)','♭5':'var(--r5)','7':'var(--r7)','♭7':'var(--r7b)',
-  '2':'var(--iv2)','9':'var(--iv2)','♯9':'var(--iv2)','4':'var(--iv4)','11':'var(--iv4)','6':'var(--iv6)','13':'var(--iv6)','°7':'var(--r7b)'};
+  '2':'var(--iv2)','9':'var(--iv2)','♯9':'var(--iv2)','4':'var(--iv4)','11':'var(--iv4)','6':'var(--iv6)','13':'var(--iv6)','°7':'var(--r7b)',
+  '♯5':'var(--r5)','♭9':'var(--iv2)','♯11':'var(--iv4)','♭13':'var(--iv6)'};
 const SUFFIX={maj:'',min:'m',dim:'°',dom7:'7'};
 const QUAL_ES={maj:'mayor',min:'menor',dim:'disminuido',dom7:'séptima dominante'};
 const TONE_INTS={maj:[[0,'1'],[4,'3'],[7,'5']],min:[[0,'1'],[3,'♭3'],[7,'5']],dim:[[0,'1'],[3,'♭3'],[6,'♭5']],dom7:[[0,'1'],[4,'3'],[7,'5'],[10,'♭7']]};
@@ -1538,18 +1749,6 @@ function currentChords(){
   const v=mkChord(rel+7,'maj','V arm.',5,k.flat); v.extra=true; out.push(v);
   const s7=mkChord(rel+11,'dim','vii° arm.',7,k.flat); s7.extra=true; out.push(s7);
   return out;
-}
-function buildTricks(){
-  const k=keyObj(); const dia=majDiatonic();
-  const sec=[];
-  [1,2,3,4,5].forEach(i=>{
-    if(dia[i].quality==='dim')return;
-    const c=mkChord(dia[i].pc+7,'dom7','V7/'+DEGS[i][0],5,k.flat);
-    c.trick='sec'; c.targetColor=GRADE_COLORS[i+1]; sec.push(c);
-  });
-  const bor=[[5,'min','iv',4],[3,'maj','♭III',3],[8,'maj','♭VI',6],[10,'maj','♭VII',7]]
-    .map(([iv,q,dg,dn])=>{const c=mkChord(k.pc+iv,q,dg,dn,true);c.trick='bor';return c;});
-  return {sec,bor};
 }
 
 /* ════════ voicings ════════ */
@@ -1649,6 +1848,7 @@ function triadVoicing(ch,setIdx,inv){
 }
 
 function getVoicings(ch){
+  if(ch&&ch.fq!==undefined)return genVoicings(ch,FINDINV&&ch.fbass==null); /* acorde del buscador: voicings calculados */
   const out=[],seen=new Set();
   const add=v=>{const k=v.frets.join(',');if(!seen.has(k)){seen.add(k);out.push(v);}};
   /* el orden NO se toca: getVoicings(ch)[0] es el voicing por defecto de la paleta. vtag() solo dice dónde va en el panel */
@@ -1673,6 +1873,225 @@ function getVoicings(ch){
   SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++)add(vtag(triadVoicing(ch,si,inv),{fam:'tri',set:si,inv}));});
   extVoicings(ch).forEach(add);
   return out;
+}
+
+/* ════════ buscador de acordes: cualquier acorde, todos sus voicings (2026-10-28) ════════
+   Hasta ahora solo había 4 «familias» (mayor, menor, 7, disminuido) y unas pocas formas de tensiones (2 de maj7, 1 de
+   9…), y solo de los acordes de la escala y de los trucos. Aquí se elige cualquier raíz y cualquier tipo (o se escribe:
+   «Bbmaj7», «F#m7b5», «D/F#», «Do#m7») y los voicings se CALCULAN recorriendo el mástil: cada posición de 4 trastes
+   (más las cuerdas al aire), 4–6 cuerdas que suenan, como mucho una cuerda muda en medio, todas las notas que hacen
+   falta (la 5ª justa y, en las de 11ª/13ª, la 9ª pueden faltar), el bajo en la raíz (o en la nota pedida tras «/», o
+   cualquiera con «inversiones») y que se pueda tocar con 4 dedos (con cejilla si hace falta). De dos formas iguales en
+   las cuerdas que comparten, se queda la más llena.
+   El acorde sigue siendo un acorde normal de la app: su «familia» (maj · min · dom7 · dim) da el color del grado y
+   el arpegio del diapasón; el nombre completo va en el voicing (disp), como ya pasaba con Cmaj7 o Am9. */
+const FQ=[
+  {id:'',s:'',b:'maj',g:'tríadas',n:'mayor',t:[[0,'1'],[4,'3'],[7,'5']]},
+  {id:'m',s:'m',b:'min',g:'tríadas',n:'menor',t:[[0,'1'],[3,'♭3'],[7,'5']]},
+  {id:'5',s:'5',b:'maj',g:'tríadas',n:'quinta (power chord)',t:[[0,'1'],[7,'5']]},
+  {id:'dim',s:'°',b:'dim',g:'tríadas',n:'disminuido',t:[[0,'1'],[3,'♭3'],[6,'♭5']]},
+  {id:'aug',s:'aug',b:'maj',g:'tríadas',n:'aumentado',t:[[0,'1'],[4,'3'],[8,'♯5']]},
+  {id:'sus2',s:'sus2',b:'maj',g:'sus',n:'suspendido de 2ª',t:[[0,'1'],[2,'2'],[7,'5']]},
+  {id:'sus4',s:'sus4',b:'maj',g:'sus',n:'suspendido de 4ª',t:[[0,'1'],[5,'4'],[7,'5']]},
+  {id:'7sus4',s:'7sus4',b:'dom7',g:'sus',n:'séptima suspendida',t:[[0,'1'],[5,'4'],[7,'5'],[10,'♭7']],o:['5']},
+  {id:'9sus4',s:'9sus4',b:'dom7',g:'sus',n:'novena suspendida',t:[[0,'1'],[5,'4'],[7,'5'],[10,'♭7'],[2,'9']],o:['5']},
+  {id:'6',s:'6',b:'maj',g:'6ª · add',n:'sexta',t:[[0,'1'],[4,'3'],[7,'5'],[9,'6']],o:['5']},
+  {id:'m6',s:'m6',b:'min',g:'6ª · add',n:'menor sexta',t:[[0,'1'],[3,'♭3'],[7,'5'],[9,'6']],o:['5']},
+  {id:'69',s:'6/9',b:'maj',g:'6ª · add',n:'sexta y novena',t:[[0,'1'],[4,'3'],[7,'5'],[9,'6'],[2,'9']],o:['5']},
+  {id:'add9',s:'add9',b:'maj',g:'6ª · add',n:'con novena añadida',t:[[0,'1'],[4,'3'],[7,'5'],[2,'9']],o:['5']},
+  {id:'madd9',s:'m(add9)',b:'min',g:'6ª · add',n:'menor con novena añadida',t:[[0,'1'],[3,'♭3'],[7,'5'],[2,'9']],o:['5']},
+  {id:'maj7',s:'maj7',b:'maj',g:'séptimas',n:'séptima mayor',t:[[0,'1'],[4,'3'],[7,'5'],[11,'7']],o:['5']},
+  {id:'7',s:'7',b:'dom7',g:'séptimas',n:'séptima (dominante)',t:[[0,'1'],[4,'3'],[7,'5'],[10,'♭7']],o:['5']},
+  {id:'m7',s:'m7',b:'min',g:'séptimas',n:'menor séptima',t:[[0,'1'],[3,'♭3'],[7,'5'],[10,'♭7']],o:['5']},
+  {id:'mmaj7',s:'m(maj7)',b:'min',g:'séptimas',n:'menor con séptima mayor',t:[[0,'1'],[3,'♭3'],[7,'5'],[11,'7']],o:['5']},
+  {id:'m7b5',s:'m7♭5',b:'dim',g:'séptimas',n:'semidisminuido',t:[[0,'1'],[3,'♭3'],[6,'♭5'],[10,'♭7']]},
+  {id:'dim7',s:'°7',b:'dim',g:'séptimas',n:'disminuido con séptima',t:[[0,'1'],[3,'♭3'],[6,'♭5'],[9,'°7']]},
+  {id:'maj9',s:'maj9',b:'maj',g:'tensiones',n:'novena mayor',t:[[0,'1'],[4,'3'],[7,'5'],[11,'7'],[2,'9']],o:['5']},
+  {id:'9',s:'9',b:'dom7',g:'tensiones',n:'novena',t:[[0,'1'],[4,'3'],[7,'5'],[10,'♭7'],[2,'9']],o:['5']},
+  {id:'m9',s:'m9',b:'min',g:'tensiones',n:'menor novena',t:[[0,'1'],[3,'♭3'],[7,'5'],[10,'♭7'],[2,'9']],o:['5']},
+  {id:'11',s:'11',b:'dom7',g:'tensiones',n:'oncena (sin 3ª)',t:[[0,'1'],[7,'5'],[10,'♭7'],[2,'9'],[5,'11']],o:['5','9']},
+  {id:'m11',s:'m11',b:'min',g:'tensiones',n:'menor oncena',t:[[0,'1'],[3,'♭3'],[7,'5'],[10,'♭7'],[2,'9'],[5,'11']],o:['5','9']},
+  {id:'13',s:'13',b:'dom7',g:'tensiones',n:'trecena',t:[[0,'1'],[4,'3'],[7,'5'],[10,'♭7'],[2,'9'],[9,'13']],o:['5','9']},
+  {id:'maj13',s:'maj13',b:'maj',g:'tensiones',n:'trecena mayor',t:[[0,'1'],[4,'3'],[7,'5'],[11,'7'],[2,'9'],[9,'13']],o:['5','9']},
+  {id:'maj7s11',s:'maj7♯11',b:'maj',g:'tensiones',n:'séptima mayor ♯11 (lidio)',t:[[0,'1'],[4,'3'],[7,'5'],[11,'7'],[6,'♯11']],o:['5']},
+  {id:'7b9',s:'7♭9',b:'dom7',g:'alterados',n:'séptima ♭9',t:[[0,'1'],[4,'3'],[7,'5'],[10,'♭7'],[1,'♭9']],o:['5']},
+  {id:'7s9',s:'7♯9',b:'dom7',g:'alterados',n:'séptima ♯9 («acorde Hendrix»)',t:[[0,'1'],[4,'3'],[7,'5'],[10,'♭7'],[3,'♯9']],o:['5']},
+  {id:'7s5',s:'7♯5',b:'dom7',g:'alterados',n:'séptima aumentada',t:[[0,'1'],[4,'3'],[8,'♯5'],[10,'♭7']]},
+  {id:'7b5',s:'7♭5',b:'dom7',g:'alterados',n:'séptima ♭5',t:[[0,'1'],[4,'3'],[6,'♭5'],[10,'♭7']]},
+  {id:'7b13',s:'7♭13',b:'dom7',g:'alterados',n:'séptima ♭13',t:[[0,'1'],[4,'3'],[7,'5'],[10,'♭7'],[8,'♭13']],o:['5']}
+];
+const FQI={};FQ.forEach(q=>{FQI[q.id]=q;});
+const FQ_GROUPS=['tríadas','sus','6ª · add','séptimas','tensiones','alterados'];
+/* tensiones a mano según la familia del acorde elegido (fila corta bajo el acorde de la escala) */
+const FQ_QUICK={maj:['maj7','6','add9','maj9','69','sus2','sus4','maj7s11','aug'],min:['m7','m9','m6','madd9','m11','mmaj7','sus2','sus4'],
+  dom7:['7','9','13','7sus4','9sus4','7b9','7s9','7s5','11'],dim:['dim','m7b5','dim7']};
+const FQ_BASEID={maj:'',min:'m',dom7:'7',dim:'dim'};
+/* nombre del intervalo de una nota cualquiera respecto a la raíz (para el bajo de un acorde con barra que no es del acorde) */
+const IV_ROLE=['1','♭9','9','♭3','3','11','♯11','5','♭13','6','♭7','7'];
+/* lectura de nombres de acorde: letras (C, D…) o do re mi; ♯/#, ♭/b; maj7, M7, Δ, m, min, -, °, ø, +, sus, add… y «/bajo» */
+const FQ_ALIAS={'':'','maj':'','m':'m','5':'5','dim':'dim','o':'dim','aug':'aug','+':'aug','sus2':'sus2','2':'sus2','sus4':'sus4','sus':'sus4','4':'sus4',
+  '7sus4':'7sus4','7sus':'7sus4','sus7':'7sus4','7sus2':'7sus4','9sus4':'9sus4','9sus':'9sus4','6':'6','m6':'m6','69':'69','6/9':'69','6add9':'69',
+  'add9':'add9','add2':'add9','madd9':'madd9','madd2':'madd9','maj7':'maj7','7maj':'maj7','ma7':'maj7','j7':'maj7','7':'7','dom7':'7','m7':'m7',
+  'mmaj7':'mmaj7','mmaj':'mmaj7','mm7':'mmaj7','m#7':'mmaj7','minmaj7':'mmaj7','m7b5':'m7b5','m7-5':'m7b5','min7b5':'m7b5','dim7':'dim7','o7':'dim7',
+  'maj9':'maj9','ma9':'maj9','9':'9','m9':'m9','11':'11','m11':'m11','13':'13','maj13':'maj13','maj7#11':'maj7s11','maj7s11':'maj7s11','maj7+11':'maj7s11',
+  '7b9':'7b9','7-9':'7b9','7#9':'7s9','7+9':'7s9','7#5':'7s5','7+5':'7s5','7+':'7s5','aug7':'7s5','+7':'7s5','7aug':'7s5','7b5':'7b5','7-5':'7b5','7b13':'7b13','7-13':'7b13'};
+const SOLFA=[['sol',7],['do',0],['re',2],['mi',4],['fa',5],['la',9],['si',11]];
+function parseNote(t){
+  t=String(t||'').replace(/♯/g,'#').replace(/♭/g,'b');
+  let m=t.match(/^([A-Ga-g])([#b]?)(.*)$/),pc,acc,rest;
+  const lc=t.toLowerCase(),sf=SOLFA.find(([n])=>lc.startsWith(n));
+  if(sf){const r=t.slice(sf[0].length);const a=r.match(/^([#b]?)(.*)$/);pc=sf[1];acc=a[1];rest=a[2];}
+  else if(m){pc={c:0,d:2,e:4,f:5,g:7,a:9,b:11}[m[1].toLowerCase()];acc=m[2];rest=m[3];}
+  else return null;
+  if(acc==='#')pc+=1;else if(acc==='b')pc-=1;
+  return {pc:((pc%12)+12)%12,flat:acc==='b'?true:(acc==='#'?false:null),rest};
+}
+function parseChordName(str){
+  let t=String(str||'').trim().replace(/\s+/g,'');if(!t)return null;
+  const r=parseNote(t);if(!r)return null;
+  let q=r.rest,bass=null;
+  const sl=q.match(/^(.*?)\/([A-Ga-g][#b♯♭]?|(?:do|re|mi|fa|sol|la|si)[#b♯♭]?)$/i);
+  if(sl&&!/^6\/9$/.test(q)){q=sl[1];bass=parseNote(sl[2]);if(!bass||bass.rest)return null;}
+  q=q.replace(/[()]/g,'').replace(/♯/g,'#').replace(/♭/g,'b').replace(/[Δ△]/g,'maj').replace(/ø/g,'m7b5').replace(/[°º]/g,'o');
+  if(/^M(?![a-z])/.test(q))q='maj'+q.slice(1); /* M7 = maj7 (la m minúscula es menor) */
+  q=q.toLowerCase().replace(/^min(?!or)/,'m').replace(/^mi(?!n)/,'m').replace(/^-/,'m').replace(/^major/,'maj').replace(/^minor/,'m');
+  if(q==='maj7#11'||q==='maj7+11')q='maj7s11';
+  const id=FQ_ALIAS[q];if(id===undefined)return null;
+  return {pc:r.pc,flat:r.flat,q:id,bass:bass?bass.pc:null,bflat:bass?bass.flat:null};
+}
+/* grado de un acorde cualquiera respecto a la tonalidad (o a la menor, en «ver como menor») */
+const NUM_MAJ=['I','♭II','II','♭III','III','IV','♭V','V','♭VI','VI','♭VII','VII'];
+const NUM_MIN=['I','♭II','II','III','♯III','IV','♭V','V','VI','♯VI','VII','♯VII'];
+function findChord(pc,flat,qid,bass,bflat){
+  const q=FQI[qid]||FQI[''],k=keyObj();
+  if(flat===null||flat===undefined)flat=k.flat;
+  const fam=q.b==='dom7'?'maj':q.b,dia=currentChords();
+  let deg,degNum;
+  const tonic=S.minorView?relMinorPc():k.pc,iv=((pc-tonic)%12+12)%12;
+  const hit=q.id!=='aug'&&dia.find(c=>c.pc===pc&&c.quality===fam);
+  const dom=q.b==='dom7'&&!/sus/.test(q.id);
+  const tgt=dom&&!hit?dia.find(c=>!c.extra&&c.quality!=='dim'&&c.pc===(pc+5)%12&&c.degNum!==1):null;
+  if(hit){deg=String(hit.deg).replace(' arm.','');degNum=hit.degNum;}
+  else if(tgt){deg='V7/'+tgt.deg;degNum=5;}
+  else{
+    let n=(S.minorView?NUM_MIN:NUM_MAJ)[iv];
+    degNum='I II III IV V VI VII'.split(' ').indexOf(n.replace(/[♭♯]/g,''))+1;
+    if(fam==='min'||fam==='dim')n=n.replace(/[IV]+/,x=>x.toLowerCase());
+    deg=n+(q.id==='aug'?'+':q.id==='m7b5'?'ø':fam==='dim'?'°':'');
+  }
+  const root=nName(pc,flat);
+  const bn=bass!=null&&bass!==pc?'/'+nName(bass,bflat==null?flat:bflat):'';
+  const c={pc,quality:q.b,deg,degNum,flat:!!flat,label:root+q.s+bn,color:GRADE_COLORS[degNum]||'var(--g1)',fq:q.id};
+  if(bn)c.fbass=bass;
+  return c;
+}
+/* ── cálculo de voicings ── */
+const GENV={};
+function genVoicings(ch,inv){
+  const q=FQI[ch.fq]||FQI[''],key=ch.pc+':'+q.id+':'+(ch.fbass!=null?ch.fbass:'')+':'+(inv?1:0)+':'+(ch.flat?1:0)+':'+(FINDALL?1:0);
+  if(GENV[key])return GENV[key];
+  const role={};q.t.forEach(([s,r])=>{role[(ch.pc+s)%12]=r;});
+  const opt=new Set(q.o||[]);
+  const need=q.t.filter(([s,r])=>!opt.has(r)).map(([s])=>(ch.pc+s)%12);
+  const bassPc=ch.fbass!=null?ch.fbass:null;
+  const extraBass=bassPc!=null&&role[bassPc]===undefined; /* p. ej. C/D: el re solo en el bajo */
+  const minStr=q.id==='5'?2:Math.min(4,Math.max(3,q.t.length));
+  const res=[],seen=new Set();
+  const okPc=(pc,s,isLow)=>role[pc]!==undefined||(extraBass&&pc===bassPc&&isLow);
+  for(let p=0;p<=12;p++){
+    const opts=[];
+    for(let s=0;s<6;s++){
+      const o=[-1];
+      const op=TUNING[s]%12;if(role[op]!==undefined||(extraBass&&op===bassPc))o.push(0);
+      for(let f=Math.max(1,p);f<=p+3&&f<=15;f++){const pc=(TUNING[s]+f)%12;if(role[pc]!==undefined||(extraBass&&pc===bassPc))o.push(f);}
+      opts.push(o);
+    }
+    const F=[-1,-1,-1,-1,-1,-1];
+    const walk=s=>{
+      if(s===6){test();return;}
+      for(const f of opts[s]){F[s]=f;walk(s+1);}
+      F[s]=-1;
+    };
+    const test=()=>{
+      const snd=[];for(let s=0;s<6;s++)if(F[s]>=0)snd.push(s);
+      if(snd.length<minStr)return;
+      const lo=snd[0],hi=snd[snd.length-1];
+      if(hi-lo+1-snd.length>1)return; /* como mucho una cuerda muda en medio */
+      const fr=snd.filter(s=>F[s]>0).map(s=>F[s]);
+      if(fr.length){const mn=Math.min(...fr),mx=Math.max(...fr);if(mx-mn>3)return;
+        if(mx>5&&snd.some(s=>F[s]===0))return; /* cuerdas al aire solo en la zona de la cejuela */
+        if(p>0&&mn!==p)return; /* cada forma se cuenta una vez: en la ventana que empieza en su traste más bajo */
+        /* dedos: 4 como mucho; si hay más notas pisadas, cejilla en el traste más bajo (sin cuerdas al aire debajo) */
+        if(fr.length>4){
+          const at=snd.filter(s=>F[s]===mn);if(at.length<2)return;
+          const a=at[0],b=at[at.length-1];
+          for(let s=a;s<=b;s++)if(F[s]===0)return;
+          if(fr.length-at.length+1>4)return;
+        }
+      }else if(p>0)return;
+      const pcs=snd.map(s=>(TUNING[s]+F[s])%12);
+      const bpc=pcs[0];
+      if(bassPc!=null){if(bpc!==bassPc)return;}
+      else if(!inv&&bpc!==ch.pc)return;
+      if(extraBass&&pcs.slice(1).includes(bassPc))return;
+      for(const n of need)if(!pcs.includes(n))return;
+      const k=F.join(',');if(seen.has(k))return;seen.add(k);
+      res.push(F.slice());
+    };
+    walk(0);
+  }
+  const score=F=>{
+    const snd=[];for(let s=0;s<6;s++)if(F[s]>=0)snd.push(s);
+    const fr=snd.filter(s=>F[s]>0).map(s=>F[s]),mn=fr.length?Math.min(...fr):0,mx=fr.length?Math.max(...fr):0;
+    let sc=-(q.t.length>3?0.35:0.6)*snd.length;
+    if(snd[snd.length-1]-snd[0]+1>snd.length)sc+=1.2;
+    sc+=2*Math.max(0,mx-mn-2);
+    const at=fr.filter(f=>f===mn).length,fingers=fr.length>4?fr.length-at+1:fr.length;
+    if(fingers>=4)sc+=1;if(fr.length>4)sc+=0.5;
+    if(mx>=4&&snd.some(s=>F[s]===0))sc+=2;
+    const cnt={};snd.forEach(s=>{const r=role[(TUNING[s]+F[s])%12]||'b';cnt[r]=(cnt[r]||0)+1;});
+    Object.keys(cnt).forEach(r=>{if(r!=='1'&&r!=='5'&&cnt[r]>1)sc+=1.5*(cnt[r]-1);});
+    if(q.t.some(([x,r])=>r==='5')&&!cnt['5'])sc+=0.5;
+    return sc;
+  };
+  /* de dos formas iguales en las cuerdas que comparten, se queda la más llena (si no es bastante más difícil) */
+  const SC=res.map(score);
+  const full=res.filter((a,i)=>!res.some((b,j)=>j!==i&&SC[j]<=SC[i]+0.5&&b.filter(f=>f>=0).length>a.filter(f=>f>=0).length&&a.every((f,s)=>f<0||b[s]===f)));
+  const root=nName(ch.pc,ch.flat);
+  const out=full.map(F=>{
+    const snd=[];for(let s=0;s<6;s++)if(F[s]>=0)snd.push(s);
+    const fr=snd.filter(s=>F[s]>0).map(s=>F[s]),z=fr.length?Math.min(...fr):0,mx=fr.length?Math.max(...fr):0;
+    const bpc=(TUNING[snd[0]]+F[snd[0]])%12,isInv=bpc!==ch.pc;
+    const roles=F.map((f,s)=>f<0?'':(role[(TUNING[s]+f)%12]!==undefined?role[(TUNING[s]+f)%12]:IV_ROLE[((TUNING[s]+f-ch.pc)%12+12)%12]));
+    const open=F.some(f=>f===0)&&mx<=4;
+    const fam=open?'open':(isInv&&bassPc==null)?'inv':['r6','r5','r4','r3','r3','r3'][snd[0]];
+    const bn=isInv?'/'+nName(bpc,ch.flat):'';
+    const disp=root+q.s+bn;
+    const no5=q.t.some(([s,r])=>r==='5')&&!roles.includes('5');
+    const pos=open?'abierto':(z===mx?'traste '+z:'trastes '+z+'–'+mx);
+    return vtag({vname:disp+' · '+pos+(no5?' · sin 5ª':''),disp,frets:F.slice(),roles},
+      {fam,kind:'gen',short:isInv&&bassPc==null?disp:(open?'Abierto':'traste '+z),z,no5,ns:snd.length,sc:score(F)});
+  });
+  const G={},ORD=['open','r6','r5','r4','r3','inv'];
+  out.forEach(v=>{(G[v._m.fam]=G[v._m.fam]||[]).push(v);});
+  let all=[],best=null,hidden=0;
+  ORD.forEach(f=>{if(!G[f])return;
+    const L=G[f].slice().sort((a,b)=>a._m.sc-b._m.sc);
+    const keep=FINDALL?L:L.slice(0,f==='inv'?8:6);hidden+=L.length-keep.length;
+    if(!best||L[0]._m.sc<best._m.sc)best=L[0];
+    keep.sort((a,b)=>a._m.z-b._m.z||b._m.ns-a._m.ns);all=all.concat(keep);});
+  if(best){all=[best].concat(all.filter(v=>v!==best));}
+  all.hidden=hidden;all.total=out.length;
+  GENV[key]=all;
+  return all;
+}
+let FINDINV=false; /* «con otro bajo»: también las inversiones (del aparato, no se guarda) */
+let FINDALL=false; /* «ver todas»: sin quedarse con las 6 mejores de cada familia */
+function useFindChord(c,silent){
+  S.selChord=c;
+  VOICINGS=getVoicings(c);
+  if(!silent&&VOICINGS[0])previewChord(c,VOICINGS[0]);
+  renderCircle();renderPalette();renderTricks();renderVoicings();if(S.fbArp==='sel')renderLickEd();
 }
 
 /* ════════ diagramas SVG ════════ */
@@ -1751,16 +2170,6 @@ let S={key:2,minorView:false,tempo:90,ts:4,metro:true,drums:'rock',drumsOn:true,
   selChord:null,sections:[{name:'Sección A',slots:[],note:''}],groups:[],active:0,songName:'',songId:null,
   fbTonic:null,fbArp:'play',fbScale:'key'};
 let PALETTE=[],TRICKLIST=[],VOICINGS=[],dragPayload=null;
-
-const PRESETS=[
-  {name:'I – V – vi – IV',seq:[1,5,6,4]},
-  {name:'I – IV – V',seq:[1,4,5,1]},
-  {name:'ii – V – I',seq:[2,5,1,1]},
-  {name:'vi – IV – I – V',seq:[6,4,1,5]},
-  {name:'I – vi – IV – V (años 50)',seq:[1,6,4,5]},
-  {name:'Blues 12 compases',blues:true},
-  {name:'Cadencia andaluza',andaluza:true}
-];
 
 function esc(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function txtOn(degNum){return degNum===6?'darktext':'';}
@@ -1852,24 +2261,124 @@ function renderPalette(){
     '<span class="deg">corte</span><span class="nm">N.C.</span><span class="nts">silencio</span></button>'+
     '<span class="fnlab ncfn">—</span></div>';
 }
+/* ── trucos de composición (ampliados 2026-10-28) ──────────────────────────────────────────────────────────────
+   Cuatro pestañas: color (menor relativa, préstamos, sabores modales) · tensión (dominantes secundarias, sustitutos y
+   acordes de paso, cambio de tono) · cadencias · progresiones. Todo se calcula en la tonalidad MAYOR elegida, como
+   antes. Los acordes que no son de las 4 familias de siempre (°7, sus4, m7♭5, acordes con barra…) son acordes del
+   buscador: llevan sus voicings calculados. TK = acordes con nombre para las fichas y para las progresiones */
+function tkC(iv,fq,deg,degNum,bassIv,fl){
+  const k=keyObj(),pc=((k.pc+iv)%12+12)%12;
+  const flat=fl!=null?fl:(/♭/.test(deg)?true:(/♯/.test(deg)?false:k.flat));
+  const B={'':'maj','m':'min','7':'dom7','dim':'dim'};
+  let c;
+  if(B[fq]&&bassIv==null)c=mkChord(pc,B[fq],deg,degNum,flat);
+  else{c=findChord(pc,flat,fq,bassIv==null?null:((k.pc+bassIv)%12+12)%12,null);c.deg=deg;c.degNum=degNum;c.color=GRADE_COLORS[degNum];}
+  return c;
+}
+function buildTK(){
+  const k=keyObj(),T={};
+  T['iv']=tkC(5,'m','iv',4);T['bIII']=tkC(3,'','♭III',3);T['bVI']=tkC(8,'','♭VI',6);T['bVII']=tkC(10,'','♭VII',7);
+  T['iio']=tkC(2,'m7b5','iiø',2);
+  T['II']=tkC(2,'','II',2);T['v']=tkC(7,'m','v',5);T['bII']=tkC(1,'','♭II',2);
+  T['subV']=tkC(1,'7','subV7',5,null,true);T['subV'].targetColor=GRADE_COLORS[1];
+  T['#Io7']=tkC(1,'dim7','♯I°7',2);T['#Io7'].targetColor=GRADE_COLORS[2];
+  T['#IVo7']=tkC(6,'dim7','♯IV°7',5);T['#IVo7'].targetColor=GRADE_COLORS[5];
+  T['#Vo7']=tkC(8,'dim7','♯V°7',6);T['#Vo7'].targetColor=GRADE_COLORS[6];
+  T['Vsus4']=tkC(7,'sus4','Vsus4',5);T['Vsus4'].targetColor=GRADE_COLORS[5];
+  T['V7/vi']=tkC(4,'7','V7/vi',5);T['VImaj']=tkC(9,'','VI',6);
+  T['V/7']=tkC(7,'','V',5,11);T['vi/5']=tkC(9,'m','vi',6,7);T['IV/1']=tkC(5,'','IV',4,0);T['V/1']=tkC(7,'','V',5,0);
+  T['mod1']=tkC(8,'7','→ '+nName(k.pc+1,true),5);T['mod1'].targetColor='var(--ink)';
+  T['mod2']=tkC(9,'7','→ '+nName(k.pc+2,k.flat),5);T['mod2'].targetColor='var(--ink)';
+  return T;
+}
+function buildTricks(){
+  const k=keyObj(); const dia=majDiatonic();
+  const sec=[];
+  [1,2,3,4,5].forEach(i=>{
+    if(dia[i].quality==='dim')return;
+    const c=mkChord(dia[i].pc+7,'dom7','V7/'+DEGS[i][0],5,k.flat);
+    c.trick='sec'; c.targetColor=GRADE_COLORS[i+1]; sec.push(c);
+  });
+  const T=buildTK();
+  const bor=['iv','bIII','bVI','bVII','iio'].map(x=>{T[x].trick='bor';return T[x];});
+  const mod=['II','v','bII'].map(x=>{T[x].trick='bor';return T[x];});
+  const pas=['subV','#Io7','#IVo7','#Vo7','Vsus4'].map(x=>{T[x].trick='sec';return T[x];});
+  const kc=['mod2','mod1'].map(x=>{T[x].trick='sec';return T[x];});
+  return {sec,bor,mod,pas,kc,T};
+}
+const PRESETS=[
+  {name:'I – V – vi – IV',seq:[1,5,6,4]},
+  {name:'I – IV – V',seq:[1,4,5,1]},
+  {name:'vi – IV – I – V',seq:[6,4,1,5]},
+  {name:'I – vi – IV – V (años 50)',seq:[1,6,4,5]},
+  {name:'I – IV – vi – V',seq:[1,4,6,5]},
+  {name:'IV – V – iii – vi (J-pop)',seq:[4,5,3,6]},
+  {name:'I – vi – ii – V (vuelta)',seq:[1,6,2,5]},
+  {name:'Canon de Pachelbel',seq:[1,5,6,3,4,1,4,5]},
+  {name:'I – ♭VII – IV – I (rock)',seq:[1,'bVII',4,1]},
+  {name:'I – iii – IV – iv (agridulce)',seq:[1,3,4,'iv']},
+  {name:'Bajo que baja: I – V/7 – vi – vi/5 – IV',seq:[1,'V/7',6,'vi/5',4]},
+  {name:'Bajo pedal: I – IV/I – V/I – I',seq:[1,'IV/1','V/1',1]},
+  {name:'Blues 12 compases',blues:true},
+  {name:'Cadencia andaluza',andaluza:true},
+  /* cadencias: finales de frase (pestaña «cadencias») */
+  {cad:1,name:'V – I · perfecta',seq:[5,1],hint:'la más rotunda'},
+  {cad:1,name:'IV – I · plagal («amén»)',seq:[4,1],hint:'suave, de himno'},
+  {cad:1,name:'V – vi · rota',seq:[5,6],hint:'engaña al oído: parece que acaba y sigue'},
+  {cad:1,name:'ii – V – I',seq:[2,5,1],hint:'la del jazz y el pop'},
+  {cad:1,name:'Vsus4 – V – I · retardo',seq:['Vsus4',5,1],hint:'aguanta la tensión un compás más'},
+  {cad:1,name:'iv – I · plagal menor',seq:['iv',1],hint:'agridulce, muy Beatles'},
+  {cad:1,name:'♭VII – I · rock',seq:['bVII',1],hint:'llega «por la puerta de atrás»'},
+  {cad:1,name:'♭VI – ♭VII – I · épica',seq:['bVI','bVII',1],hint:'final de película'},
+  {cad:1,name:'vi – ii – V7/vi – VI · picarda',seq:[6,2,'V7/vi','VImaj'],hint:'en la menor relativa, y acaba en mayor'}
+];
+function presetChords(p){
+  const k=keyObj(),dia=majDiatonic();let T=null;
+  if(p.seq)return p.seq.map(n=>typeof n==='number'?dia[n-1]:((T=T||buildTK())[n]));
+  if(p.blues)return [1,1,1,1,4,4,1,1,5,4,1,5].map(n=>{const base=dia[n-1];return mkChord(base.pc,'dom7',base.deg+'7',base.degNum,k.flat);});
+  if(p.andaluza){const rel=relMinorPc();
+    return [mkChord(rel,'min','i',1,k.flat),mkChord(rel+10,'maj','VII',7,k.flat),mkChord(rel+8,'maj','VI',6,k.flat),mkChord(rel+7,'maj','V arm.',5,k.flat)];}
+  return [];
+}
+function presetNames(p){
+  const L=presetChords(p);
+  if(p.blues)return L.slice(0,4).map(c=>c.label).filter((x,i,a)=>a.indexOf(x)===i).join(' ')+'…';
+  return L.map(c=>c.label).join(' ');
+}
+let TTAB='color';try{TTAB=localStorage.getItem('gc-tricktab')||'color';}catch(e){}
+const TTABS=[['color','color'],['tension','tensión'],['cad','cadencias'],['prog','progresiones']];
 function renderTricks(){
   const t=buildTricks();
-  TRICKLIST=t.sec.concat(t.bor);
-  let h=''; /* el título va en el <summary> del panel desplegable */
-  h+='<div class="trickgroup"><label class="minortoggle"><input type="checkbox" id="minorview"'+(S.minorView?' checked':'')+'> Ver como menor relativa ('+esc(nName(relMinorPc(),keyObj().flat))+'m)</label>'+
-     '<p class="trickhint">Mismos acordes, otro centro: la canción suena melancólica. Añade el V de la menor armónica para tensión clásica.</p></div>';
-  h+='<div class="trickgroup"><div class="tricklabel">Dominantes secundarias</div><p class="trickhint">Un acorde de 7ª que «apunta» al siguiente. Ponlo justo antes de su destino: V7/ii → ii, V7/V → V…</p><div class="trickrow">';
-  t.sec.forEach((c,i)=>{h+='<button class="tchip'+(isSel(c)?' sel':'')+'" draggable="true" data-reg="trk" data-idx="'+i+'" style="border-color:'+c.targetColor+'"><span class="deg">'+esc(c.deg)+'</span><span class="nm">'+esc(c.label)+'</span></button>';});
-  h+='</div></div>';
-  h+='<div class="trickgroup"><div class="tricklabel">Préstamos del menor paralelo</div><p class="trickhint">Acordes «robados» a la tonalidad menor con la misma tónica. ♭VII y ♭VI dan sonido rock/épico; iv es agridulce.</p><div class="trickrow">';
-  t.bor.forEach((c,i)=>{const gi=i+t.sec.length;
-    h+='<button class="tchip bor'+(isSel(c)?' sel':'')+'" draggable="true" data-reg="trk" data-idx="'+gi+'" style="border-color:'+c.color+'"><span class="deg">'+esc(c.deg)+'</span><span class="nm">'+esc(c.label)+'</span></button>';});
-  h+='</div></div>';
-  h+='<div class="trickgroup"><div class="tricklabel">Progresiones que funcionan</div><p class="trickhint">Un clic las añade a la sección activa, en la tonalidad elegida.</p><div class="trickrow">';
-  PRESETS.forEach((p,i)=>{h+='<button class="presetbtn" data-preset="'+i+'">'+esc(p.name)+'</button>';});
-  h+='</div></div>';
+  TRICKLIST=t.sec.concat(t.bor,t.mod,t.pas,t.kc);
+  const chip=(c,brd)=>{const i=TRICKLIST.indexOf(c);
+    return '<button class="tchip'+(c.trick==='bor'?' bor':'')+(isSel(c)?' sel':'')+'" draggable="true" data-reg="trk" data-idx="'+i+'" style="border-color:'+(brd||c.targetColor||c.color)+'" title="'+esc(c.label)+'"><span class="deg">'+esc(c.deg)+'</span><span class="nm">'+esc(c.label)+'</span></button>';};
+  const grp=(lab,hint,body)=>'<div class="trickgroup"><div class="tricklabel">'+lab+'</div>'+(hint?'<p class="trickhint">'+hint+'</p>':'')+body+'</div>';
+  const row=L=>'<div class="trickrow">'+L.map(c=>chip(c)).join('')+'</div>';
+  const pre=(L)=>'<div class="trickrow presets">'+L.map(p=>{const i=PRESETS.indexOf(p);
+    return '<button class="presetbtn" data-preset="'+i+'"'+(p.hint?' title="'+esc(p.hint)+'"':'')+'><b>'+esc(p.name)+'</b><small>'+esc(presetNames(p))+'</small></button>';}).join('')+'</div>';
+  if(!TTABS.some(x=>x[0]===TTAB))TTAB='color';
+  let h='<div class="ttabs" role="tablist">'+TTABS.map(([id,n])=>'<button type="button" role="tab" class="ttab'+(TTAB===id?' on':'')+'" data-ttab="'+id+'" aria-selected="'+(TTAB===id)+'">'+n+'</button>').join('')+'</div>';
+  if(TTAB==='color'){
+    h+='<div class="trickgroup"><label class="minortoggle"><input type="checkbox" id="minorview"'+(S.minorView?' checked':'')+'> Ver como menor relativa ('+esc(nName(relMinorPc(),keyObj().flat))+'m)</label>'+
+       '<p class="trickhint">Mismos acordes, otro centro: la canción suena melancólica. Añade el V de la menor armónica para tensión clásica.</p></div>';
+    h+=grp('Préstamos del menor paralelo','Acordes «robados» a la menor con la misma tónica. ♭VII y ♭VI suenan a rock épico; iv, agridulce; iiø, a balada.',row(t.bor));
+    h+=grp('Sabores modales','Cambian una sola nota de la escala: II mayor da brillo (lidio), v menor relaja la dominante (mixolidio), ♭II oscurece (frigio).',row(t.mod));
+  }else if(TTAB==='tension'){
+    h+=grp('Dominantes secundarias','Un acorde de 7ª que «apunta» al siguiente. Ponlo justo antes de su destino: V7/ii → ii, V7/V → V…',row(t.sec));
+    h+=grp('Sustitutos y acordes de paso','Justo antes de su destino: subV7 baja medio tono hasta el I; cada °7 sube medio tono al acorde que marca su color; Vsus4 retrasa la llegada al V.',row(t.pas));
+    h+=grp('Cambio de tono (el «camionero»)','Para subir el último estribillo: toca este 7 justo antes y empieza el estribillo en el tono nuevo (+1 tono o +½).',row(t.kc));
+  }else if(TTAB==='cad'){
+    h+=grp('Finales de frase','Cómo acaba una frase decide si «cierra» o pide seguir. Un clic añade la cadencia a la sección activa.',pre(PRESETS.filter(p=>p.cad)));
+  }else{
+    h+=grp('Progresiones que funcionan','Un clic las añade a la sección activa, en la tonalidad elegida. Debajo, los acordes que salen.',pre(PRESETS.filter(p=>!p.cad)));
+  }
   document.getElementById('tricks').innerHTML=h;
 }
+document.getElementById('tricks').addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-ttab]');if(!b)return;
+  TTAB=b.dataset.ttab;try{localStorage.setItem('gc-tricktab',TTAB);}catch(er){}
+  renderTricks();
+});
 
 /* ════════ voicings panel ════════ */
 /* Agrupado por FORMA / zona del mástil (2026-10-09): abierto · raíz 6ª (forma E) · raíz 5ª (forma A) · raíz 4ª
@@ -1948,7 +2457,9 @@ function cagedTag(L){
 function renderVoicings(){
   const ch=S.selChord;
   const vh=document.getElementById('vhead'),vv=document.getElementById('voicings');
-  if(!ch){vh.innerHTML='<span class="vhint">Elige un acorde en el círculo o en la paleta.</span>';vv.innerHTML='';return;}
+  if(!ch){renderFinder();vh.innerHTML='<span class="vhint">Elige un acorde en el círculo o en la paleta, o escribe uno arriba.</span>';vv.innerHTML='';return;}
+  if(ch.fq!==undefined){renderGenVoicings(ch);renderFinder();return;}
+  renderFinder();
   VOICINGS=getVoicings(ch);
   const tones=chordTones(ch).map(t=>'<span class="tone" style="background:'+t.color+'"><span class="n">'+esc(t.name)+'</span><span class="r">'+esc(t.role)+'</span></span>').join('');
   vh.innerHTML='<span class="vbadge '+txtOn(ch.degNum)+'" style="background:'+ch.color+'"><span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span></span>'+
@@ -1999,6 +2510,93 @@ function renderVoicings(){
       h+='<div class="vgrid'+(G[f.k].some(i=>VOICINGS[i]._m&&VOICINGS[i]._m.kind==='col')?' hascol':'')+'">'+G[f.k].map(i=>{const v=VOICINGS[i];return vCardHTML(v,i,v._m?v._m.short:v.vname,octTag(v,f));}).join('')+'</div>';
     }
     h+='</div>';
+  });
+  vv.innerHTML=h;
+}
+/* ── buscador: barra (escribir un acorde), selector (raíz + tipo) y tensiones a mano del acorde de la escala ── */
+function fqName(pc,flat,id){return nName(pc,flat)+((FQI[id]||FQI['']).s);}
+function renderFinder(){
+  const el=document.getElementById('vfind');if(!el)return;
+  if(!document.getElementById('vfindin'))el.innerHTML=
+    '<form class="vfbar" id="vfform" autocomplete="off"><span class="vfico">'+ICO('search')+'</span>'+
+    '<input id="vfindin" type="text" placeholder="cualquier acorde: Bbmaj7, F#m7b5, D/F#, Do#m7…" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="search" aria-label="Buscar cualquier acorde">'+
+    '<button type="submit" class="sbtn">ver</button></form><div id="vfpick"></div>';
+  const pk=document.getElementById('vfpick'),ch=S.selChord;if(!ch){pk.innerHTML='';return;}
+  const k=keyObj();
+  if(ch.fq===undefined){ /* acorde de la escala o de los trucos: sus tensiones a un toque */
+    const L=FQ_QUICK[ch.quality]||[];
+    pk.innerHTML='<div class="vfquick"><span class="vflab">más de '+esc(nName(ch.pc,ch.flat))+':</span>'+
+      L.map(id=>'<button type="button" class="vfq" data-fqk="'+id+'">'+esc(fqName(ch.pc,ch.flat,id))+'</button>').join('')+
+      '<button type="button" class="vfq vfall" data-fqk="'+FQ_BASEID[ch.quality]+'" title="Todos los tipos de acorde sobre '+esc(nName(ch.pc,ch.flat))+', con todos sus voicings">'+ICO('unlock')+' todos</button></div>';
+    return;
+  }
+  const flat=ch.flat;
+  let h='<div class="vfrow vfroots"><span class="vflab">raíz</span><div class="vfseg">';
+  for(let pc=0;pc<12;pc++){
+    h+='<button type="button" class="vfr'+(pc===ch.pc?' on':'')+'" data-fpc="'+pc+'">'+esc(nName(pc,pc===ch.pc?flat:k.flat))+'</button>';}
+  h+='</div></div>';
+  FQ_GROUPS.forEach(g=>{
+    h+='<div class="vfrow"><span class="vflab">'+esc(g)+'</span><div class="vfchips">'+
+      FQ.filter(q=>q.g===g).map(q=>'<button type="button" class="vfq'+(q.id===ch.fq?' on':'')+'" data-fq="'+q.id+'" title="'+esc(q.n)+'">'+esc(fqName(ch.pc,flat,q.id))+'</button>').join('')+'</div></div>';
+  });
+  const V=VOICINGS&&VOICINGS.hidden!=null?VOICINGS:null;
+  h+='<div class="vfrow vfopts">'+
+    (ch.fbass==null?'<label class="vfchk"><input type="checkbox" data-finv="1"'+(FINDINV?' checked':'')+'> con otro bajo (inversiones)</label>':'<span class="vfnote">bajo en '+esc(nName(ch.fbass,flat))+'</span>')+
+    (V&&(V.hidden||FINDALL)?'<button type="button" class="vfq" data-fall="1">'+(FINDALL?'solo las más cómodas':'ver todas ('+V.hidden+' más)')+'</button>':'')+
+    '<button type="button" class="vfq vfexit" data-fexit="1" title="Volver a los acordes de la tonalidad">'+ICO('x')+' volver a la escala</button></div>';
+  pk.innerHTML=h;
+}
+function finderGo(c,silent){useFindChord(c,silent);}
+document.getElementById('vfind').addEventListener('submit',e=>{
+  e.preventDefault();
+  const inp=document.getElementById('vfindin'),t=(inp.value||'').trim();if(!t)return;
+  const p=parseChordName(t);
+  if(!p){toast('No reconozco «'+t+'» · prueba: Cmaj7, Bb9, F#m7b5, Dsus4, D/F#, Do#m7');return;}
+  finderGo(findChord(p.pc,p.flat,p.q,p.bass,p.bflat));
+  inp.blur();
+});
+document.getElementById('vfind').addEventListener('click',e=>{
+  const t=e.target.closest&&e.target.closest('[data-fpc],[data-fq],[data-fqk],[data-fall],[data-fexit]');if(!t)return;
+  const ch=S.selChord;if(!ch)return;
+  if(t.dataset.fqk!=null){finderGo(findChord(ch.pc,ch.flat,t.dataset.fqk,null,null));return;}
+  if(t.dataset.fpc!=null){const pc=+t.dataset.fpc,fl=pc===ch.pc?ch.flat:keyObj().flat;finderGo(findChord(pc,fl,ch.fq||'',null,null));return;}
+  if(t.dataset.fq!=null){finderGo(findChord(ch.pc,ch.flat,t.dataset.fq,ch.fbass!=null?ch.fbass:null,null));return;}
+  if(t.dataset.fall){FINDALL=!FINDALL;finderGo(ch,true);return;}
+  if(t.dataset.fexit){const inp=document.getElementById('vfindin');if(inp)inp.value='';S.selChord=currentChords()[0];
+    renderCircle();renderPalette();renderTricks();renderVoicings();if(S.fbArp==='sel')renderLickEd();return;}
+});
+document.getElementById('vfind').addEventListener('change',e=>{
+  if(e.target.dataset&&e.target.dataset.finv){FINDINV=e.target.checked;if(S.selChord)finderGo(S.selChord,true);}
+});
+/* panel de voicings de un acorde del buscador: por la cuerda del bajo, cada familia con las formas más cómodas */
+function renderGenVoicings(ch){
+  const vh=document.getElementById('vhead'),vv=document.getElementById('voicings');
+  VOICINGS=getVoicings(ch);
+  const q=FQI[ch.fq]||FQI[''];
+  const tones=q.t.map(([sm,r])=>'<span class="tone'+((q.o||[]).includes(r)?' topt':'')+'" style="background:'+(ROLE_COLORS[r]||'var(--line)')+'" title="'+((q.o||[]).includes(r)?'puede faltar':'')+'"><span class="n">'+esc(nName(ch.pc+sm,ch.flat))+'</span><span class="r">'+esc(r)+'</span></span>').join('');
+  const key=S.minorView?nName(relMinorPc(),keyObj().flat)+' menor':keyObj().label+' mayor';
+  vh.innerHTML='<span class="vbadge '+txtOn(ch.degNum)+'" style="background:'+ch.color+'"><span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span></span>'+
+    '<div class="tones">'+tones+'</div>'+
+    '<span class="vhint">'+esc(ch.label)+' · '+esc(q.n)+' · '+esc(ch.deg)+' en '+esc(key)+'. '+
+    (VOICINGS.length?VOICINGS.total+' formas en el mástil'+(VOICINGS.hidden?', aquí las '+(VOICINGS.length)+' más cómodas':'')+'. ':'')+
+    ((q.o||[]).length?'Las notas tenues pueden faltar. ':'')+'Clic = escuchar · '+ICO('plus')+' o arrastrar = añadir a la sección activa.</span>';
+  if(!VOICINGS.length){vv.innerHTML='<p class="vhint">No hay ninguna forma cómoda de 4 dedos con esas notas'+(ch.fbass!=null?' y ese bajo':'')+'.</p>';return;}
+  const G={};VOICINGS.forEach((v,i)=>{(G[v._m.fam]=G[v._m.fam]||[]).push(i);});
+  Object.keys(G).forEach(k=>G[k].sort((a,b)=>VOICINGS[a]._m.z-VOICINGS[b]._m.z||VOICINGS[b]._m.ns-VOICINGS[a]._m.ns));
+  const bn=ch.fbass!=null?' ('+nName(ch.fbass,ch.flat)+')':'';
+  const fams=[{k:'open',t:'Posición abierta',bar:'abierto'},{k:'r6',t:'Bajo'+bn+' en la 6ª',bar:'bajo 6ª'},{k:'r5',t:'Bajo'+bn+' en la 5ª',bar:'bajo 5ª'},
+    {k:'r4',t:'Bajo'+bn+' en la 4ª',bar:'bajo 4ª'},{k:'r3',t:'Bajo'+bn+' en la 3ª',bar:'bajo 3ª'},{k:'inv',t:'Con otro bajo · inversiones'}].filter(f=>G[f.k]);
+  fams.forEach((f,n)=>{f.n=n+1;let lo=99,hi=0;
+    G[f.k].forEach(i=>VOICINGS[i].frets.forEach(fr=>{if(fr>0){lo=Math.min(lo,fr);hi=Math.max(hi,fr);}}));
+    f.lo=(f.k==='open'||lo===99)?0:lo;f.hi=hi;f.pos=f.lo===f.hi?'traste '+f.lo:'trastes '+f.lo+'–'+f.hi;
+    if(f.k==='inv')f.bar=null;});
+  let h=vMapHTML(fams);
+  fams.forEach(f=>{
+    const fold=!foldOpen('v-'+f.k,true),n=G[f.k].length;
+    h+='<div class="vsec'+(fold?' fold':'')+'" id="vsec-'+f.k+'">'+
+      '<button class="vsec-h" data-vfold="'+f.k+'" aria-expanded="'+(!fold)+'"><span class="vnum">'+f.n+'</span><span class="vtit">'+esc(f.t)+'</span>'+
+      '<span class="vpos">'+f.pos+'</span><span class="vcnt">'+n+' voicing'+(n===1?'':'s')+'</span><span class="fchev">'+ICO('chevron-down')+'</span></button>'+
+      '<div class="vgrid">'+G[f.k].map(i=>{const v=VOICINGS[i];return vCardHTML(v,i,v._m.short,v._m.no5?'<span class="voct">sin 5ª</span>':'');}).join('')+'</div></div>';
   });
   vv.innerHTML=h;
 }
@@ -2452,7 +3050,44 @@ function lvBtnHTML(si){
   const sec=S.sections[si],li=secLvlInfo(si);
   const man=!li.auto||typeof sec.fill==='boolean';
   const fl=sec.fill===true?' · redoble al final: sí':sec.fill===false?' · redoble al final: no':'';
-  return '<button class="scbtn lvbtn'+(man?' man':'')+'" data-lvsec="'+si+'" title="'+esc('Batería: nivel '+li.lvl+' ('+LVNAME[li.lvl]+'), '+li.why+fl+' — clic para cambiarlo')+'">'+ICO('zap')+(li.lvl===0?'–':li.lvl)+'</button>';
+  return '<button class="scbtn scx lvbtn'+(man?' man':'')+'" data-lvsec="'+si+'" title="'+esc('Batería: nivel '+li.lvl+' ('+LVNAME[li.lvl]+'), '+li.why+fl+' — clic para cambiarlo')+'">'+ICO('zap')+
+    '<span class="sclab">batería · '+(li.lvl===0?'sin':li.lvl+' '+LVNAME[li.lvl])+(man?' ✎':'')+'</span></button>';
+}
+/* ── botones de cada sección (2026-10-28) ─────────────────────────────────────────────────────────────────────
+   A la vista solo los de siempre: ▷ tocar, ▭/▦ vista y ⋯ (más). ⋯ despliega TODOS con su nombre, en dos columnas,
+   y la sección se aparta a la derecha mientras está abierto. Se cierra con ‹ cerrar, con Esc, tocando fuera o al
+   renombrar, duplicar, fusionar, eliminar o añadir la nota. XOPEN = la sección abierta (el objeto, no el índice:
+   así sobrevive a reordenar o a redibujar). Abrir o cerrar no redibuja nada: solo cambia la clase .xopen */
+let XOPEN=null;
+function secCtlHTML(sec,si,cpt,showNote){
+  const xo=XOPEN===sec,li=secLvlInfo(si),man=!li.auto||typeof sec.fill==='boolean';
+  const B=(attr,cls,ic,lab,title)=>'<button class="scbtn'+(cls?' '+cls:'')+'" '+attr+' title="'+esc(title)+'">'+ICO(ic)+'<span class="sclab">'+esc(lab)+'</span></button>';
+  return '<div class="secctl'+(xo?' xopen':'')+'" data-ctl="'+si+'">'+
+    B('data-playsec="'+si+'"','playsec','play',S.loop?'tocar en bucle':'tocar desde aquí',S.loop?'Toca esta sección sola, en bucle (el bucle está encendido)':'Empieza en esta sección y sigue hasta el final (el bucle está apagado)')+
+    B('data-viewsec="'+si+'"','',cpt?'grid-3x3':'rectangle-horizontal',cpt?'con diagramas':'vista simple',cpt?'Abrir esta sección con diagramas (en esta vista)':'Plegar esta sección a vista simple (en esta vista)')+
+    B('data-colorsec="'+si+'"','scx','palette','color','Color de fondo de la sección — para localizar el solo, el estribillo… de un vistazo')+
+    B('data-lhsec="'+si+'"','scx'+(sec.lh?' lhon':''),sec.lh?'eye-off':'eye',sec.lh?'oculta en directo':'ocultar en directo',sec.lh?'Oculta en el modo directo — clic para volver a mostrarla':'Ocultar esta sección en el modo directo (se sigue viendo aquí para ensayar, y suena igual al reproducir)')+
+    B('data-rensec="'+si+'"','scx','pencil','renombrar','Renombrar sección (también: doble clic en el nombre)')+
+    B('data-dupsec="'+si+'"','scx','copy','duplicar','Duplicar sección')+
+    (si<S.sections.length-1?B('data-mergesec="'+si+'"','scx','corner-right-down','fusionar ↓','Fusionar con la sección siguiente'):'')+
+    (showNote?'':B('data-addnote="'+si+'"','scx','sticky-note','nota','Añadir nota para el directo'))+
+    lvBtnHTML(si)+
+    (S.sections.length>1?B('data-delsec="'+si+'"','scx del','x','eliminar','Eliminar sección (Ctrl+Z deshace)'):'')+
+    '<button class="scbtn scmore'+(man?' man':'')+(xo?' on':'')+'" data-moresec="'+si+'" aria-expanded="'+xo+'" title="'+(xo?'Cerrar los botones':'Más botones: color, ocultar en directo, renombrar, duplicar, fusionar, nota, batería, eliminar')+'">'+
+      ICO(xo?'chevron-left':'ellipsis')+'<span class="sclab">cerrar</span></button>'+
+    '</div>';
+}
+function secCtlOpen(si){ /* abre (o cierra si ya está abierta) sin redibujar */
+  const sec=S.sections[si];
+  XOPEN=(sec&&XOPEN!==sec)?sec:null;
+  document.querySelectorAll('#sections .secctl').forEach(el=>{
+    const on=XOPEN!=null&&S.sections[+el.dataset.ctl]===XOPEN;
+    el.classList.toggle('xopen',on);
+    const mb=el.querySelector('.scmore');
+    if(mb){mb.classList.toggle('on',on);mb.setAttribute('aria-expanded',String(on));mb.innerHTML=ICO(on?'chevron-left':'ellipsis')+'<span class="sclab">cerrar</span>';
+      mb.title=on?'Cerrar los botones':'Más botones: color, ocultar en directo, renombrar, duplicar, fusionar, nota, batería, eliminar';}
+  });
+  if(typeof alignSimple==='function'){alignSimple();positionReps();}
 }
 function closeLvPop(){document.querySelectorAll('.lvpop').forEach(el=>el.remove());document.querySelectorAll('.lvbtn.open').forEach(b=>b.classList.remove('open'));}
 function openLvPop(si,anchor){
@@ -2628,17 +3263,8 @@ function renderSections(){
     return '<div class="secrow'+(si===S.active?' on':'')+(cpt?' compact':'')+(!sec.slots.length?' noslots':'')+(sec.lh?' lhid':'')+'" data-si="'+si+'"'+(sec.lh?' data-nm="'+esc(sec.name)+'"':'')+(sec.color?' data-c="'+sec.color+'" style="--secc:var(--'+sec.color+')"':'')+'>'+
       '<div class="secleft">'+
       '<div class="secname" data-selsec="'+si+'" draggable="true" role="button" tabindex="0" title="clic = sección activa · arrastra = reordenar · doble clic = renombrar · en directo: toca para plegar/abrir"><span class="tname">'+esc(sec.name)+'</span><span class="vmark">'+ICO(cpt?'grid-3x3':'rectangle-horizontal')+'</span>'+(sec.lh?'<span class="lhmark" title="Oculta en el modo directo">'+ICO('eye-off')+'</span>':'')+'</div>'+
-      '<div class="secctl"><button class="scbtn playsec" data-playsec="'+si+'" title="'+(S.loop?'Toca esta sección sola, en bucle (el bucle está encendido)':'Empieza en esta sección y sigue hasta el final (el bucle está apagado)')+'">'+ICO('play')+'</button>'+
-      '<button class="scbtn" data-viewsec="'+si+'" title="'+(cpt?'Abrir esta sección con diagramas (en esta vista)':'Plegar esta sección a vista simple (en esta vista)')+'">'+ICO(cpt?'grid-3x3':'rectangle-horizontal')+'</button>'+
-      '<button class="scbtn" data-colorsec="'+si+'" title="Color de fondo de la sección — para localizar el solo, el estribillo… de un vistazo">'+ICO('palette')+'</button>'+
-      '<button class="scbtn'+(sec.lh?' lhon':'')+'" data-lhsec="'+si+'" title="'+(sec.lh?'Oculta en el modo directo — clic para volver a mostrarla':'Ocultar esta sección en el modo directo (se sigue viendo aquí para ensayar, y suena igual al reproducir)')+'">'+ICO(sec.lh?'eye-off':'eye')+'</button>'+
-      '<button class="scbtn" data-rensec="'+si+'" title="Renombrar sección">'+ICO('pencil')+'</button>'+
-      '<button class="scbtn" data-dupsec="'+si+'" title="Duplicar sección">'+ICO('copy')+'</button>'+
-      (si<S.sections.length-1?'<button class="scbtn" data-mergesec="'+si+'" title="Fusionar con la sección siguiente">'+ICO('corner-right-down')+'</button>':'')+
-      (showNote?'':'<button class="scbtn" data-addnote="'+si+'" title="Añadir nota para el directo">'+ICO('sticky-note')+'</button>')+
-      (S.sections.length>1?'<button class="scbtn del" data-delsec="'+si+'" title="Eliminar sección">'+ICO('x')+'</button>':'')+
-      lvBtnHTML(si)+
-      '</div></div>'+
+      secCtlHTML(sec,si,cpt,showNote)+
+      '</div>'+
       '<div class="secbody"><div class="slots" data-si="'+si+'">'+inner+'</div>'+noteHTML+lickHTML+'</div>'+gut+
       '</div>';
   }).join('');
@@ -2907,12 +3533,156 @@ function openColPop(si,btn){
   const pop=document.createElement('div');
   pop.className='colpop panel';pop.dataset.si=si;
   pop.innerHTML='<button class="coldot none'+(!sec.color?' sel':'')+'" data-setcol="'+si+':" title="Sin color">–</button>'+
-    SECCOLS.map(([k,n])=>'<button class="coldot'+(sec.color===k?' sel':'')+'" style="background:var(--'+k+')" data-setcol="'+si+':'+k+'" title="'+n+'"></button>').join('');
+    SECCOLS.map(([k,n])=>'<button class="coldot'+(sec.color===k?' sel':'')+'" style="background:var(--'+k+')" data-setcol="'+si+':'+k+'" title="'+n+'"></button>').join('')+
+    '<button class="colauto" data-colauto="1" title="Reglas palabra → color para pintar de golpe las secciones de tus canciones">'+ICO('wand')+' automáticos…</button>';
   document.body.appendChild(pop);
   const r=btn.getBoundingClientRect();
   pop.style.left=Math.max(8,Math.min(r.right+8,window.innerWidth-pop.offsetWidth-8))+'px';
   pop.style.top=Math.max(8,Math.min(r.top-6,window.innerHeight-pop.offsetHeight-8))+'px';
 }
+/* ════════ colores automáticos de sección (2026-10-28) ════════
+   Reglas «palabras → color», del aparato (gc-autocol): todas las secciones cuyo nombre contiene alguna de las palabras
+   de una regla toman su color. Sin mayúsculas ni tildes y por principio de palabra («coro» pinta «Coros» y «Pre-coro»;
+   «solo» no pinta «Consolación»). Manda la PRIMERA regla que coincide: por eso «pre» va antes que «coro».
+   Una regla sin color deja la sección sin color. Se aplica a esta canción, al set activo o a toda la biblioteca; y, si
+   está puesto, también al crear o renombrar una sección. Aplicar a la biblioteca guarda una copia de los colores de
+   antes para poder deshacer (solo mientras la app sigue abierta). */
+const AC_DEF=[{w:'pre, pre-coro, pre-estribillo, pre-chorus',c:'g6'},{w:'solo',c:'g1'},{w:'puente, bridge',c:'g4'},
+  {w:'coro, estribillo, chorus',c:'g2'},{w:'verso, estrofa, verse',c:'g5'},{w:'',c:''},{w:'',c:''}];
+let ACFG=null,ACBAK=null;
+function acLoad(){
+  if(ACFG)return ACFG;
+  try{const d=JSON.parse(localStorage.getItem('gc-autocol'));if(d&&Array.isArray(d.rules))ACFG=d;}catch(e){}
+  if(!ACFG)ACFG={rules:AC_DEF.map(r=>Object.assign({},r)),live:true,clear:false};
+  return ACFG;
+}
+function acSave(){try{localStorage.setItem('gc-autocol',JSON.stringify(ACFG));}catch(e){}}
+function acNorm(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function acWords(t){return acNorm(t).split(/[^a-z0-9]+/).filter(Boolean);}
+/* regla que pinta un nombre de sección: {c} o null si ninguna coincide */
+function acRule(name){
+  const nw=acWords(name);if(!nw.length)return null;
+  for(const r of acLoad().rules){
+    const terms=String(r.w||'').split(',').map(acWords).filter(t=>t.length);
+    for(const t of terms){
+      for(let i=0;i+t.length<=nw.length;i++)if(t.every((w,k)=>nw[i+k].startsWith(w)))return r;
+    }
+  }
+  return null;
+}
+/* aplica las reglas a una lista de secciones; devuelve cuántas cambian */
+function acApply(secs,clear){
+  let n=0;
+  (secs||[]).forEach(x=>{
+    const r=acRule(x.name),old=x.color||'';
+    const nc=r?(r.c||''):(clear?'':old);
+    if(nc!==old){n++;if(nc)x.color=nc;else delete x.color;}
+  });
+  return n;
+}
+/* al crear o renombrar una sección: solo si una regla coincide (si no, se queda como estaba) */
+function acOnName(sec){
+  if(!sec||!acLoad().live)return;
+  const r=acRule(sec.name);if(!r)return;
+  if(r.c)sec.color=r.c;else delete sec.color;
+}
+function acRulesHTML(){
+  const R=acLoad().rules;
+  return R.map((r,i)=>'<div class="acrule" data-aci="'+i+'">'+
+    '<span class="acnum">'+(i+1)+'</span>'+
+    '<input type="text" class="acw" data-aci="'+i+'" value="'+esc(r.w||'')+'" placeholder="palabras, separadas por comas" spellcheck="false">'+
+    '<span class="acdots">'+'<button type="button" class="coldot none'+(!r.c?' sel':'')+'" data-acc="'+i+':" title="Sin color">–</button>'+
+      SECCOLS.map(([k,n])=>'<button type="button" class="coldot'+(r.c===k?' sel':'')+'" style="background:var(--'+k+')" data-acc="'+i+':'+k+'" title="'+n+'"></button>').join('')+'</span>'+
+    '<span class="acbtns">'+(i?'<button type="button" class="acmini" data-acup="'+i+'" title="Subir: manda antes que la de arriba">↑</button>':'<span class="acmini ph"></span>')+
+    '<button type="button" class="acmini" data-acx="'+i+'" title="Quitar esta regla">'+ICO('x')+'</button></span></div>').join('');
+}
+function acScopeInfo(){
+  const act=activeSetl(),lib=loadLib();
+  return {act,setN:act?setSongs().length:0,libN:lib.length};
+}
+function openAutoColors(){
+  acLoad();
+  const inf=acScopeInfo();
+  openDlg('<h3 class="achead">'+ICO('wand')+' Colores automáticos</h3>'+
+    '<p class="acintro">Cada regla pinta las secciones cuyo nombre <b>empieza por</b> o <b>contiene</b> alguna de sus palabras, sin importar mayúsculas ni tildes. Si dos reglas coinciden, <b>manda la de arriba</b> (por eso «pre» va antes que «coro»).</p>'+
+    '<div id="aclist" class="aclist">'+acRulesHTML()+'</div>'+
+    '<div class="acrowbtns"><button type="button" class="sbtn" data-acadd="1">'+ICO('plus')+' regla</button><button type="button" class="sbtn acreset" data-acreset="1" title="Volver a las reglas de partida">reglas de partida</button></div>'+
+    '<div class="dsec opts">'+
+      '<label><input type="checkbox" id="aclive"'+(ACFG.live?' checked':'')+'> pintar también al <b>crear</b> o <b>renombrar</b> una sección</label>'+
+      '<label><input type="checkbox" id="acclear"'+(ACFG.clear?' checked':'')+'> al aplicar, quitar el color a las secciones que no coinciden con ninguna regla</label>'+
+    '</div>'+
+    '<div class="dsec"><div class="dlab">aplicar ahora a</div><div class="acapply">'+
+      '<button type="button" class="sbtn primary" data-acgo="song">esta canción</button>'+
+      (inf.act?'<button type="button" class="sbtn" data-acgo="set">set «'+esc(inf.act.name)+'» · '+inf.setN+'</button>':'')+
+      '<button type="button" class="sbtn" data-acgo="lib"'+(inf.libN?'':' disabled')+'>toda la biblioteca · '+inf.libN+'</button>'+
+    '</div><p class="achint" id="acmsg">El set y la biblioteca se guardan al momento. Esta canción queda «sin guardar», como cualquier cambio (Ctrl+Z deshace).</p>'+
+    (ACBAK?'<button type="button" class="sbtn acundo" data-acundo="1">'+ICO('undo-2')+' deshacer el último pintado de '+ACBAK.list.length+' canciones</button>':'')+
+    '</div>'+
+    '<div class="modalbtns"><button class="sbtn" data-dlg="close">Cerrar</button></div>');
+  document.getElementById('dlgbox').classList.add('acdlg');
+}
+function acRefresh(){const l=document.getElementById('aclist');if(l)l.innerHTML=acRulesHTML();}
+function acGo(scope){
+  const clear=!!acLoad().clear,lib=loadLib();
+  if(scope==='song'){
+    const tmp=JSON.parse(JSON.stringify(S.sections.map(x=>({name:x.name,color:x.color}))));
+    const n=acApply(tmp,clear);
+    if(!n){toast('Esta canción ya tiene los colores de las reglas');return;}
+    pushUndo();acApply(S.sections,clear);renderSections();
+    toast(n+(n===1?' sección pintada':' secciones pintadas')+' · Ctrl+Z deshace');return;
+  }
+  const list=scope==='set'?setSongs():lib.slice();
+  const wasClean=!isDirty();
+  const bak={list:[]};let ns=0,nsec=0;
+  list.forEach(e=>{
+    const before=(e.sections||[]).map(x=>x.color||'');
+    const k=acApply(e.sections,clear);
+    if(k){ns++;nsec+=k;bak.list.push({id:e.id,cols:before});}
+  });
+  /* la canción abierta, si está en la lista, cambia igual (y si estaba guardada, sigue «guardada») */
+  if(S.songId&&list.some(e=>e.id===S.songId)){
+    const k=acApply(S.sections,clear);
+    if(k){bak.cur=true;renderSections();if(wasClean)markClean();}
+  }
+  if(!ns){toast('Ya estaban todas pintadas según las reglas');return;}
+  if(!saveLib())return;
+  ACBAK=bak;
+  renderSongs();
+  toast(nsec+' secciones pintadas en '+ns+(ns===1?' canción':' canciones'));
+  openAutoColors();
+}
+function acUndo(){
+  if(!ACBAK)return;
+  const lib=loadLib(),wasClean=!isDirty();let n=0;
+  ACBAK.list.forEach(b=>{const e=lib.find(x=>x.id===b.id);if(!e)return;n++;
+    (e.sections||[]).forEach((x,i)=>{const c=b.cols[i];if(c)x.color=c;else delete x.color;});
+    if(e.id===S.songId&&e.sections.length===S.sections.length){
+      S.sections.forEach((x,i)=>{const c=b.cols[i];if(c)x.color=c;else delete x.color;});renderSections();if(wasClean)markClean();}
+  });
+  ACBAK=null;saveLib();renderSongs();
+  toast('Colores de antes recuperados en '+n+(n===1?' canción':' canciones'));
+  openAutoColors();
+}
+document.getElementById('dlgbox').addEventListener('click',e=>{
+  if(!document.getElementById('dlgbox').classList.contains('acdlg'))return;
+  const t=e.target.closest&&e.target.closest('[data-acc],[data-acx],[data-acup],[data-acadd],[data-acreset],[data-acgo],[data-acundo]');if(!t)return;
+  const R=acLoad().rules;
+  if(t.dataset.acc!=null){const [i,c]=t.dataset.acc.split(':');R[+i].c=c||'';acSave();acRefresh();return;}
+  if(t.dataset.acx!=null){R.splice(+t.dataset.acx,1);if(!R.length)R.push({w:'',c:''});acSave();acRefresh();return;}
+  if(t.dataset.acup!=null){const i=+t.dataset.acup;[R[i-1],R[i]]=[R[i],R[i-1]];acSave();acRefresh();return;}
+  if(t.dataset.acadd){R.push({w:'',c:'g3'});acSave();acRefresh();const l=document.querySelectorAll('#aclist .acw');if(l.length)l[l.length-1].focus();return;}
+  if(t.dataset.acreset){ACFG.rules=AC_DEF.map(r=>Object.assign({},r));acSave();acRefresh();toast('Reglas de partida');return;}
+  if(t.dataset.acgo){acGo(t.dataset.acgo);return;}
+  if(t.dataset.acundo){acUndo();return;}
+});
+document.getElementById('dlgbox').addEventListener('input',e=>{
+  if(!e.target.classList||!e.target.classList.contains('acw'))return;
+  const R=acLoad().rules,i=+e.target.dataset.aci;if(R[i]){R[i].w=e.target.value;acSave();}
+});
+document.getElementById('dlgbox').addEventListener('change',e=>{
+  if(e.target.id==='aclive'){acLoad().live=e.target.checked;acSave();}
+  else if(e.target.id==='acclear'){acLoad().clear=e.target.checked;acSave();}
+});
 function addSlot(chord,voicing,noUndo){
   if(!noUndo)pushUndo();
   const sec=S.sections[S.active];
@@ -2920,18 +3690,10 @@ function addSlot(chord,voicing,noUndo){
   renderSections();
 }
 function applyPreset(p){
-  const k=keyObj(); const dia=majDiatonic(); let list=[];
-  if(p.seq){list=p.seq.map(n=>dia[n-1]);}
-  else if(p.blues){
-    list=[1,1,1,1,4,4,1,1,5,4,1,5].map(n=>{const base=dia[n-1];return mkChord(base.pc,'dom7',base.deg+'7',base.degNum,k.flat);});
-  }
-  else if(p.andaluza){
-    const rel=relMinorPc();
-    list=[mkChord(rel,'min','i',1,k.flat),mkChord(rel+10,'maj','VII',7,k.flat),mkChord(rel+8,'maj','VI',6,k.flat),mkChord(rel+7,'maj','V arm.',5,k.flat)];
-  }
+  const list=presetChords(p);
   pushUndo();
   list.forEach(c=>addSlot(c,null,true));
-  toast('Progresión «'+p.name+'» añadida a '+S.sections[S.active].name);
+  toast('«'+p.name+'» añadida a '+S.sections[S.active].name);
 }
 
 /* ════════ audio ════════ */
@@ -3356,6 +4118,7 @@ try{const v=localStorage.getItem('gc-loop');
 function applyHl(){
   document.body.classList.toggle('hlsec',HLMODE==='sec');
   const s=document.getElementById('hlmode');if(s)s.value=HLMODE;
+  document.querySelectorAll('#hlseg [data-hl]').forEach(b=>b.classList.toggle('on',b.dataset.hl===HLMODE));
   if(HLMODE==='sec')document.querySelectorAll('.slot.playing').forEach(el=>el.classList.remove('playing'));
 }
 /* compases que ocupa una parte sin acordes (solo nota o lick): 4 por defecto si tiene contenido */
@@ -3873,6 +4636,7 @@ function updateSongTab(){
   const d=isDirty();
   document.getElementById('sdot').classList.toggle('dirty',d);
   document.getElementById('songtab').title=(S.songName||'Sin título')+(d?' — cambios sin guardar':' — guardada')+' · clic para gestionar tus canciones';
+  if(typeof updateSongNav==='function')updateSongNav();
 }
 function persist(){
   updateSongTab();
@@ -4331,7 +5095,7 @@ function moveSelTo(v){
 let DLGACT={};
 function openDlg(html,acts){
   const w=document.getElementById('dlg'),b=document.getElementById('dlgbox');
-  b.innerHTML=html;DLGACT=acts||{};w.hidden=false;
+  b.classList.remove('acdlg');b.innerHTML=html;DLGACT=acts||{};w.hidden=false;
   const f=b.querySelector('[autofocus]');if(f){f.focus();if(f.select)f.select();}
 }
 function closeDlg(){document.getElementById('dlg').hidden=true;document.getElementById('dlgbox').innerHTML='';DLGACT={};}
@@ -4545,6 +5309,7 @@ function openNewSong(){
 function createSong(name,folder,tpl,setId){
   stopPlay();
   S.sections=tpl?TPL_SECS.map(n=>({name:n,slots:[],note:''})):[{name:'Sección A',slots:[],note:''}];
+  S.sections.forEach(acOnName);
   S.groups=[];S.lgroups=[];S.active=0;S.songName=name;S.songId=null;
   const lib=loadLib();
   const snap=snapshot();snap.id=uid();snap.songId=snap.id;snap.name=name;snap.savedAt=Date.now();snap.folder=folder||null;
@@ -4689,7 +5454,7 @@ let pendingNext=null;
 function guardChange(next){
   if(!isDirty()){next();return;}
   pendingNext=next;
-  document.getElementById('modaltext').innerHTML='<b>«'+esc(S.songName||'Sin título')+'»</b> tiene cambios sin guardar. ¿Qué quieres hacer antes de continuar?';
+  document.getElementById('modaltext').innerHTML='<b>«'+esc(S.songName||'Sin título')+'»</b> tiene cambios que aún no has guardado. ¿Qué hacemos antes de seguir?';
   document.getElementById('modal').hidden=false;
 }
 function downloadJSON(data,name){
@@ -4728,9 +5493,12 @@ function xSectionsHTML(d,simple){
       const LN=secLines(sec),lnAt={};if(LN.length>1)LN.forEach(l=>{if(l.n>1)lnAt[l.b]=l.n;});
       inner='<span class="barline"></span>';
       sec.slots.forEach((sl,ei)=>{
-        inner+=xSlotHTML(sl,simple,ts,bm[ei].mids,secFrets(sec));
+        let xs=xSlotHTML(sl,simple,ts,bm[ei].mids,secFrets(sec));
+        /* 2026-10-28: la barra va delante de cada acorde que empieza compás (.bs), como en la app */
+        if(ei===0||bm[ei-1].closed)xs=xs.replace('<div class="slot','<div class="slot bs');
+        inner+=xs;
         const closed=bm[ei].closed;
-        if(closed)inner+='<span class="barline"></span>';
+        if(closed)inner+='<span class="barline'+(ei===sec.slots.length-1?' bend':'')+'"></span>';
         if(lnAt[ei])inner+='<span class="lnend"><span class="lnrep rqb'+(lnAt[ei]>=10?' dd':'')+'">'+repHTML(lnAt[ei])+'</span></span>';
         if(sl.br){
           inner+='<span class="lbreak"></span>';
@@ -4905,20 +5673,167 @@ async function exportSetlist(){
   }finally{btn.disabled=false;}
 }
 
+/* ════════ manual por capítulos (2026-10-28) ════════
+   Antes era una lista de 13 párrafos largos al pie de la página. Ahora: capítulos cortos, uno a la vista, con índice
+   (columna a la izquierda; en pantallas estrechas, fila de fichas), buscador y ‹ › para pasar de capítulo.
+   Se abre desde el pie de la página o desde Ajustes → manual. Recuerda el último capítulo (gc-manch). */
+const MAN=[
+ {id:'inicio',ic:'guitar',t:'Primeros pasos',p:'Una canción se escribe por secciones, se escucha y se toca en el directo.',li:[
+  'Arriba: <b>⏮ nombre ⏭</b> de la canción, <b>Guardar</b>, la <b>tonalidad</b> y <b>'+ICO('monitor-play')+' directo</b>. A la izquierda, el círculo de quintas, la leyenda y los trucos; a la derecha, los acordes de la escala y sus voicings. Debajo, el diapasón y la canción. Abajo del todo, la barra para escuchar.',
+  'El camino de siempre: eliges la tonalidad → arrastras acordes a las secciones → escuchas → guardas → al escenario con el directo.',
+  'El punto de la pestaña de la canción: <b style="color:var(--g3)">verde</b> = guardada, <b style="color:var(--g2)">naranja</b> = cambios sin guardar. Guardar o <b>Ctrl+S</b>. Doble clic en el título grande = renombrar.',
+  'Si cambias de canción o entras al directo con cambios pendientes, sale <b>Cambios sin guardar</b>: <b>Cancelar</b> (no hace nada), <b>Descartar</b> o <b>Guardar y seguir</b>.',
+  '<b>'+ICO('undo-2')+' '+ICO('redo-2')+'</b> de la barra de abajo (o Ctrl+Z / Ctrl+Y) deshacen y rehacen cualquier cambio de la canción.']},
+ {id:'tono',ic:'music',t:'Tonalidad y acordes',p:'El círculo y la paleta dan los acordes que encajan en la tonalidad, cada uno con el color de su grado.',li:[
+  'Clic en una nota <b>gris</b> del círculo = nueva tonalidad: el anillo exterior la fija <b>mayor</b> y el del medio <b>menor</b>.',
+  'Clic en un acorde <b>coloreado</b> (círculo o paleta) = suena y abre sus voicings. Debajo de cada acorde de la paleta va su función: tónica, subdominante o dominante.',
+  'Voicings por forma: <b>abierto</b>, raíz en 6ª (forma E), raíz en 5ª (forma A), raíz en 4ª (forma D7, en los 7) y <b>tríadas</b> con inversiones (en tenue, la forma CAGED de la que salen). El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.',
+  'Clic en un diagrama = escucharlo · <b>'+ICO('plus')+'</b> o arrastrarlo = añadirlo a la <b>sección activa</b> (la del nombre enmarcado).',
+  'La ficha <b>N.C.</b> del final de la paleta es un silencio: corta lo que suena (la batería sigue o para, se elige en la propia ficha).']},
+ {id:'buscador',ic:'search',t:'Buscador: cualquier acorde',p:'Para los acordes que no están en la escala, o para ver TODAS las formas de uno que sí está.',li:[
+  'Escribe arriba de los voicings y pulsa Enter (o «ver»): <b>Cmaj7</b>, <b>B♭9</b>, <b>F♯m7♭5</b>, <b>Dsus4</b>, <b>D/F♯</b>… También vale <b>Do♯m7</b>, <b>CM7</b>, <b>C-7</b>, <b>Cø</b> o <b>C°7</b>.',
+  'Con un acorde de la escala elegido sale la fila <b>«más de C»</b>: sus tensiones a un toque (maj7, 6, add9, sus…). <b>'+ICO('unlock')+' todos</b> abre el buscador con ese acorde.',
+  'En el buscador eliges <b>raíz</b> y <b>tipo</b>: 33 tipos en seis grupos — tríadas, sus, 6ª y add, séptimas, tensiones y alterados.',
+  'Las formas se <b>calculan en todo el mástil</b>: de 4 a 6 cuerdas, que se toquen con 4 dedos (con cejilla si hace falta) y cuerdas al aire solo cerca de la cejuela. La 5ª (y en los de 11ª y 13ª, la 9ª) puede faltar: esas notas salen tenues arriba y la forma lleva «sin 5ª».',
+  'Van agrupadas por la cuerda del bajo y de cada grupo se ven las 6 más cómodas; <b>ver todas</b> enseña el resto. <b>Con otro bajo</b> añade las inversiones; si escribes «D/F♯», salen solo con ese bajo.',
+  'El grado se calcula sobre tu tonalidad (♭VII, V7/ii, ♯IV°7…) y el color sigue ese grado. <b>'+ICO('x')+' volver a la escala</b> cierra el buscador.']},
+ {id:'cancion',ic:'list-music',t:'Escribir la canción',p:'Cada sección es una fila: su nombre en vertical, sus botones y sus acordes.',li:[
+  '<b>Agregar sección</b> (en la cabecera de la canción): se crea justo detrás de la activa. Clic en el nombre = activarla · doble clic = renombrar · arrastrar el nombre = reordenar.',
+  'En cada acorde: <b>'+ICO('copy')+'</b> duplica (mantenlo y arrastra = soltar una copia donde quieras), <b>'+ICO('x')+'</b> lo quita y <b>'+ICO('corner-down-left')+'</b> salta de línea, para ordenar los acordes como frases.',
+  '<b>×N</b> abre la duración: compases (1·2·3·4·6·8) o tiempos (½·1·2·3); con <b>+</b> se suman (1 compás + 2 tiempos = 1½). Si un acorde cruza una barra, una <b>raya discontinua</b> marca dónde cae; si la sección no cierra en compases enteros, avisa del <b>compás corto</b>.',
+  'Cada acorde que empieza compás lleva <b>su barra delante</b>, también cuando una línea larga salta sola por falta de ancho: la rejilla queda alineada.',
+  'Dos vistas: <b>simple</b> (chuleta) y <b>diagramas</b>, con el botón de la cabecera. El <b>'+ICO('rectangle-horizontal')+'/'+ICO('grid-3x3')+'</b> de cada sección pliega o abre solo esa, y cada vista lo recuerda.',
+  'Una parte <b>sin acordes</b> (un solo, una intro hablada) dura los compases de su ×N: de 1 a 16, 20, 24, 32 o de uno en uno; «—» la salta.']},
+ {id:'botones',ic:'ellipsis',t:'Botones de cada sección',p:'A la vista solo los de siempre; el resto, con su nombre, detrás de ⋯.',li:[
+  '<b>'+ICO('play')+'</b> la toca: con el <b>bucle encendido</b> se repite sola; con el bucle apagado empieza ahí y sigue hasta el final.',
+  '<b>'+ICO('rectangle-horizontal')+'/'+ICO('grid-3x3')+'</b> abre o pliega sus diagramas en la vista actual.',
+  '<b>'+ICO('ellipsis')+'</b> despliega todos los botones con su nombre (la sección se aparta a la derecha): color, ocultar en directo, renombrar, duplicar, fusionar con la siguiente, nota para el directo, batería y eliminar. Se cierra con <b>‹ cerrar</b>, con Esc o tocando fuera.',
+  'Un <b style="color:var(--focus)">punto azul</b> en ⋯ = esa sección tiene la batería puesta a mano.',
+  '<b>Fusionar</b> «Verso ×2» con «Verso 2» los deja en una sola sección, con la primera línea ×2: suena igual.']},
+ {id:'repes',ic:'redo-2',t:'Repeticiones',p:'Todas van en la columna de la derecha, con la misma pastilla roja ×N.',li:[
+  '<b>Sección:</b> la pastilla pegada a sus acordes. Clic sube (hasta ×12) y Mayús+clic baja; el ×1 tenue sirve para empezar.',
+  '<b>Bloque de secciones:</b> arrastra por la columna, de arriba abajo, para dibujar un <b>corchete rojo</b> (p. ej. Intro-Verso-Coro ×2). Clic sube; Mayús+clic baja y, en ×2, quita el corchete.',
+  '<b>Línea:</b> en una sección con varias líneas (salto '+ICO('corner-down-left')+'), cada línea lleva su ×N al final: esa línea suena N veces antes de pasar a la siguiente.',
+  'Se combinan: sección ×2 con la 1ª línea ×2 suena A A B, A A B. Al reproducir, la pastilla se pone azul y cuenta la vuelta («1/2»).']},
+ {id:'colores',ic:'palette',t:'Colores de sección',p:'Para encontrar el solo o el estribillo de un vistazo, también en el directo y en las imágenes.',li:[
+  'A mano: <b>⋯ → color</b>, siete colores o sin color.',
+  '<b>Automáticos:</b> en la paleta de color, «automáticos…», o en <b>Ajustes → colores automáticos</b>. Cada regla son unas palabras y un color: pinta las secciones cuyo nombre contiene esas palabras, sin mirar mayúsculas ni tildes y por principio de palabra («coro» pinta «Coros» y «Pre-coro»).',
+  'Si dos reglas coinciden, <b>manda la de arriba</b> (con ↑ subes una regla). Por eso «pre» va antes que «coro».',
+  'De partida: pre → amarillo, solo → rojo, puente/bridge → morado, coro/estribillo/chorus → naranja, verso/estrofa/verse → azul, y dos reglas vacías para las tuyas. «Reglas de partida» las restablece.',
+  '<b>Aplicar a:</b> esta canción (queda «sin guardar» y Ctrl+Z deshace), el set activo o toda la biblioteca (se guarda al momento; mientras la app siga abierta, «deshacer el último pintado» devuelve los colores de antes).',
+  'Opciones: pintar también al <b>crear o renombrar</b> una sección, y quitar el color a las que no coinciden. Las reglas son de este aparato.']},
+ {id:'sonido',ic:'audio-lines',t:'Escuchar y batería',p:'Todos los controles de reproducción viven en la barra de abajo.',li:[
+  '<b>'+ICO('play')+' Reproducir</b> (o la barra espaciadora) toca la canción entera; la tarjeta que suena se ilumina.',
+  'La píldora del <b>tempo</b> abre el ritmo: bpm, <b>TAP</b>, compás 4/4 o 3/4, estilo de batería (rock, pop 80, movida, medio tiempo, balada, rumba, ska, funk, vals), <b>oír el estilo</b>, cuenta de entrada y bucle. Metrónomo y batería se encienden con sus botones.',
+  'La guitarra da un rasgueo al empezar cada acorde y, en los tiempos siguientes, un golpe en palm mute.',
+  'La batería elige su <b>energía</b> por el nombre de la sección (en inglés o en castellano): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3. Al cambiar de nivel hay redoble, al subir a 3–4 entra con crash, y la canción acaba con golpe final. A mano: <b>⋯ → batería</b>.']},
+ {id:'ajustes',ic:'settings-2',t:'Ajustes',p:'El botón de la derecha de la barra de abajo reúne el sonido y la pantalla.',li:[
+  '<b>Volumen</b> general, con '+ICO('volume-2')+' para silenciar y volver. Si está en silencio, la píldora «ajustes» lo avisa en rojo.',
+  '<b>Mezcla:</b> acordes, batería y metrónomo por separado. <b>Guitarra:</b> ataque (izquierda = todas las cuerdas a la vez) y sustain.',
+  '<b>Pantalla</b> (de este aparato, para todas las canciones): tema automático, claro u oscuro · <b>resaltar</b> cada acorde o solo la sección (en directo, si la banda no va clavada al clic, la sección es más fiable) · <b>avance en el directo</b>.',
+  'Y dos atajos: <b>colores automáticos</b> y este <b>manual</b>.']},
+ {id:'canciones',ic:'folder',t:'Canciones, sets y carpetas',p:'La pestaña con el nombre de la canción abre el panel «Canciones».',li:[
+  '<b>⏮ ⏭</b> junto al nombre pasan a la canción anterior o siguiente del <b>set activo</b> (o de la biblioteca si no hay set), como en el directo. Si hay cambios sin guardar, pregunta antes.',
+  '<b>SET:</b> eliges el set (o «todas las canciones»), creas, renombras o borras sets y ordenas sus canciones arrastrando '+ICO('grip-vertical')+'. <b>BIBLIOTECA:</b> tus canciones en carpetas de un nivel, con buscador.',
+  '<b>'+ICO('plus')+' Nueva</b> pide nombre, carpeta, plantilla (vacía o Intro · Verse · Chorus… ya preparada para la batería) y si va al set activo.',
+  '<b>'+ICO('square')+' Editar</b> marca canciones para añadirlas o quitarlas del set, moverlas de carpeta, duplicarlas, renombrarlas, exportarlas o borrarlas.']},
+ {id:'archivo',ic:'arrow-down-up',t:'Archivo e imágenes',p:'Copias de seguridad, pasar canciones entre aparatos y chuletas en imagen.',li:[
+  '<b>Exportar</b> la canción, el set activo o la <b>biblioteca completa</b> (con carpetas y sets) como .json.',
+  '<b>Importar</b> cualquier .json: antes de tocar nada dice qué es, cuántas canciones ya tienes iguales, cuántas han cambiado (actualizar, mantener la tuya o guardar copia) y cuántas son nuevas. Importar dos veces lo mismo no duplica.',
+  '<b>'+ICO('images')+' Imágenes</b> (pestaña SET): una imagen por canción, vista simple o con diagramas, tema blanco o negro, ancho y nitidez. Se descargan en un ZIP como <b>01-Canción-Tono.png</b>, en el orden del set.']},
+ {id:'directo',ic:'monitor-play',t:'Modo directo',p:'La pantalla del escenario: solo la canción, con la letra tan grande como quepa.',li:[
+  'Todos los acordes crecen a la vez para llenar la pantalla sin romper la rejilla; las notas de cada sección van encima de sus acordes.',
+  'Cambiar de canción: <b>'+ICO('skip-back')+' '+ICO('skip-forward')+'</b>, <b>deslizar el dedo</b> o un pasapáginas (Av Pág / Re Pág o ← →). La barra espaciadora toca y para.',
+  '<b>Toca el nombre de una sección</b> para abrirla con diagramas o plegarla; cada vista lo recuerda, canción por canción.',
+  'Al reproducir, la pantalla sigue a la sección que suena. Con <b>Ajustes → avance en el directo</b> baja sola aunque no reproduzcas (al tempo o cada N segundos); si se desfasa, toca la sección en la tira de abajo.',
+  'La <b>tira</b> de abajo tiene un tramo por sección, con su ×N y el contador de vueltas.',
+  'Al salir (<b>'+ICO('x')+'</b> o Esc) vuelves al modo normal <b>en la misma zona de la canción</b>.']},
+ {id:'ocultar',ic:'eye-off',t:'Ocultar y anotar en el directo',p:'Para que el directo no repita lo que vuelve casi igual.',li:[
+  '<b>Ocultar:</b> ⋯ → <b>ocultar en directo</b>. Esa sección no se ve en el directo pero <b>suena igual</b>; en modo normal sigue a la vista. En el directo, '+ICO('eye-off')+' de la barra las enseña un momento.',
+  '<b>Anotar:</b> en el directo, arrastra por la columna de la derecha para dibujar un corchete discontinuo <b>×2~</b>: un recordatorio de que el bloque vuelve con variaciones (no cambia lo que suena). Tócalo para ×3, ×4 y quitarlo.',
+  'Al sonar una sección oculta se ilumina su pareja visible con la marca <b>«2ª»</b> y, si tiene nota, la nota aparece encima. La pareja se busca por nombre («Verso 2» va con «Verso») o por orden.']},
+ {id:'diapason',ic:'guitar',t:'Diapasón y licks',p:'El mástil siempre cuenta desde la tónica de la canción.',li:[
+  'Cada nota son dos cajas: la <b>nota</b> y su <b>grado</b>. Clic = suena · <b>doble clic</b> = esa nota pasa a ser la tónica (modular); la × vuelve.',
+  '<b>Escala</b> enseña solo sus notas y <b>acorde</b> resalta su arpegio («el que suena» lo sigue al reproducir). Debajo, la regla de semitonos.',
+  '<b>Editor de licks:</b> toca la rejilla para poner notas; herramientas de flecha, slide, hammer-on, pull-off, bend y agrupar. Arrastra para mover, doble clic borra, Ctrl+Z deshace. <b>'+ICO('plus')+'</b> manda el dibujo a la sección activa; tocar un lick en la canción lo reabre para actualizarlo.']},
+ {id:'trucos',ic:'lightbulb',t:'Trucos y leyenda',p:'Ideas para salir de los acordes de siempre, en tu tonalidad.',li:[
+  'Cuatro pestañas: <b>color</b> (menor relativa, préstamos del menor y sabores modales), <b>tensión</b> (dominantes secundarias, sustitutos y acordes de paso, y el cambio de tono para el último estribillo), <b>cadencias</b> y <b>progresiones</b>.',
+  'Clic en una ficha = verla y oírla; arrástrala para añadirla. Las cadencias y progresiones se añaden enteras a la sección activa con un clic; debajo de cada una salen sus acordes en tu tono.',
+  'La <b>leyenda</b> resume en dibujo los colores de los grados y su función, los colores de las notas, cómo leer un diagrama y cómo leer la canción.']},
+ {id:'teclas',ic:'zap',t:'Teclado y pasapáginas',p:'Por si tocas con teclado o pedal.',li:[
+  '<b>Espacio</b> toca / para · <b>Ctrl+S</b> guarda · <b>Ctrl+Z / Ctrl+Y</b> deshacen y rehacen · <b>Esc</b> cierra lo que esté abierto (paneles, diálogos, los botones de una sección, el directo).',
+  'En el directo, los pasapáginas Bluetooth que funcionan como teclado: <b>Av Pág / Re Pág</b> o <b>← →</b> cambian de canción.']}
+];
+let MANCH='inicio';try{MANCH=localStorage.getItem('gc-manch')||'inicio';}catch(e){}
+let MANQ='';
+function manText(c){return acNorm(c.t+' '+c.p+' '+c.li.join(' ').replace(/<[^>]+>/g,' '));}
+function renderManual(){
+  const nav=document.getElementById('mannav'),body=document.getElementById('manbody');if(!nav||!body)return;
+  const q=acNorm(MANQ).trim(),L=q?MAN.filter(c=>manText(c).includes(q)):MAN;
+  if(!MAN.some(c=>c.id===MANCH))MANCH='inicio';
+  if(q&&L.length&&!L.some(c=>c.id===MANCH))MANCH=L[0].id;
+  if(!document.getElementById('manq'))nav.innerHTML='<label class="manq">'+ICO('search')+'<input id="manq" type="text" placeholder="buscar en el manual" spellcheck="false" aria-label="Buscar en el manual"></label><div class="manlist" id="manlist"></div>';
+  document.getElementById('manlist').innerHTML=L.length?L.map(c=>{const n=MAN.indexOf(c)+1;
+    return '<button type="button" class="manch'+(c.id===MANCH?' on':'')+'" data-manch="'+c.id+'"><span class="mann">'+n+'</span>'+ICO(c.ic)+'<span class="mant">'+esc(c.t)+'</span></button>';}).join('')
+    :'<p class="mannone">Nada con «'+esc(MANQ)+'»</p>';
+  const i=MAN.findIndex(c=>c.id===MANCH),c=MAN[i],pv=MAN[i-1],nx=MAN[i+1];
+  let li=c.li.map(x=>'<li>'+x+'</li>').join('');
+  if(q){const re=new RegExp('('+MANQ.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    li=li.replace(/>([^<]+)</g,(m,t)=>'>'+t.replace(re,'<mark>$1</mark>')+'<');}
+  body.innerHTML='<div class="manhead"><span class="mannum">'+(i+1)+'/'+MAN.length+'</span>'+ICO(c.ic)+'<h3>'+esc(c.t)+'</h3></div>'+
+    '<p class="manp">'+c.p+'</p><ul class="manul">'+li+'</ul>'+
+    '<div class="manfoot">'+(pv?'<button type="button" class="sbtn" data-manch="'+pv.id+'">'+ICO('chevron-left')+' '+esc(pv.t)+'</button>':'<span></span>')+
+    (nx?'<button type="button" class="sbtn" data-manch="'+nx.id+'">'+esc(nx.t)+' '+ICO('chevron-right')+'</button>':'<span></span>')+'</div>';
+}
+function openManual(id){
+  const d=document.getElementById('manual');if(!d)return;
+  if(id)MANCH=id;
+  document.querySelectorAll('.tpop').forEach(p=>{p.hidden=true;});document.querySelectorAll('.tgrp.open').forEach(g=>g.classList.remove('open'));
+  d.open=true;renderManual();
+  d.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.getElementById('manual').addEventListener('toggle',e=>{if(e.target.open)renderManual();});
+document.getElementById('manual').addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('[data-manch]');if(!b)return;
+  MANCH=b.dataset.manch;try{localStorage.setItem('gc-manch',MANCH);}catch(er){}
+  renderManual();
+  if(b.closest('.manfoot')){const h=document.getElementById('manbody');if(h&&h.getBoundingClientRect().top<60)h.scrollIntoView({block:'start'});}
+});
+document.getElementById('manual').addEventListener('input',e=>{if(e.target.id==='manq'){MANQ=e.target.value;renderManual();}});
+
 /* ════════ render global ════════ */
+/* leyenda (2026-10-28): más dibujo y menos texto. Cuatro filas: grados con su función debajo · colores de las notas
+   (los mismos puntos que en los diagramas) · cómo leer un diagrama · cómo leer la canción */
 function renderLegend(){
-  const g=document.getElementById('legendgrades');
-  g.innerHTML='<span class="lgnote" style="margin:0 4px 0 0"><b>grados:</b></span>'+
-    ['I','ii','iii','IV','V','vi','vii°'].map((d,i)=>'<span class="lgchip '+(i===5?'darktext':'')+'" style="background:'+GRADE_COLORS[i+1]+'">'+d+'</span>').join('');
-  const fq=document.getElementById('legendfuncs');
-  fq.innerHTML='<span class="lgnote" style="margin:0 4px 0 0"><b>funciones armónicas:</b></span>'+
-    ['T','S','D'].map(k=>'<span class="lgchip" style="background:'+FUNCS[k].col+'" title="'+esc(FUNCS[k].hint)+'">'+k+' · '+FUNCS[k].name+'</span>').join('')+
-    '<span class="lgnote">T reposo · S movimiento · D tensión</span>';
-  const r=document.getElementById('legendroles');
-  r.innerHTML='<span class="lgnote" style="margin:0 4px 0 0"><b>colores de las notas:</b></span>'+
-    [['1','fundamental','--r1'],['3','tercera','--r3'],['5','quinta','--r5'],['7','séptima','--r7']]
-    .map(([n,t,v])=>'<span class="lgchip" style="background:var('+v+')" title="'+t+'">'+n+'</span>').join('')+
-    '<span class="lgnote">no se tocan: es la clave de colores de voicings, diapasón y licks (♭3 y ♭7 en tono claro) · la 3ª decide mayor/menor · la 1ª da el nombre</span>';
+  const el=document.getElementById('legend');if(!el)return;
+  const fn=['T','S','T','S','D','T','D'];
+  const deg=['I','ii','iii','IV','V','vi','vii°'].map((d,i)=>'<span class="lgdeg"><b class="'+(i===5?'darktext':'')+'" style="background:'+GRADE_COLORS[i+1]+'">'+d+'</b>'+
+    '<i style="background:'+FUNCS[fn[i]].col+'" title="'+esc(FUNCS[fn[i]].name+' · '+FUNCS[fn[i]].hint)+'">'+fn[i]+'</i></span>').join('');
+  const fkey=['T','S','D'].map(k=>'<span class="lgk"><i style="background:'+FUNCS[k].col+'">'+k+'</i>'+({T:'reposo',S:'movimiento',D:'tensión'})[k]+'</span>').join('');
+  const dot=(r,t)=>'<span class="lgdot" title="'+esc(t)+'" style="background:'+(ROLE_COLORS[r]||'var(--line)')+'">'+r+'</span>';
+  const dots=dot('1','fundamental: da el nombre')+dot('3','tercera mayor')+dot('♭3','tercera menor: decide que es menor')+dot('5','quinta')+
+    dot('7','séptima mayor')+dot('♭7','séptima menor')+'<span class="lgsep"></span>'+dot('9','novena (= 2)')+dot('11','oncena (= 4)')+dot('13','trecena (= 6)');
+  const mono='font-family="IBM Plex Mono,Consolas,monospace"',ar='font-family="Archivo,Segoe UI,sans-serif"';
+  const dg='<div class="lgdg"><svg class="lgsvg" viewBox="0 0 78 66" role="img" aria-label="Mini diagrama de ejemplo">'+
+    '<rect x="10" y="20" width="60" height="3.5" fill="var(--ink)"/>'+
+    '<rect x="10" y="46" width="60" height="12" fill="var(--inlay12)"/>'+
+    [0,1,2,3,4,5].map(i=>'<line x1="'+(10+i*12)+'" y1="22" x2="'+(10+i*12)+'" y2="58" stroke="var(--dgline)" stroke-width="1"/>').join('')+
+    [0,1,2,3].map(j=>'<line x1="10" y1="'+(22+j*12)+'" x2="70" y2="'+(22+j*12)+'" stroke="var(--dgline)" stroke-width="1"/>').join('')+
+    '<text x="10" y="14" font-size="11" fill="var(--mut)" text-anchor="middle" font-weight="bold">×</text>'+
+    '<circle cx="22" cy="10" r="4" fill="none" stroke="var(--ink)" stroke-width="1.4"/>'+
+    '<text x="3" y="56" font-size="9" font-weight="700" fill="var(--mut2)" text-anchor="middle" '+mono+'>3</text>'+
+    '<circle cx="46" cy="40" r="5.5" fill="var(--r1)"/><text x="46" y="43" font-size="7.5" font-weight="800" fill="#151514" text-anchor="middle" '+ar+'>1</text>'+
+    '</svg><ul class="lgdgl"><li><b>×</b> no suena · <b>○</b> al aire</li><li><b>raya gruesa</b> = cejuela</li><li><b>número</b> = traste · <b>gris</b> = 3·5·7·9·12</li></ul></div>';
+  const song='<span class="lgsong"><span class="lgmc">×2</span>compases</span>'+
+    '<span class="lgsong"><span class="lgbar"></span>barra de compás</span>'+
+    '<span class="lgsong"><span class="lgmid"></span>barra a mitad</span>'+
+    '<span class="lgsong"><span class="lgrep">×2</span>se repite</span>'+
+    '<span class="lgsong"><span class="lgnc">N.C.</span>silencio</span>';
+  el.innerHTML=
+    '<div class="lgrow"><span class="lglab">grados</span><div class="lgbody"><div class="lgdegs">'+deg+'</div><div class="lgkeys">'+fkey+'</div></div></div>'+
+    '<div class="lgrow"><span class="lglab">notas</span><div class="lgbody"><div class="lgdots">'+dots+'</div><div class="lgcap">mismos colores en voicings, diapasón y licks · ♭ = tono claro</div></div></div>'+
+    '<div class="lgrow"><span class="lglab">diagrama</span><div class="lgbody">'+dg+'</div></div>'+
+    '<div class="lgrow"><span class="lglab">canción</span><div class="lgbody lgsongs">'+song+'</div></div>';
 }
 function renderAll(){
   renderCircle();renderPalette();renderTricks();renderVoicings();renderSections();renderSongs();renderLickEd();
@@ -5106,6 +6021,9 @@ document.addEventListener('click',e=>{
     if(ex&&ex.dataset.sd===String(si)){closeDurPop();return;} /* segundo clic en el mismo chip = cerrar */
     openSecDurPop(si,dchip);return;
   }
+  const mo=e.target.closest&&e.target.closest('[data-moresec]');
+  if(mo){secCtlOpen(+mo.dataset.moresec);return;}
+  if(XOPEN&&e.target.closest&&e.target.closest('[data-rensec],[data-dupsec],[data-mergesec],[data-delsec],[data-addnote]'))secCtlOpen(-1);
   const ps=e.target.closest&&e.target.closest('[data-playsec]');
   if(ps){
     const i=+ps.dataset.playsec;
@@ -5124,6 +6042,7 @@ document.addEventListener('click',e=>{
     toast(sec.lh?'«'+sec.name+'» no se verá en el modo directo':'«'+sec.name+'» vuelve a verse en el directo');
     return;
   }
+  if(e.target.closest&&e.target.closest('[data-colauto]')){closeColPop();openAutoColors();return;}
   const cdot=e.target.closest&&e.target.closest('[data-setcol]');
   if(cdot){
     const p=cdot.dataset.setcol.split(':'),sec=S.sections[+p[0]];
@@ -5247,7 +6166,7 @@ function startRename(si){
   const commit=()=>{
     tn.contentEditable='false';nameEl.classList.remove('editing');
     const nn=tn.textContent.trim();
-    if(nn&&nn!==S.sections[si].name){pushUndo();S.sections[si].name=nn;}
+    if(nn&&nn!==S.sections[si].name){pushUndo();S.sections[si].name=nn;acOnName(S.sections[si]);}
     renderSections();
   };
   tn.addEventListener('blur',commit,{once:true});
@@ -5275,7 +6194,7 @@ document.addEventListener('touchend',e=>{
 let SW=null;
 document.addEventListener('touchstart',e=>{
   if(!document.body.classList.contains('live')||e.touches.length!==1)return;
-  if(e.target.closest&&e.target.closest('#livebar,.mixmenu'))return;
+  if(e.target.closest&&e.target.closest('#livebar,.tpop'))return;
   SW={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now(),sx:window.scrollX,sy:window.scrollY};
 },{passive:true});
 document.addEventListener('touchend',e=>{
@@ -5519,10 +6438,10 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     const modal=document.getElementById('modal');
     if(!modal.hidden){modal.hidden=true;pendingNext=null;return;}
+    if(XOPEN){secCtlOpen(-1);return;}
     if(dlgOpen()){closeDlg();IMP=null;return;}
     if(imagesOpen()){exitImages();return;}
     if(document.body.classList.contains('live')){exitLive();return;}
-    document.getElementById('mixmenu').hidden=true;
     if(songPanelOpen())closeSongMenu();return;
   }
   /* pedales-teclado (pasadores de página Bluetooth) y teclado en el directo */
@@ -5627,6 +6546,12 @@ document.getElementById('hlmode').addEventListener('change',e=>{
   applyHl();
   toast(HLMODE==='sec'?'Al reproducir se ilumina solo la sección — ideal en directo':'Al reproducir se ilumina cada acorde');
 });
+document.getElementById('hlseg').addEventListener('click',e=>{
+  const b=e.target.closest('[data-hl]');if(!b||b.dataset.hl===HLMODE)return;
+  const sel=document.getElementById('hlmode');sel.value=b.dataset.hl;sel.dispatchEvent(new Event('change'));
+});
+document.getElementById('autocolbtn').addEventListener('click',()=>openAutoColors());
+document.getElementById('manualbtn').addEventListener('click',()=>openManual());
 document.getElementById('countin').addEventListener('change',e=>{S.countIn=e.target.checked;persist();});
 document.getElementById('vol').addEventListener('input',e=>{S.vol=+e.target.value;if(master)master.gain.value=S.vol;updateVolIcon();});
 /* 🔊 = silenciar y volver al volumen que había (var, no let: syncControls() puede llegar antes) */
@@ -5638,6 +6563,8 @@ function updateVolIcon(){
   b.innerHTML=ICO(mute?'volume-x':'volume-2');
   b.title=mute?'Silenciado — clic para volver al '+Math.round(volPrev*100)+'%':'Silenciar el volumen general';
   if(pill)pill.classList.toggle('muted',mute);
+  const vv=document.getElementById('volval');if(vv)vv.textContent=mute?'silencio':Math.round(S.vol*100)+'%';
+  const sm=document.getElementById('setmute');if(sm)sm.hidden=!mute; /* la píldora «ajustes» avisa si está en silencio */
 }
 document.getElementById('volico').addEventListener('click',()=>{
   if(S.vol>0){volPrev=S.vol;S.vol=0;}
@@ -5718,6 +6645,7 @@ document.getElementById('addsecbtn').addEventListener('click',()=>{
   const at=(S.active>=0&&S.active<S.sections.length)?S.active+1:S.sections.length;
   gInsert(at);
   S.sections.splice(at,0,{name,slots:[],note:''});S.active=at;inp.value='';
+  acOnName(S.sections[at]);
   renderSections();toast('Sección «'+name+'» creada');
 });
 document.getElementById('newsec').addEventListener('keydown',e=>{
@@ -5868,8 +6796,7 @@ document.getElementById('dlg').addEventListener('keydown',e=>{
   }
 });
 document.addEventListener('pointerdown',e=>{
-  const mix=document.getElementById('mixmenu');
-  if(!mix.hidden&&!(e.target.closest&&e.target.closest('.mixbox')))mix.hidden=true;
+  if(XOPEN&&!(e.target.closest&&e.target.closest('.secctl.xopen,.colpop,.lvpop,#modal,#dlg')))secCtlOpen(-1);
   if(document.querySelector('.colpop')&&!(e.target.closest&&e.target.closest('.colpop,[data-colorsec]')))closeColPop();
   if(document.querySelector('.durpop')&&!(e.target.closest&&e.target.closest('.durpop,.slot .mchip,.durchip')))closeDurPop();
   if(document.querySelector('.lvpop')&&!(e.target.closest&&e.target.closest('.lvpop,[data-lvsec]')))closeLvPop();
@@ -5941,6 +6868,7 @@ function hideSwipeHint(){
   hideSwipeHint._t=setTimeout(()=>{h.hidden=true;},450);
 }
 function enterLive(){
+  XOPEN=null;
   document.body.classList.add('live');
   document.body.classList.remove('showhid'); /* se entra siempre con las ocultas ocultas */
   renderSections(); /* corchetes y ×N se recalculan sin las secciones ocultas */
@@ -5948,13 +6876,31 @@ function enterLive(){
   showSwipeHint();
   toast('Modo directo · desliza ⇄ o ⏮ ⏭ cambian de canción · toca el nombre de una sección para abrirla o plegarla');
 }
+/* 2026-10-28: al salir del directo, la página vuelve a la sección que estaba en pantalla (o a la que suena), en la
+   misma altura aproximada, en vez de quedarse en la zona de arriba (círculo, paleta…) */
+function liveAnchor(){
+  if(play.on&&play.curSecMark!=null)return {si:play.curSecMark,fr:0};
+  const hh=liveHeadH();
+  const rows=[...document.querySelectorAll('#sections .secrow')].filter(r=>r.offsetHeight);
+  for(const r of rows){const b=r.getBoundingClientRect();
+    if(b.bottom>hh+12)return {si:+r.dataset.si,fr:Math.max(0,Math.min(0.9,(hh-b.top)/b.height))};}
+  return null;
+}
+function scrollToSec(a){
+  if(!a)return;
+  const row=document.querySelector('#sections .secrow[data-si="'+a.si+'"]');if(!row)return;
+  const tb=document.querySelector('.topbar'),th=tb?tb.getBoundingClientRect().height:0,r=row.getBoundingClientRect();
+  window.scrollTo({top:Math.max(0,Math.round(r.top+window.scrollY+r.height*(a.fr||0)-th-14))});
+}
 function exitLive(){
+  const anc=liveAnchor(),fs=!!document.fullscreenElement;
   advStop();document.documentElement.style.scrollPaddingBottom='';document.documentElement.style.scrollPaddingTop='';
   document.body.classList.remove('live');
   document.body.classList.remove('showhid');
   hideSwipeHint();
   renderSections();
-  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  scrollToSec(anc);
+  if(fs){document.exitFullscreen().catch(()=>{});setTimeout(()=>scrollToSec(anc),300);} /* al salir de pantalla completa cambia el alto */
 }
 /* cambia de canción siguiendo el set activo (o la biblioteca) — sin modales en pleno directo */
 function liveNav(d){
@@ -5971,6 +6917,33 @@ function liveNav(d){
   window.scrollTo({top:0});
   toast((i+1)+' / '+set.length+' · «'+e.name+'»');
 }
+/* 2026-10-28: ⏮ ⏭ de la barra de arriba, en el modo normal. Mismo orden que el directo (set activo o biblioteca),
+   pero aquí sí pregunta si hay cambios sin guardar. Se queda en la misma zona de la página */
+function songNav(d){
+  const set=setSongs(),act=activeSetl();
+  if(!set.length){toast(act?'El set «'+act.name+'» está vacío — añádele canciones en el menú de canciones':'Guarda canciones para poder pasar de una a otra');return;}
+  let i=set.findIndex(x=>x.id===S.songId);
+  i=i<0?(d>0?0:set.length-1):(i+d+set.length)%set.length;
+  const e=set[i];
+  guardChange(()=>{
+    stopPlay();
+    applySnapshot(e);S.songId=e.id;S.songName=e.name;
+    S.selChord=currentChords()[0];
+    clearHistory();markClean();syncControls();renderAll();resetLickEd();
+    toast((i+1)+' / '+set.length+(act?' · '+act.name:'')+' · «'+e.name+'»');
+  });
+}
+function updateSongNav(){
+  const set=setSongs(),act=activeSetl(),pv=document.getElementById('songprev'),nx=document.getElementById('songnext');if(!pv||!nx)return;
+  const i=set.findIndex(x=>x.id===S.songId),n=set.length;
+  const nm=k=>n?'«'+set[(k+n)%n].name+'»':'';
+  const where=act?' del set «'+act.name+'»':' de la biblioteca';
+  pv.title=n?'Canción anterior'+where+': '+nm(i<0?n-1:i-1):'Canción anterior (no hay canciones guardadas)';
+  nx.title=n?'Canción siguiente'+where+': '+nm(i<0?0:i+1):'Canción siguiente (no hay canciones guardadas)';
+  pv.disabled=nx.disabled=n<1||(n===1&&i===0);
+}
+document.getElementById('songprev').addEventListener('click',()=>songNav(-1));
+document.getElementById('songnext').addEventListener('click',()=>songNav(1));
 function updateLiveBar(){
   const lp=document.getElementById('livepos');if(!lp)return;
   const set=setSongs(),act=activeSetl();
@@ -6466,14 +7439,13 @@ function applyTheme(){
   const root=document.documentElement;
   if(t==='auto')root.removeAttribute('data-theme');
   else root.setAttribute('data-theme',t);
-  const b=document.getElementById('themebtn');
-  if(b)b.innerHTML=t==='auto'?ICO('sun-moon')+'<span class="thlab"> auto</span>':(t==='light'?ICO('sun')+'<span class="thlab"> claro</span>':ICO('moon')+'<span class="thlab"> oscuro</span>');
+  document.querySelectorAll('#themeseg [data-theme]').forEach(b=>b.classList.toggle('on',b.dataset.theme===t));
 }
-document.getElementById('themebtn').addEventListener('click',()=>{
-  let cur='auto';
-  try{cur=localStorage.getItem('gc-theme')||'auto';}catch(e){}
-  const next={auto:'light',light:'dark',dark:'auto'}[cur]||'auto';
-  try{localStorage.setItem('gc-theme',next);}catch(e){}
+/* 2026-10-28: el tema ya no está en la barra de arriba; va en «ajustes» (barra de abajo), con auto · claro · oscuro */
+document.getElementById('themeseg').addEventListener('click',e=>{
+  const b=e.target.closest('[data-theme]');if(!b)return;
+  const next=b.dataset.theme;
+  try{localStorage.setItem('gc-theme',next);}catch(er){}
   applyTheme();
   toast('Tema: '+(next==='auto'?'automático (según el sistema)':next==='light'?'claro':'oscuro'));
 });
@@ -6493,6 +7465,7 @@ renderLegend();
 renderAll();
 renderLickEd();
 updateSongTab();
+if(document.getElementById('manual').open)renderManual();
 /* aviso si el navegador no puede guardar (p. ej. abierto vía content:// desde la app de Archivos) */
 try{localStorage.setItem('gc-t','1');localStorage.removeItem('gc-t');}
 catch(e){setTimeout(()=>toast('⚠ Aquí no se puede guardar: las canciones se perderán. Abre el archivo escribiendo su ruta file:// en Chrome'),700);}
@@ -6507,7 +7480,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.27d';
+const APP_VER='2026.10.28';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
