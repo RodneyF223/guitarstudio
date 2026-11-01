@@ -762,6 +762,12 @@
   .prmeta{font-family:var(--font-n);font-size:13.5px;color:var(--mut);font-weight:600}
   .tschip{font-family:var(--font-n);font-weight:700;font-size:14px;padding:1px 7px;border-radius:0;background:transparent;color:var(--ink);border:1.5px solid var(--line2)}
   .proghint{font-size:12px;color:var(--mut)}
+  /* 2026-11-01: en el modo normal la barra del título (nombre, tono, tempo, compás, vista, agregar sección) se queda
+     fija debajo de la barra de arriba. Mientras se ve la canción va con sticky; al bajar más allá (manual) el JS la
+     pasa a position:fixed con un hueco del mismo alto en su sitio. Solo la de la página (no la de exportar imágenes) */
+  body:not(.live)>section.progress>.proghead{position:sticky;top:var(--tbh,54px);z-index:35;background:var(--panel)}
+  body:not(.live)>section.progress>.proghead.phfix{position:fixed;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  body>details#manual,#manbody{scroll-margin-top:calc(var(--tbh,54px) + var(--phh,0px) + 8px)}
   .addsec{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mut)} /* siempre visible, junto al botón de vista */
   .addsec input{width:130px;padding:4px 8px;border:1px solid var(--line);border-radius:2px;background:var(--panel);color:var(--ink);font-size:13px}
   .addsec button{display:inline-grid;place-items:center;height:28px;padding:0 9px;border-radius:2px;border:1.5px solid var(--line2);background:var(--panel);color:var(--ink);font-weight:700}
@@ -5797,7 +5803,7 @@ document.getElementById('manual').addEventListener('click',e=>{
   const b=e.target.closest&&e.target.closest('[data-manch]');if(!b)return;
   MANCH=b.dataset.manch;try{localStorage.setItem('gc-manch',MANCH);}catch(er){}
   renderManual();
-  if(b.closest('.manfoot')){const h=document.getElementById('manbody');if(h&&h.getBoundingClientRect().top<60)h.scrollIntoView({block:'start'});}
+  if(b.closest('.manfoot')){const h=document.getElementById('manbody');if(h&&h.getBoundingClientRect().top<normHeadH()+8)h.scrollIntoView({block:'start'});}
 });
 document.getElementById('manual').addEventListener('input',e=>{if(e.target.id==='manq'){MANQ=e.target.value;renderManual();}});
 
@@ -6889,7 +6895,7 @@ function liveAnchor(){
 function scrollToSec(a){
   if(!a)return;
   const row=document.querySelector('#sections .secrow[data-si="'+a.si+'"]');if(!row)return;
-  const tb=document.querySelector('.topbar'),th=tb?tb.getBoundingClientRect().height:0,r=row.getBoundingClientRect();
+  const th=normHeadH(),r=row.getBoundingClientRect();
   window.scrollTo({top:Math.max(0,Math.round(r.top+window.scrollY+r.height*(a.fr||0)-th-14))});
 }
 function exitLive(){
@@ -7476,11 +7482,51 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 }
+/* 2026-11-01: barra del título fija en el modo normal (ver CSS .proghead.phfix). Dentro de la canción la sujeta
+   position:sticky (suave, sin saltos al hacer scroll en la tableta). Cuando el final del panel de la canción sube por
+   encima de ella (manual), sticky la dejaría irse: entonces pasa a position:fixed, alineada con el panel, y un hueco
+   (.phgap) de su mismo alto y ancho ocupa su sitio para que el contenido no salte (el panel mide lo que su contenido:
+   sin el ancho del hueco se estrecharía). --tbh = alto de la barra de arriba
+   (cambia si se parte en dos líneas) · --phh = alto de la barra del título (para los saltos al manual) */
+function normHeadH(){
+  const tb=document.querySelector('.topbar'),ph=document.querySelector('body>section.progress>.proghead');
+  return (tb?tb.getBoundingClientRect().height:0)+(ph?ph.offsetHeight:0);
+}
+(()=>{
+  const tb=document.querySelector('.topbar'),sec=document.querySelector('body>section.progress'),
+    ph=sec&&sec.querySelector(':scope>.proghead');
+  if(!tb||!ph)return;
+  const gap=document.createElement('div');gap.className='phgap';ph.after(gap);
+  const rs=document.documentElement.style;
+  let fixed=false,raf=0,remide=false;
+  const setFix=on=>{
+    if(on===fixed)return;fixed=on;
+    if(on){gap.style.height=ph.offsetHeight+'px';gap.style.width=ph.offsetWidth+'px';ph.classList.add('phfix');}
+    else{ph.classList.remove('phfix');ph.style.left=ph.style.width=gap.style.height=gap.style.width='';}
+  };
+  const upd=()=>{
+    raf=0;
+    const tbh=Math.round(tb.getBoundingClientRect().height);
+    rs.setProperty('--tbh',tbh+'px');
+    if(document.body.classList.contains('live')){setFix(false);return;}
+    if(remide){remide=false;setFix(false);} /* cambió el tamaño de algo: se mide otra vez en su sitio */
+    const phh=ph.offsetHeight;rs.setProperty('--phh',phh+'px');
+    const r=sec.getBoundingClientRect();
+    setFix(r.top<tbh&&r.bottom-1<tbh+phh);
+    if(fixed){ph.style.left=r.left+'px';ph.style.width=r.width+'px';}
+  };
+  const go=()=>{if(!raf)raf=requestAnimationFrame(upd);};
+  const cambia=()=>{remide=true;go();};
+  window.addEventListener('scroll',go,{passive:true});
+  window.addEventListener('resize',cambia);
+  if(window.ResizeObserver){const ro=new ResizeObserver(cambia);[tb,ph,document.getElementById('sections'),document.body].forEach(e=>e&&ro.observe(e));}
+  upd();
+})();
 /* versión: el número pequeño bajo «GuitarStudio». Al publicar se sube APP_VER (AAAA.MM.DD, con b, c… si hay
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.10.28';
+const APP_VER='2026.11.01';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
