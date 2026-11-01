@@ -163,6 +163,10 @@
     color:var(--lcd-fg);border-color:var(--lcd-bg);text-transform:none;letter-spacing:0}
   .tnum b{font-family:var(--font-dot);font-size:25px;font-weight:800;letter-spacing:.02em;line-height:1}
   .tnum span{font-family:var(--font-n);font-size:12px;color:var(--lcd-fg);opacity:.75;font-weight:500}
+  /* 2026-11-01: −5 / +5 bpm a los lados de la pantallita del tempo (pegados a ella: se leen como un solo control) */
+  .ttempo{display:flex;align-items:center;gap:4px}
+  .tpill.tstep{padding:0 11px;font-family:var(--font-n);font-size:15px;font-weight:700;letter-spacing:0;touch-action:manipulation}
+  .tpill.tstep:disabled{opacity:.35;box-shadow:none;cursor:default}
   .tvol input[type=range]{width:86px;height:22px}
   .volico{border:none;background:none;color:inherit;font-size:17px;line-height:1;padding:0 2px;cursor:pointer;display:inline-flex}
   .volico:hover{transform:scale(1.12)}
@@ -1504,6 +1508,8 @@
 <div class="transport">
   <button id="playbtn"><i data-ic="play"></i> Reproducir</button>
 
+  <div class="ttempo">
+  <button type="button" class="tpill tstep" data-tstep="-5" title="Bajar el tempo 5 bpm" aria-label="Bajar el tempo 5 bpm">−5</button>
   <div class="tgrp">
     <button class="tpill tnum" id="tempopill" title="Tempo, compás, batería y opciones de reproducción">
       <b id="tempolabel">90</b><span id="tempometa">bpm · 4/4</span>
@@ -1541,6 +1547,8 @@
         <label class="tpill tsw"><input type="checkbox" id="loop" checked><span>bucle</span></label>
       </div>
     </div>
+  </div>
+  <button type="button" class="tpill tstep" data-tstep="5" title="Subir el tempo 5 bpm" aria-label="Subir el tempo 5 bpm">+5</button>
   </div>
 
   <span class="tsep"></span>
@@ -6517,6 +6525,17 @@ document.getElementById('sustain').addEventListener('input',e=>{S.sustain=+e.tar
   }));
   tempoEl.addEventListener('input',tbarSync);
   tempoEl.addEventListener('change',tbarSync);
+  /* −5 / +5 bpm: pasan por el mismo «change» del número del panel (40–240). Valen también sonando: el tempo
+     nuevo entra en el siguiente tiempo */
+  const steps=[...bar.querySelectorAll('[data-tstep]')];
+  const stepSync=()=>steps.forEach(b=>{const v=+tempoEl.value||90,d=+b.dataset.tstep;b.disabled=d<0?v<=40:v>=240;});
+  steps.forEach(b=>b.addEventListener('click',()=>{
+    const v=+tempoEl.value||90,n=Math.min(240,Math.max(40,v+(+b.dataset.tstep)));
+    if(n===v)return;
+    tempoEl.value=n;tempoEl.dispatchEvent(new Event('change'));
+  }));
+  tempoEl.addEventListener('input',stepSync);tempoEl.addEventListener('change',stepSync);
+  const tbs=tbarSync;window.tbarSync=function(){tbs();stepSync();};
   tsEl.addEventListener('change',tbarSync);
   document.getElementById('tapbtn').addEventListener('click',()=>setTimeout(tbarSync,0));
   tbarSync();
@@ -7526,7 +7545,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.01';
+const APP_VER='2026.11.01b';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
