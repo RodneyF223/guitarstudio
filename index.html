@@ -1238,6 +1238,63 @@
   body.live .livebtns{grid-column:1/-1}
   body.live .lbtn{min-height:64px;font-size:30px}
   body.live .lbtn.sm{font-size:22px}
+  /* ── teclas del directo (2026-11-07): la barra como un aparato, a lo Teenage Engineering / Nothing ─────────
+     Cuerpo gris perforado (puntos), teclas con canto (se hunden al pulsarlas), etiqueta impresa en mono arriba
+     a la izquierda, piloto (LED) arriba a la derecha en las que encienden algo. Jerarquía por color, como en el
+     EP-133: el ▶ es la tecla naranja, «salir» la tecla oscura, el resto teclas neutras. En marcha, una luz por
+     tiempo (la del 1 más ancha) y en el 1 la tecla entera se apaga a negro con las luces brillando.
+     Sigue el tema claro / oscuro de la app. */
+  :root{--kb-body:#e4e2db;--kb-dots:rgba(21,21,20,.14);--kb-face:#fbfaf7;--kb-bd:#151514;--kb-lip:#151514;
+    --kb-hi:rgba(255,255,255,0);--kb-lab:#6e6c66;--kb-led:#cfccc4;--kb-dk:#151514;--kb-dk-ink:#f3f1e8;--kb-dk-lab:#a8a59d;
+    --kb-acc-bd:#151514;--kb-acc-lip:#151514;--kb-flash:#111110}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--kb-body:#0b0b0a;--kb-dots:rgba(239,238,233,.10);
+    --kb-face:#262624;--kb-bd:#363533;--kb-lip:#000;--kb-hi:rgba(255,255,255,.07);--kb-lab:#9a988f;--kb-led:#45443f;
+    --kb-dk:#4a4945;--kb-dk-ink:#f3f1e8;--kb-dk-lab:#c9c7bf;--kb-acc-bd:#ff3b1f;--kb-acc-lip:#7a1809}}
+  :root[data-theme="dark"]{--kb-body:#0b0b0a;--kb-dots:rgba(239,238,233,.10);
+    --kb-face:#262624;--kb-bd:#363533;--kb-lip:#000;--kb-hi:rgba(255,255,255,.07);--kb-lab:#9a988f;--kb-led:#45443f;
+    --kb-dk:#4a4945;--kb-dk-ink:#f3f1e8;--kb-dk-lab:#c9c7bf;--kb-acc-bd:#ff3b1f;--kb-acc-lip:#7a1809}
+  body.live #livebar{background-color:var(--kb-body);background-image:radial-gradient(circle,var(--kb-dots) 1px,transparent 1.35px);
+    background-size:6px 6px;padding-bottom:12px}
+  #livebar .lbtn{position:relative;border-radius:5px;border:1.5px solid var(--kb-bd);background:var(--kb-face);color:var(--ink);
+    box-shadow:0 5px 0 0 var(--kb-lip),inset 0 1.5px 0 0 var(--kb-hi);padding-top:13px;transition:none}
+  #livebar .lbtn:active{transform:translateY(4px);box-shadow:0 1px 0 0 var(--kb-lip),inset 0 1.5px 0 0 var(--kb-hi);background-color:var(--kb-face)}
+  #livebar .lbtn::before{content:attr(data-k);position:absolute;left:9px;top:7px;font:700 11px/1 var(--font-n);
+    letter-spacing:.1em;text-transform:uppercase;color:var(--kb-lab);pointer-events:none;white-space:nowrap}
+  #livebar .lbtn .ic{stroke-width:2.3} /* trazo más grueso: se lee de lejos */
+  #livebar .lbtn.dk,#livebar .lbtn.dk:active{background-color:var(--kb-dk);border-color:var(--kb-dk);color:var(--kb-dk-ink)}
+  #livebar .lbtn.dk::before{color:var(--kb-dk-lab)}
+  /* piloto: apagado gris, encendido rojo con halo */
+  #livebar .lbtn.led::after{content:'';position:absolute;right:9px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--kb-led)}
+  #livebar .lbtn.led.on{background:var(--kb-face);border-color:var(--kb-bd);color:var(--ink)}
+  #livebar .lbtn.led.on::after{background:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent),0 0 10px 1px var(--accent)}
+  /* valor impreso a la derecha (vista: simple / diagramas) */
+  #livebar .lbtn.val::after{content:attr(data-v);position:absolute;right:9px;top:7px;font:600 10.5px/1 var(--font-n);
+    letter-spacing:.06em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+  @media (max-width:900px){#livebar .lbtn.val::after{display:none}#livebar .lbtn::before{font-size:10px;letter-spacing:.06em}}
+  /* el ▶: la tecla naranja, con la trama de puntos de la pantalla */
+  #livebar .lbtn.play{background-color:var(--accent);border-color:var(--kb-acc-bd);color:var(--on);
+    background-image:radial-gradient(circle,rgba(21,21,20,.17) 1px,transparent 1.35px);background-size:5px 5px;
+    box-shadow:0 5px 0 0 var(--kb-acc-lip),inset 0 1.5px 0 0 rgba(255,255,255,.18)}
+  #livebar .lbtn.play:active{background-color:var(--accent);box-shadow:0 1px 0 0 var(--kb-acc-lip)}
+  #livebar .lbtn.play::before{content:'play';color:var(--on)}
+  #livebar .lbtn.play.on::before{content:'stop'}
+  #livebar .lbtn.play .ic{width:.9em;height:.9em}
+  #livebar .lbtn.play .lbeat{gap:7px;margin-left:22px;align-items:center}
+  #livebar .lbtn.play .lbeat i{width:13px;height:30px;border:2.5px solid currentColor;border-radius:7px}
+  #livebar .lbtn.play .lbeat i:first-child{width:26px}
+  #livebar .lbtn.play .lbeat i.hit{background:currentColor}
+  /* en el 1: negro, y las luces brillan */
+  #livebar .lbtn.play.on.down{background-color:var(--kb-flash);background-image:none;border-color:var(--kb-flash);color:var(--accent)}
+  #livebar .lbtn.play.on.down::before{color:var(--accent);opacity:1}
+  #livebar .lbtn.play.down .lbeat i.hit{box-shadow:0 0 14px 3px currentColor}
+  #livebar .lbtn.play .lcnt{font-family:var(--font-dot);font-weight:900;font-size:1.55em;margin-right:16px}
+  /* cuenta del avance solo: tecla neutra con borde naranja y el número en matriz de puntos */
+  #livebar .lbtn.play.acnt{background-color:var(--kb-face);background-image:none;border:3px solid var(--accent);color:var(--ink)}
+  #livebar .lbtn.play.acnt::before{content:'cuenta';color:var(--accent-t);opacity:1}
+  #livebar .lbtn.play.acnt .lcnt{color:var(--accent-t)}
+  #livebar .lbtn.play.acnt.down{background-color:var(--kb-flash);color:var(--accent)}
+  #livebar .lbtn.play.acnt.down::before,#livebar .lbtn.play.acnt.down .lcnt{color:var(--accent)}
+  body.live{padding-bottom:144px}
   /* ── 2026-10-27 (Rodney): barra del título más grande, para leer de lejos el tono, el tempo y el compás.
      Una sola línea: si el nombre es muy largo, se recorta con «…» antes que bajar el tono a otra línea */
   body.live .proghead{flex-wrap:nowrap;gap:12px;padding:5px 12px 6px}
@@ -1614,12 +1671,12 @@
   <div class="livetop"><span id="livepos">–</span></div>
   <div id="livestrip" aria-hidden="true"></div>
   <div class="livebtns">
-    <button class="lbtn sm" id="lexit" title="Volver al estudio"><i data-ic="x"></i></button>
-    <button class="lbtn" id="lprev" title="Canción anterior del set"><i data-ic="skip-back"></i></button>
+    <button class="lbtn sm dk" id="lexit" data-k="salir" title="Volver al estudio"><i data-ic="x"></i></button>
+    <button class="lbtn" id="lprev" data-k="anterior" title="Canción anterior del set"><i data-ic="skip-back"></i></button>
     <button class="lbtn play" id="lplay" title="Reproducir / parar"><i data-ic="play"></i></button>
-    <button class="lbtn" id="lnext" title="Canción siguiente del set"><i data-ic="skip-forward"></i></button>
-    <button class="lbtn" id="lview" title="Vista simple / diagramas"><i data-ic="rectangle-horizontal"></i></button>
-    <button class="lbtn sm" id="lhid" title="Ver también las secciones ocultas" hidden><i data-ic="eye-off"></i></button>
+    <button class="lbtn" id="lnext" data-k="siguiente" title="Canción siguiente del set"><i data-ic="skip-forward"></i></button>
+    <button class="lbtn val" id="lview" data-k="vista" data-v="→ simple" title="Vista simple / diagramas"><i data-ic="rectangle-horizontal"></i></button>
+    <button class="lbtn sm led" id="lhid" data-k="ocultas" title="Ver también las secciones ocultas" hidden><i data-ic="eye-off"></i></button>
   </div>
 </div>
 
@@ -7031,6 +7088,7 @@ function updateLiveBar(){
   const lv=document.getElementById('lview');
   lv.innerHTML=ICO(S.viewMode==='simple'?'grid-3x3':'rectangle-horizontal');
   lv.title=S.viewMode==='simple'?'Cambiar a vista diagramas':'Cambiar a vista simple (chuleta)';
+  lv.dataset.v=S.viewMode==='simple'?'→ diagramas':'→ simple'; /* a qué vista cambia, como el icono */
   if(document.body.classList.contains('live')){renderStrip();if(ADV.timer&&ADV.idx>=0&&ADV.segs[ADV.idx])advStrip(ADV.segs[ADV.idx].start);advSync();}
   const lh=document.getElementById('lhid');
   if(lh){
@@ -7592,7 +7650,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.06';
+const APP_VER='2026.11.07';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
