@@ -131,6 +131,10 @@
   #tapbtn{padding:5px 13px;border-radius:2px;border:1.5px solid var(--line2);background:var(--panel);
     color:var(--ink);font-family:var(--font-n);font-weight:700;font-size:13px;letter-spacing:.08em}
   #tapbtn.hit{background:var(--ink);color:var(--panel)}
+  /* −5 / +5 bpm (2026-11-06) */
+  .tstep{height:40px;min-width:44px;padding:0 8px;border-radius:2px;border:1.5px solid var(--line2);background:var(--panel);
+    color:var(--ink);font-family:var(--font-n);font-weight:700;font-size:14px;touch-action:manipulation}
+  .tstep:active{background:var(--ink);color:var(--panel)}
   #livebtn{margin-left:auto}
   .topbar .sbtn{height:34px;padding-top:0;padding-bottom:0}
   /* tableta (Galaxy Tab S8+ en vertical ≈ 876 px): la barra superior cabe en UNA línea */
@@ -762,7 +766,7 @@
   .prmeta{font-family:var(--font-n);font-size:13.5px;color:var(--mut);font-weight:600}
   .tschip{font-family:var(--font-n);font-weight:700;font-size:14px;padding:1px 7px;border-radius:0;background:transparent;color:var(--ink);border:1.5px solid var(--line2)}
   .proghint{font-size:12px;color:var(--mut)}
-  /* 2026-11-01: en el modo normal la barra del título (nombre, tono, tempo, compás, vista, agregar sección) se queda
+  /* 2026-11-01: en el estudio la barra del título (nombre, tono, tempo, compás, vista, agregar sección) se queda
      fija debajo de la barra de arriba. Mientras se ve la canción va con sticky; al bajar más allá (manual) el JS la
      pasa a position:fixed con un hueco del mismo alto en su sitio. Solo la de la página (no la de exportar imágenes) */
   body:not(.live)>section.progress>.proghead{position:sticky;top:var(--tbh,54px);z-index:35;background:var(--panel)}
@@ -1105,7 +1109,7 @@
   body.live .secrow.compact .secctl{display:none}
   body.live .secctl .scbtn{display:none}
   body.live .secctl .scbtn.playsec,body.live .secctl .scbtn[data-viewsec]{display:inline-block}
-  /* secciones ocultas en el directo (👁/🙈): se ensayan en modo normal, en el directo no ocupan sitio */
+  /* secciones ocultas en el directo (👁/🙈): se ensayan en estudio, en el directo no ocupan sitio */
   .scbtn.lhon{color:var(--ink);border-color:var(--ink);background:var(--wedge)}
   .secrow.lhid .secname .tname{opacity:.55}
   .secname .lhmark{display:block;font-size:13px;margin-top:6px;opacity:.8}
@@ -1128,6 +1132,16 @@
   .lbtn.play{background:var(--ink);color:var(--panel);border-color:var(--ink);flex:1.4}
   .lbtn.play .ic{fill:currentColor}
   .lbtn.play.on{background:var(--accent);border-color:var(--accent);color:var(--on)}
+  /* pulso (2026-11-06): una luz por tiempo; en el 1, el botón se invierte un instante */
+  .lbtn.play .lbeat{display:inline-flex;gap:8px;margin-left:22px}
+  .lbtn.play .lbeat i{display:block;width:16px;height:30px;border:2.5px solid currentColor;border-radius:1px}
+  .lbtn.play .lbeat i.hit{background:currentColor}
+  .lbtn.play.on.down{background:var(--ink);border-color:var(--ink);color:var(--accent)}
+  .lbtn.play .lcnt{font-family:var(--font-n);font-weight:700;font-size:1.25em;margin-right:18px;min-width:.7em}
+  .lbtn.play.cnt .ic{display:none}
+  /* cuenta del avance solo (sin reproducir): mismo botón, en blanco con borde */
+  .lbtn.play.acnt{background:var(--panel);color:var(--ink);border-color:var(--ink);border-width:3px}
+  .lbtn.play.acnt.down{background:var(--ink);color:var(--panel)}
   .lbtn.sm{flex:.55;font-size:24px}
   .lbtn.on{background:var(--ink);border-color:var(--ink);color:var(--panel);box-shadow:none}
 
@@ -1203,7 +1217,7 @@
      anterior: así, cuando una fila salta de línea, la línea nueva empieza con su barra. Todos los acordes
      reservan el mismo hueco a su izquierda (lleven barra o no), de modo que las columnas quedan alineadas
      entre líneas. Las barras sueltas se ocultan, salvo la que cierra la sección (.bend). */
-  /* 2026-10-28 (Rodney): también en el modo normal. Antes, al partirse sola una progresión larga por falta de ancho,
+  /* 2026-10-28 (Rodney): también en el estudio. Antes, al partirse sola una progresión larga por falta de ancho,
      la línea nueva empezaba sin barra y la rejilla se descolocaba; ahora cada acorde que empieza compás lleva su barra
      delante, igual que en el directo. La pastilla ×N de una línea repetida se cierra con su barra en los dos modos. */
   .slots>.barline:not(.bend){display:none}
@@ -1511,7 +1525,9 @@
     <div class="tpop tpop-l panel" id="pop-ritmo" hidden>
       <div class="tpophead"><span class="tpoptitle">ritmo</span><button class="tpopx" data-popclose title="Cerrar"><i data-ic="x"></i></button></div>
       <div class="tprow">
+        <button type="button" class="tstep" data-bpm="-5" title="5 bpm menos">−5</button>
         <input type="number" id="tempo" min="40" max="240" step="1" value="90">
+        <button type="button" class="tstep" data-bpm="5" title="5 bpm más">+5</button>
         <span>bpm</span>
         <button id="tapbtn" title="Haz clic al ritmo para fijar el tempo">TAP</button>
       </div>
@@ -1545,7 +1561,7 @@
 
   <span class="tsep"></span>
 
-  <label class="tpill tsw" title="Metrónomo"><input type="checkbox" id="metro" checked><i class="tico"><i data-ic="timer"></i></i><span class="tlab">metrónomo</span></label>
+  <label class="tpill tsw" title="Metrónomo"><input type="checkbox" id="metro" checked><i class="tico"><i data-ic="metronome"></i></i><span class="tlab">metrónomo</span></label>
   <label class="tpill tsw" title="Activa o desactiva la batería"><input type="checkbox" id="drumson" checked><i class="tico"><i data-ic="drum"></i></i><span class="tlab">batería</span></label>
 
   <span class="tsep tsep-u"></span>
@@ -1598,7 +1614,7 @@
   <div class="livetop"><span id="livepos">–</span></div>
   <div id="livestrip" aria-hidden="true"></div>
   <div class="livebtns">
-    <button class="lbtn sm" id="lexit" title="Salir del modo directo"><i data-ic="x"></i></button>
+    <button class="lbtn sm" id="lexit" title="Volver al estudio"><i data-ic="x"></i></button>
     <button class="lbtn" id="lprev" title="Canción anterior del set"><i data-ic="skip-back"></i></button>
     <button class="lbtn play" id="lplay" title="Reproducir / parar"><i data-ic="play"></i></button>
     <button class="lbtn" id="lnext" title="Canción siguiente del set"><i data-ic="skip-forward"></i></button>
@@ -1669,6 +1685,7 @@ const ICONS={
   'zap':'<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
   'corner-down-left':'<polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/>',
   'drum':'<path d="m2 2 8 8"/><path d="m22 2-8 8"/><ellipse cx="12" cy="9" rx="10" ry="5"/><path d="M7 13.4v7.9"/><path d="M12 14v8"/><path d="M17 13.4v7.9"/><path d="M2 9v8a10 5 0 0 0 20 0V9"/>',
+  'metronome':'<path d="M9 3h6l4 18H5z"/><path d="M6 17h12"/><path d="m12 17 3.6-9"/><path d="M12.6 11.3l2.8 1.2"/>',
   'timer':'<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
   'audio-lines':'<path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>',
   'sliders-horizontal':'<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
@@ -1824,7 +1841,7 @@ function extVoicings(ch){
     let f=str===6?(ch.pc-4+12)%12:(ch.pc-9+12)%12;
     const mn=Math.min(...offs.filter(o=>o!==null));
     if(f+mn<0)f+=12;
-    return vtag({vname:root+suf+' · raíz '+(str===6?'6ª':'5ª'),disp:root+suf,ext:true,
+    return vtag({vname:root+suf+' · fundamental en '+(str===6?'6ª':'5ª'),disp:root+suf,ext:true,
       frets:offs.map(o=>o===null?-1:o+f),roles:roles.slice()},{fam:str===6?'r6':'r5',kind:'col',short:root+suf,z:f});
   });
 }
@@ -1862,19 +1879,19 @@ function getVoicings(ch){
   if(op)add(vtag({vname:'Acorde abierto',frets:op.f.slice(),roles:op.r.slice()},{fam:'open',kind:'base',short:'Abierto',z:0}));
   const B=BARRES[ch.quality]||{};
   if(B.r6){let f=(ch.pc-4+12)%12;if(f===0)f=12;
-    add(vtag({vname:'Cejilla · forma '+B.r6.shape+' (raíz 6ª)',frets:B.r6.f.map(o=>o<0?-1:o+f),roles:B.r6.r.slice()},{fam:'r6',kind:'base',short:'Cejilla',z:f}));}
+    add(vtag({vname:'Cejilla · forma '+B.r6.shape+' (fundamental en 6ª)',frets:B.r6.f.map(o=>o<0?-1:o+f),roles:B.r6.r.slice()},{fam:'r6',kind:'base',short:'Cejilla',z:f}));}
   if(B.r5){let f=(ch.pc-9+12)%12;if(f===0)f=12;
-    add(vtag({vname:'Cejilla · forma '+B.r5.shape+' (raíz 5ª)',frets:B.r5.f.map(o=>o<0?-1:o+f),roles:B.r5.r.slice()},{fam:'r5',kind:'base',short:'Cejilla',z:f}));}
+    add(vtag({vname:'Cejilla · forma '+B.r5.shape+' (fundamental en 5ª)',frets:B.r5.f.map(o=>o<0?-1:o+f),roles:B.r5.r.slice()},{fam:'r5',kind:'base',short:'Cejilla',z:f}));}
   if(ch.quality==='dom7'){
     const s6=(ch.pc-4+12)%12,s5=(ch.pc-9+12)%12,s4=(ch.pc-2+12)%12;
-    add(vtag({vname:'Séptima · shell raíz 6ª (1·♭7·3)',frets:[s6,-1,s6,s6+1,-1,-1],roles:['1','','♭7','3','','']},{fam:'r6',kind:'base',short:'Shell 1·♭7·3',z:s6}));
-    add(vtag({vname:'Séptima · shell raíz 5ª (1·♭7·3)',frets:[-1,s5,-1,s5,s5+2,-1],roles:['','1','','♭7','3','']},{fam:'r5',kind:'base',short:'Shell 1·♭7·3',z:s5}));
+    add(vtag({vname:'Séptima · shell, fundamental en 6ª (1·♭7·3)',frets:[s6,-1,s6,s6+1,-1,-1],roles:['1','','♭7','3','','']},{fam:'r6',kind:'base',short:'Shell 1·♭7·3',z:s6}));
+    add(vtag({vname:'Séptima · shell, fundamental en 5ª (1·♭7·3)',frets:[-1,s5,-1,s5,s5+2,-1],roles:['','1','','♭7','3','']},{fam:'r5',kind:'base',short:'Shell 1·♭7·3',z:s5}));
     add(vtag({vname:'Séptima · cuerdas 1·2·3·4 (forma D7)',frets:[-1,-1,s4,s4+2,s4+1,s4+2],roles:['','','1','5','♭7','3']},{fam:'r4',kind:'base',short:'Forma D7',z:s4}));
   }
   if(ch.quality!=='dim'){
     const f6=(ch.pc-4+12)%12,f5=(ch.pc-9+12)%12;
-    add(vtag({vname:'Quinta rock · raíz 6ª',frets:[f6,f6+2,f6+2,-1,-1,-1],roles:['1','5','1','','','']},{fam:'r6',kind:'base',short:'Quinta',z:f6}));
-    add(vtag({vname:'Quinta rock · raíz 5ª',frets:[-1,f5,f5+2,f5+2,-1,-1],roles:['','1','5','1','','']},{fam:'r5',kind:'base',short:'Quinta',z:f5}));
+    add(vtag({vname:'Quinta rock · fundamental en 6ª',frets:[f6,f6+2,f6+2,-1,-1,-1],roles:['1','5','1','','','']},{fam:'r6',kind:'base',short:'Quinta',z:f6}));
+    add(vtag({vname:'Quinta rock · fundamental en 5ª',frets:[-1,f5,f5+2,f5+2,-1,-1],roles:['','1','5','1','','']},{fam:'r5',kind:'base',short:'Quinta',z:f5}));
   }
   SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++)add(vtag(triadVoicing(ch,si,inv),{fam:'tri',set:si,inv}));});
   extVoicings(ch).forEach(add);
@@ -2372,7 +2389,7 @@ function renderTricks(){
   }else if(TTAB==='tension'){
     h+=grp('Dominantes secundarias','Un acorde de 7ª que «apunta» al siguiente. Ponlo justo antes de su destino: V7/ii → ii, V7/V → V…',row(t.sec));
     h+=grp('Sustitutos y acordes de paso','Justo antes de su destino: subV7 baja medio tono hasta el I; cada °7 sube medio tono al acorde que marca su color; Vsus4 retrasa la llegada al V.',row(t.pas));
-    h+=grp('Cambio de tono (el «camionero»)','Para subir el último estribillo: toca este 7 justo antes y empieza el estribillo en el tono nuevo (+1 tono o +½).',row(t.kc));
+    h+=grp('Cambio de tonalidad (el «camionero»)','Para subir el último estribillo: toca este 7 justo antes y empieza el estribillo en la tonalidad nueva (+1 tono o +½).',row(t.kc));
   }else if(TTAB==='cad'){
     h+=grp('Finales de frase','Cómo acaba una frase decide si «cierra» o pide seguir. Un clic añade la cadencia a la sección activa.',pre(PRESETS.filter(p=>p.cad)));
   }else{
@@ -2475,9 +2492,9 @@ function renderVoicings(){
   const G={};VOICINGS.forEach((v,i)=>{const k=vFam(v);(G[k]=G[k]||[]).push(i);});
   const fams=[
     {k:'open',t:'Abierto',bar:'abierto'},
-    {k:'r6',t:'Raíz en 6ª · forma ',sh:sh[0],bar:'forma '+sh[0]},
-    {k:'r5',t:'Raíz en 5ª · forma ',sh:sh[1],bar:'forma '+sh[1]},
-    {k:'r4',t:'Raíz en 4ª · forma ',sh:'D7',bar:'forma D7'},
+    {k:'r6',t:'Fundamental en 6ª · forma ',sh:sh[0],bar:'forma '+sh[0]},
+    {k:'r5',t:'Fundamental en 5ª · forma ',sh:sh[1],bar:'forma '+sh[1]},
+    {k:'r4',t:'Fundamental en 4ª · forma ',sh:'D7',bar:'forma D7'},
     {k:'tri',t:'Tríadas · inversiones'+(q==='dom7'?' (sin 7ª)':'')},
     {k:'x',t:'Otras'}
   ].filter(f=>G[f.k]);
@@ -2537,7 +2554,7 @@ function renderFinder(){
     return;
   }
   const flat=ch.flat;
-  let h='<div class="vfrow vfroots"><span class="vflab">raíz</span><div class="vfseg">';
+  let h='<div class="vfrow vfroots"><span class="vflab">fundamental</span><div class="vfseg">';
   for(let pc=0;pc<12;pc++){
     h+='<button type="button" class="vfr'+(pc===ch.pc?' on':'')+'" data-fpc="'+pc+'">'+esc(nName(pc,pc===ch.pc?flat:k.flat))+'</button>';}
   h+='</div></div>';
@@ -4310,8 +4327,27 @@ function updatePlayUI(){
   b.innerHTML=play.on?ICO('square')+' Parar':ICO('play')+' Reproducir';
   b.classList.toggle('on',play.on);
   const lp=document.getElementById('lplay');
-  if(lp){lp.innerHTML=ICO(play.on?'square':'play');lp.classList.toggle('on',play.on);}
+  if(lp){lp.innerHTML=ICO(play.on?'square':'play')+(play.on?liveBeatsHTML():'');lp.classList.toggle('on',play.on);lp.classList.remove('down','cnt');}
   document.querySelectorAll('.playsec').forEach(el=>el.classList.toggle('on',play.on&&play.scope===+el.dataset.playsec));
+}
+/* ── pulso del ▶ del directo (2026-11-06): con la música en marcha el botón va en rojo, con una luz por tiempo
+   del compás que se enciende al tiempo; en el 1 el botón entero se invierte un instante (negro / rojo).
+   Así se ve que suena aunque las luces del escenario cambien de color: lo que cambia es la luz, no solo el tono.
+   Durante la cuenta de entrada el número grande dice cuánto falta. Cortes secos, sin transiciones. */
+function liveBeatsHTML(){let h='<span class="lbeat" aria-hidden="true">';for(let i=0;i<S.ts;i++)h+='<i></i>';return h+'</span>';}
+function liveBeatShow(b,left){
+  const lp=document.getElementById('lplay');if(!lp)return;
+  let bt=lp.querySelector('.lbeat');if(!bt){lp.insertAdjacentHTML('beforeend',liveBeatsHTML());bt=lp.querySelector('.lbeat');}
+  bt.querySelectorAll('i').forEach((el,i)=>el.classList.toggle('hit',i===b));
+  let n=lp.querySelector('.lcnt');
+  if(left>0){if(!n){lp.insertAdjacentHTML('afterbegin','<b class="lcnt"></b>');n=lp.querySelector('.lcnt');}n.textContent=left;lp.classList.add('cnt');}
+  else{if(n)n.remove();lp.classList.remove('cnt');}
+  lp.classList.toggle('down',b===0);
+  clearTimeout(liveBeatShow.t);liveBeatShow.t=setTimeout(()=>lp.classList.remove('down'),130);
+}
+function liveBeat(t,b,left){
+  if(!document.body.classList.contains('live'))return;
+  setTimeout(()=>{if(play.on)liveBeatShow(b,left);},Math.max(0,(t-AC.currentTime)*1000));
 }
 function startPlay(scopeSi){
   ac();
@@ -4346,7 +4382,7 @@ function stopPlay(){
 function tick(){
   while(play.on&&play.nextT<AC.currentTime+0.12){
     const spb=60/S.tempo;
-    if(play.beat<play.countIn){click(play.nextT,play.beat%S.ts===0);play.nextT+=spb;play.beat++;continue;} /* cuenta de entrada */
+    if(play.beat<play.countIn){click(play.nextT,play.beat%S.ts===0);liveBeat(play.nextT,play.beat%S.ts,play.countIn-play.beat);play.nextT+=spb;play.beat++;continue;} /* cuenta de entrada */
     const G=playGrid(),g=G.steps[play.beat-play.countIn];
     if(g){scheduleBeat(g,play.nextT);play.nextT+=g.len*spb;}else play.nextT+=spb;
     play.beat++;
@@ -4386,6 +4422,7 @@ function stopSoon(t){setTimeout(stopPlay,Math.max(0,(t-AC.currentTime)*1000)+60)
 function scheduleBeat(g,t){
   const spb=60/S.tempo,rb=g.pos,len=g.len;
   if(S.metro)click(t,g.bim===0);
+  if(Math.abs(g.bim-Math.round(g.bim))<1e-6)liveBeat(t,Math.round(g.bim)%S.ts,0); /* luz de pulso del ▶ del directo */
   /* un silencio (N.C.) con «la batería para» calla la batería mientras dura (el metrónomo sigue) */
   const ncStop=play.evs.some(ev=>ev.sl&&ev.sl.nc&&ev.sl.drums!=='go'&&rb>=ev.start-1e-6&&rb<ev.start+ev.dur-1e-6);
   if(S.drumsOn&&!ncStop)drumBeat(g,t,spb);
@@ -4508,7 +4545,7 @@ function advSegs(){
   out.forEach(x=>{x.sec=m==='tempo'?(x.end-x.start)*spb:(+m||20);});
   return out;
 }
-function advHalt(){clearTimeout(ADV.timer);ADV.timer=null;} /* se para, pero esta canción no vuelve a arrancar sola */
+function advHalt(){clearTimeout(ADV.timer);ADV.timer=null;advCountStop();} /* se para, pero esta canción no vuelve a arrancar sola */
 function advStop(){advHalt();ADV.idx=-1;ADV.song=null;}
 function advGo(i){
   advHalt();
@@ -4518,9 +4555,31 @@ function advGo(i){
   advStrip(sg.start);
   ADV.timer=setTimeout(()=>advGo(i+1),Math.max(1,sg.sec)*1000);
 }
-function advStart(fromBeat){
+/* cuenta de entrada del avance solo (2026-11-06): la misma casilla «cuenta de entrada» del ritmo.
+   Al salir una canción nueva en el directo, antes de empezar a bajar cuenta un compás al tempo en el ▶
+   (y suena el clic si el metrónomo está encendido). Tocar un tramo de la tira sigue sin cuenta. */
+function advCountStop(){
+  (ADV.cnt||[]).forEach(clearTimeout);ADV.cnt=[];
+  const lp=document.getElementById('lplay');
+  if(lp&&lp.classList.contains('acnt')){lp.classList.remove('acnt','cnt','down');if(!play.on)lp.innerHTML=ICO('play');}
+}
+function advCount(done){
+  advCountStop();
+  const lp=document.getElementById('lplay'),n=S.ts,spb=60/S.tempo;
+  if(!lp||!S.countIn){done();return;}
+  if(S.metro)ac();
+  lp.classList.add('acnt');lp.innerHTML=ICO('play')+liveBeatsHTML();
+  ADV.cnt=[];
+  for(let k=0;k<n;k++)ADV.cnt.push(setTimeout(()=>{
+    liveBeatShow(k,n-k);
+    if(S.metro&&typeof AC!=='undefined'&&AC)click(AC.currentTime+0.01,k===0);
+  },k*spb*1000));
+  ADV.cnt.push(setTimeout(()=>{ADV.cnt=[];lp.classList.remove('acnt','cnt','down');lp.innerHTML=ICO('play');done();},n*spb*1000));
+}
+function advStart(fromBeat,withCount){
   ADV.song=advSongKey();ADV.segs=advSegs();
   let i=0;if(fromBeat!=null)ADV.segs.forEach((x,k)=>{if(x.start<=fromBeat+1e-6)i=k;});
+  if(withCount&&S.countIn){advCount(()=>advGo(i));return;}
   advGo(i);
 }
 /* en la tira: el tramo en el que va el avance (los anteriores, apagados) */
@@ -4533,7 +4592,7 @@ function advStrip(beat){
 function advSync(){
   if(!document.body.classList.contains('live')||play.on){return;}
   if(!advMode()){if(ADV.timer)advStop();return;}
-  if(ADV.song!==advSongKey())advStart(0);
+  if(ADV.song!==advSongKey())advStart(0,true);
 }
 document.getElementById('livestrip').addEventListener('click',e=>{
   const el=e.target.closest('.lss');if(!el||play.on)return;
@@ -5685,6 +5744,7 @@ async function exportSetlist(){
    Se abre desde el pie de la página o desde Ajustes → manual. Recuerda el último capítulo (gc-manch). */
 const MAN=[
  {id:'inicio',ic:'guitar',t:'Primeros pasos',p:'Una canción se escribe por secciones, se escucha y se toca en el directo.',li:[
+  'Dos modos: el <b>estudio</b>, para componer y ensayar, y el <b>directo</b>, para tocar en el escenario.',
   'Arriba: <b>⏮ nombre ⏭</b> de la canción, <b>Guardar</b>, la <b>tonalidad</b> y <b>'+ICO('monitor-play')+' directo</b>. A la izquierda, el círculo de quintas, la leyenda y los trucos; a la derecha, los acordes de la escala y sus voicings. Debajo, el diapasón y la canción. Abajo del todo, la barra para escuchar.',
   'El camino de siempre: eliges la tonalidad → arrastras acordes a las secciones → escuchas → guardas → al escenario con el directo.',
   'El punto de la pestaña de la canción: <b style="color:var(--g3)">verde</b> = guardada, <b style="color:var(--g2)">naranja</b> = cambios sin guardar. Guardar o <b>Ctrl+S</b>. Doble clic en el título grande = renombrar.',
@@ -5693,13 +5753,13 @@ const MAN=[
  {id:'tono',ic:'music',t:'Tonalidad y acordes',p:'El círculo y la paleta dan los acordes que encajan en la tonalidad, cada uno con el color de su grado.',li:[
   'Clic en una nota <b>gris</b> del círculo = nueva tonalidad: el anillo exterior la fija <b>mayor</b> y el del medio <b>menor</b>.',
   'Clic en un acorde <b>coloreado</b> (círculo o paleta) = suena y abre sus voicings. Debajo de cada acorde de la paleta va su función: tónica, subdominante o dominante.',
-  'Voicings por forma: <b>abierto</b>, raíz en 6ª (forma E), raíz en 5ª (forma A), raíz en 4ª (forma D7, en los 7) y <b>tríadas</b> con inversiones (en tenue, la forma CAGED de la que salen). El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.',
+  'Voicings por forma: <b>abierto</b>, fundamental en 6ª (forma E), en 5ª (forma A) y en 4ª (forma D7, en los 7) y <b>tríadas</b> con inversiones (en tenue, la forma CAGED de la que salen). El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.',
   'Clic en un diagrama = escucharlo · <b>'+ICO('plus')+'</b> o arrastrarlo = añadirlo a la <b>sección activa</b> (la del nombre enmarcado).',
   'La ficha <b>N.C.</b> del final de la paleta es un silencio: corta lo que suena (la batería sigue o para, se elige en la propia ficha).']},
  {id:'buscador',ic:'search',t:'Buscador: cualquier acorde',p:'Para los acordes que no están en la escala, o para ver TODAS las formas de uno que sí está.',li:[
   'Escribe arriba de los voicings y pulsa Enter (o «ver»): <b>Cmaj7</b>, <b>B♭9</b>, <b>F♯m7♭5</b>, <b>Dsus4</b>, <b>D/F♯</b>… También vale <b>Do♯m7</b>, <b>CM7</b>, <b>C-7</b>, <b>Cø</b> o <b>C°7</b>.',
   'Con un acorde de la escala elegido sale la fila <b>«más de C»</b>: sus tensiones a un toque (maj7, 6, add9, sus…). <b>'+ICO('unlock')+' todos</b> abre el buscador con ese acorde.',
-  'En el buscador eliges <b>raíz</b> y <b>tipo</b>: 33 tipos en seis grupos — tríadas, sus, 6ª y add, séptimas, tensiones y alterados.',
+  'En el buscador eliges <b>fundamental</b> y <b>tipo</b>: 33 tipos en seis grupos — tríadas, sus, 6ª y add, séptimas, tensiones y alterados.',
   'Las formas se <b>calculan en todo el mástil</b>: de 4 a 6 cuerdas, que se toquen con 4 dedos (con cejilla si hace falta) y cuerdas al aire solo cerca de la cejuela. La 5ª (y en los de 11ª y 13ª, la 9ª) puede faltar: esas notas salen tenues arriba y la forma lleva «sin 5ª».',
   'Van agrupadas por la cuerda del bajo y de cada grupo se ven las 6 más cómodas; <b>ver todas</b> enseña el resto. <b>Con otro bajo</b> añade las inversiones; si escribes «D/F♯», salen solo con ese bajo.',
   'El grado se calcula sobre tu tonalidad (♭VII, V7/ii, ♯IV°7…) y el color sigue ese grado. <b>'+ICO('x')+' volver a la escala</b> cierra el buscador.']},
@@ -5753,9 +5813,9 @@ const MAN=[
   '<b>Toca el nombre de una sección</b> para abrirla con diagramas o plegarla; cada vista lo recuerda, canción por canción.',
   'Al reproducir, la pantalla sigue a la sección que suena. Con <b>Ajustes → avance en el directo</b> baja sola aunque no reproduzcas (al tempo o cada N segundos); si se desfasa, toca la sección en la tira de abajo.',
   'La <b>tira</b> de abajo tiene un tramo por sección, con su ×N y el contador de vueltas.',
-  'Al salir (<b>'+ICO('x')+'</b> o Esc) vuelves al modo normal <b>en la misma zona de la canción</b>.']},
+  'Al salir (<b>'+ICO('x')+'</b> o Esc) vuelves al <b>estudio</b> <b>en la misma zona de la canción</b>.']},
  {id:'ocultar',ic:'eye-off',t:'Ocultar y anotar en el directo',p:'Para que el directo no repita lo que vuelve casi igual.',li:[
-  '<b>Ocultar:</b> ⋯ → <b>ocultar en directo</b>. Esa sección no se ve en el directo pero <b>suena igual</b>; en modo normal sigue a la vista. En el directo, '+ICO('eye-off')+' de la barra las enseña un momento.',
+  '<b>Ocultar:</b> ⋯ → <b>ocultar en directo</b>. Esa sección no se ve en el directo pero <b>suena igual</b>; en el estudio sigue a la vista. En el directo, '+ICO('eye-off')+' de la barra las enseña un momento.',
   '<b>Anotar:</b> en el directo, arrastra por la columna de la derecha para dibujar un corchete discontinuo <b>×2~</b>: un recordatorio de que el bloque vuelve con variaciones (no cambia lo que suena). Tócalo para ×3, ×4 y quitarlo.',
   'Al sonar una sección oculta se ilumina su pareja visible con la marca <b>«2ª»</b> y, si tiene nota, la nota aparece encima. La pareja se busca por nombre («Verso 2» va con «Verso») o por orden.']},
  {id:'diapason',ic:'guitar',t:'Diapasón y licks',p:'El mástil siempre cuenta desde la tónica de la canción.',li:[
@@ -5763,8 +5823,8 @@ const MAN=[
   '<b>Escala</b> enseña solo sus notas y <b>acorde</b> resalta su arpegio («el que suena» lo sigue al reproducir). Debajo, la regla de semitonos.',
   '<b>Editor de licks:</b> toca la rejilla para poner notas; herramientas de flecha, slide, hammer-on, pull-off, bend y agrupar. Arrastra para mover, doble clic borra, Ctrl+Z deshace. <b>'+ICO('plus')+'</b> manda el dibujo a la sección activa; tocar un lick en la canción lo reabre para actualizarlo.']},
  {id:'trucos',ic:'lightbulb',t:'Trucos y leyenda',p:'Ideas para salir de los acordes de siempre, en tu tonalidad.',li:[
-  'Cuatro pestañas: <b>color</b> (menor relativa, préstamos del menor y sabores modales), <b>tensión</b> (dominantes secundarias, sustitutos y acordes de paso, y el cambio de tono para el último estribillo), <b>cadencias</b> y <b>progresiones</b>.',
-  'Clic en una ficha = verla y oírla; arrástrala para añadirla. Las cadencias y progresiones se añaden enteras a la sección activa con un clic; debajo de cada una salen sus acordes en tu tono.',
+  'Cuatro pestañas: <b>color</b> (menor relativa, préstamos del menor y sabores modales), <b>tensión</b> (dominantes secundarias, sustitutos y acordes de paso, y el cambio de tonalidad para el último estribillo), <b>cadencias</b> y <b>progresiones</b>.',
+  'Clic en una ficha = verla y oírla; arrástrala para añadirla. Las cadencias y progresiones se añaden enteras a la sección activa con un clic; debajo de cada una salen sus acordes en tu tonalidad.',
   'La <b>leyenda</b> resume en dibujo los colores de los grados y su función, los colores de las notas, cómo leer un diagrama y cómo leer la canción.']},
  {id:'teclas',ic:'zap',t:'Teclado y pasapáginas',p:'Por si tocas con teclado o pedal.',li:[
   '<b>Espacio</b> toca / para · <b>Ctrl+S</b> guarda · <b>Ctrl+Z / Ctrl+Y</b> deshacen y rehacen · <b>Esc</b> cierra lo que esté abierto (paneles, diálogos, los botones de una sección, el directo).',
@@ -6462,6 +6522,12 @@ document.addEventListener('keydown',e=>{
 document.getElementById('tempo').addEventListener('change',e=>{
   S.tempo=Math.min(240,Math.max(40,+e.target.value||90));e.target.value=S.tempo;renderProgHead();persist();
 });
+/* −5 / +5 bpm: mismo límite 40–240 que el campo */
+document.querySelectorAll('.tstep').forEach(b=>b.addEventListener('click',()=>{
+  S.tempo=Math.min(240,Math.max(40,S.tempo+(+b.dataset.bpm)));
+  document.getElementById('tempo').value=S.tempo;renderProgHead();persist();
+  if(window.tbarSync)tbarSync();
+}));
 let taps=[];
 document.getElementById('tapbtn').addEventListener('click',e=>{
   ac();
@@ -6923,7 +6989,7 @@ function liveNav(d){
   window.scrollTo({top:0});
   toast((i+1)+' / '+set.length+' · «'+e.name+'»');
 }
-/* 2026-10-28: ⏮ ⏭ de la barra de arriba, en el modo normal. Mismo orden que el directo (set activo o biblioteca),
+/* 2026-10-28: ⏮ ⏭ de la barra de arriba, en el estudio. Mismo orden que el directo (set activo o biblioteca),
    pero aquí sí pregunta si hay cambios sin guardar. Se queda en la misma zona de la página */
 function songNav(d){
   const set=setSongs(),act=activeSetl();
@@ -7482,7 +7548,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 }
-/* 2026-11-01: barra del título fija en el modo normal (ver CSS .proghead.phfix). Dentro de la canción la sujeta
+/* 2026-11-01: barra del título fija en el estudio (ver CSS .proghead.phfix). Dentro de la canción la sujeta
    position:sticky (suave, sin saltos al hacer scroll en la tableta). Cuando el final del panel de la canción sube por
    encima de ella (manual), sticky la dejaría irse: entonces pasa a position:fixed, alineada con el panel, y un hueco
    (.phgap) de su mismo alto y ancho ocupa su sitio para que el contenido no salte (el panel mide lo que su contenido:
@@ -7526,7 +7592,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.01';
+const APP_VER='2026.11.06';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
