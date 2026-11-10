@@ -797,17 +797,17 @@
   .secname .tname{max-height:170px;max-width:62px;overflow:hidden;line-height:1.25}
   .secleft{display:flex;align-items:stretch}
   /* corchete del margen: repetir un BLOQUE de secciones (arrastrar de arriba abajo) — trazo continuo */
-  .secgut{position:relative;flex:0 0 38px;width:38px;cursor:ns-resize;touch-action:none}
+  .secgut{position:relative;flex:0 0 48px;width:48px;cursor:ns-resize;touch-action:none}
   /* margen vacío: agarradera «⋮» siempre tenue, se enciende al pasar por la fila */
-  .secgut::after{content:'⋮';position:absolute;left:20px;width:18px;top:50%;transform:translateY(-50%);
+  .secgut::after{content:'⋮';position:absolute;left:27px;width:20px;top:50%;transform:translateY(-50%);
     text-align:center;line-height:1;font-size:17px;letter-spacing:0;color:var(--mut);opacity:.35;
     pointer-events:none;transition:opacity .12s,color .12s}
   .secrow:hover .secgut::after{opacity:1;color:var(--accent)}
   .secgut.gon::after,body.live .secgut::after,.xport .secgut::after{display:none}
   /* corchete del BLOQUE: carril de fuera (20–38 px, hacia el borde), con los extremos mirando a los acordes */
-  .secgut.gon::before{content:'';position:absolute;left:20px;width:11px;top:-1px;bottom:0;border-right:3px solid var(--accent)}
-  .secgut.gon.gs::before{top:7px;border-top:3px solid var(--accent)}
-  .secgut.gon.ge::before{bottom:7px;border-bottom:3px solid var(--accent)}
+  .secgut.gon::before{content:'';position:absolute;left:27px;width:12px;top:-1px;bottom:0;border-right:3.5px solid var(--ink)}
+  .secgut.gon.gs::before{top:6px;border-top:3.5px solid var(--ink)}
+  .secgut.gon.ge::before{bottom:6px;border-bottom:3.5px solid var(--ink)}
   .secgut.gsel{background:color-mix(in srgb, var(--accent) 18%, transparent)}
   .rcfit .secbody{flex:0 1 var(--bodyw);min-width:0}
   /* ── repeticiones (2026-10-22, «corchete único»): TODA repetición es la misma pastilla roja
@@ -822,22 +822,28 @@
   .rqb b{font:900 21px/1 var(--font-d);font-stretch:75%}
   .rqb.dd b{font-size:16px}
   .rqb:hover{filter:brightness(1.08)}
-  .grep.rqb,.lrep.rqb{left:20px}
-  .secrep.rqb{left:1px}
+  .grep.rqb,.lrep.rqb{left:27px}
+  .secrep.rqb{left:4px}
+  /* opción A (2026-11-10): cada nivel con su peso · LÍNEA = ×N rojo suelto · SECCIÓN = corchete fino + pastilla roja ·
+     BLOQUE = corchete grueso de tinta + pastilla de tinta, más grande */
+  .grep.rqb{width:21px;background:var(--ink);color:var(--panel);padding:5px 0 6px}
+  .grep.rqb b{font-size:24px}
+  .grep.rqb.now{background:var(--play);color:#fff}
   .rqb.now{background:var(--play);color:#fff}
   .rqb.now i{font-size:11px}
   /* corchete corto de la sección (carril de dentro): solo cuando se repite */
-  .sbr{position:absolute;left:0;width:12px;top:7px;bottom:7px;border:3px solid var(--accent);border-left:none;pointer-events:none}
+  .sbr{position:absolute;left:0;width:12px;top:8px;bottom:8px;border:2px solid color-mix(in srgb, var(--ink) 55%, transparent);border-left:none;pointer-events:none}
   /* «×1» tenue: para dar vueltas a una sección (solo en edición; en el directo no sale) */
   .secrep.rqb.ghost{background:transparent;color:var(--mut);box-shadow:inset 0 0 0 1.5px var(--line);opacity:.55}
   .secrow:hover .secrep.ghost,.secrow.on .secrep.ghost{opacity:1}
+  .secrow:not(.on):not(:hover) .secrep.ghost{visibility:hidden} /* el ×1 solo en la sección activa: sin llenar de ×1 la canción */
   .secrep.rqb.ghost:hover{filter:none;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
   body.live .secrep.ghost,.xport .secrep.ghost{display:none}
   body.live .secrep.rqb{cursor:default;pointer-events:none} /* en el directo el ×N de la sección solo se lee */
   body.live .secgut{cursor:ns-resize}
   /* corchete de ANOTACIÓN (se dibuja en el directo): discontinuo, «×2~», no cambia lo que suena */
   .secgut.lon::after{display:none}
-  .secgut.lon::before{content:'';position:absolute;left:20px;width:11px;top:-1px;bottom:0;border-right:3px dashed var(--accent)}
+  .secgut.lon::before{content:'';position:absolute;left:27px;width:11px;top:-1px;bottom:0;border-right:3px dashed var(--accent)}
   .secgut.lon.ls::before{top:7px;border-top:3px dashed var(--accent)}
   .secgut.lon.le::before{bottom:7px;border-bottom:3px dashed var(--accent)}
   .lrep.rqb{background:var(--panel);color:var(--accent-t);box-shadow:inset 0 0 0 2px var(--accent)}
@@ -961,8 +967,30 @@
      sección, pero DENTRO de la fila, pegada a su último acorde. Esa línea se toca N veces antes de pasar a la
      siguiente; la pastilla de la columna de la derecha sigue repitiendo la sección entera. ×1 tenue solo en edición
      (para darle vueltas); al sonar se pone azul y cuenta la vuelta («1/2»), como las demás. */
-  .lnend{position:relative;display:flex;align-items:center;flex:none;margin:0 0 0 3px} /* sin margen a la derecha: fitRepCol mide hasta su borde */
-  .lnrep.rqb{position:relative;top:auto;left:auto;transform:none}
+  .lnend{position:relative;display:flex;align-items:center;flex:none;margin:0 0 0 auto} /* columna de LÍNEA: al borde derecho de las líneas */
+  .rcmeasure .slots>.lnend{margin-left:6px} /* fitRepCol mide con el ×N pegado a la línea */
+  .lnrep.rqb{position:relative;top:auto;left:auto;transform:none;flex-direction:row;align-items:baseline;width:auto;min-width:30px;
+    padding:2px 3px;gap:0;background:transparent;color:var(--accent-t)}
+  .lnrep.rqb i{font-size:15px}
+  .lnrep.rqb b{font-size:24px}
+  .lnrep.rqb.now{background:var(--play);color:#fff;padding:2px 6px}
+  body.live .lnrep.rqb i{font-size:18px}
+  body.live .lnrep.rqb b{font-size:30px}
+  body.live .slots:has(>.lnend){flex-grow:1} /* en el directo las líneas llegan hasta la columna */
+  /* barra que cierra la línea repetida, pegada a su último acorde */
+  .lnbar{position:relative;flex:none;width:0;align-self:stretch;pointer-events:none}
+  /* casilla de 1ª / 2ª vez: banderita en el margen izquierdo de la línea (dentro de su primer acorde) */
+  .progress.hasvolta .slots,body:not(.live) .progress.hasml .slots{padding-left:52px!important} /* gana a los rellenos de la vista simple y del directo */
+  .lvolta{position:absolute;left:-46px;top:2px;z-index:3;width:26px;box-sizing:border-box;padding:2px 3px;border:none;border-radius:0;
+    border-top:2px solid var(--ink);border-left:2px solid var(--ink);background:transparent;color:var(--ink);
+    font:700 14px/1 var(--font-n);letter-spacing:0;text-align:left;cursor:pointer;box-shadow:none}
+  .secrow.compact .slots>.slot>.lvolta{left:-44px}
+  .lvolta.ghost{border-color:var(--line);border-style:dashed;color:var(--mut);font-size:10px;opacity:.7}
+  .lvolta.ghost:hover{color:var(--ink);border-color:var(--ink);opacity:1}
+  .secrow:not(.on):not(:hover) .lvolta.ghost{visibility:hidden}
+  body.live .lvolta.ghost,.xport .lvolta.ghost{display:none}
+  body.live .lvolta{cursor:default;pointer-events:none}
+  .slot.vdim{opacity:.3}
   .lnrep.rqb.ghost{background:transparent;color:var(--mut);box-shadow:inset 0 0 0 1.5px var(--line);opacity:.55}
   .secrow:hover .lnrep.ghost,.secrow.on .lnrep.ghost{opacity:1}
   /* el ×1 tenue de cada línea solo en la sección activa (o con el ratón encima): sin llenar de ×1 toda la canción */
@@ -971,12 +999,7 @@
   body.live .lnend.lg1,.xport .lnend.lg1{display:none}
   body.live .lnrep{cursor:default;pointer-events:none}
   /* directo «reticulado»: la línea repetida se cierra con su barra y luego la pastilla («| G |×2») */
-  body.live .secrow.compact .slots>.lnend{margin:0 0 0 16px}
-  body.live .secrow.compact .slots>.lnend::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
-    background:var(--ink);opacity:.7;pointer-events:none}
-  body.live .secrow:not(.compact) .slots>.lnend{margin:0 0 0 12.5px}
-  body.live .secrow:not(.compact) .slots>.lnend::before{content:'';position:absolute;left:-12px;top:4px;bottom:4px;width:2.5px;
-    background:var(--ink);opacity:.8;pointer-events:none}
+
   .scbtn.playsec.on{color:#fff;background:var(--play);border-color:var(--play)}
   /* vista simple por sección: grado+duración a la izquierda, acorde grande a la derecha */
   .secrow.compact .slot{display:grid;grid-template-columns:var(--degw,auto) var(--chw,auto);grid-template-rows:auto auto;
@@ -1228,13 +1251,13 @@
   .secrow:not(.compact) .slots>.slot.bs::before{content:'';position:absolute;left:-12px;top:7px;bottom:7px;width:2.5px;
     background:var(--ink);opacity:.8;pointer-events:none}
   body.live .secrow:not(.compact) .slots>.slot.bs::before{top:4px;bottom:4px}
-  .secrow.compact .slots>.lnend:not(.lg1){margin:0 0 0 16px}
-  .secrow.compact .slots>.lnend:not(.lg1)::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
+  .secrow.compact .slots>.lnbar{margin-left:16px}
+  .secrow.compact .slots>.lnbar::before{content:'';position:absolute;left:-15px;top:3px;bottom:3px;width:2px;
     background:var(--ink);opacity:.7;pointer-events:none}
-  .secrow:not(.compact) .slots>.lnend:not(.lg1){margin:0 0 0 12.5px}
-  .secrow:not(.compact) .slots>.lnend:not(.lg1)::before{content:'';position:absolute;left:-12px;top:7px;bottom:7px;width:2.5px;
+  .secrow:not(.compact) .slots>.lnbar{margin-left:12.5px}
+  .secrow:not(.compact) .slots>.lnbar::before{content:'';position:absolute;left:-12px;top:7px;bottom:7px;width:2.5px;
     background:var(--ink);opacity:.8;pointer-events:none}
-  body.live .secrow:not(.compact) .slots>.lnend::before{top:4px;bottom:4px}
+  body.live .secrow:not(.compact) .slots>.lnbar::before{top:4px;bottom:4px}
   body.live .livebtns{grid-column:1/-1}
   body.live .lbtn{min-height:64px;font-size:30px}
   body.live .lbtn.sm{font-size:22px}
@@ -2959,25 +2982,32 @@ function setBeats(sl,b){sl.beats=rnd(b);sl.measures=rnd(b/S.ts);}
 function secLines(sec){
   const sl=(sec&&sec.slots)||[],L=[];let a=0;
   sl.forEach((x,i)=>{if(x.br||i===sl.length-1){L.push({a,b:i,n:1});a=i+1;}});
-  if(L.length>1)L.forEach(l=>{const n=sl[l.b].lr|0;if(n>1)l.n=Math.min(12,n);});
+  if(L.length>1)L.forEach(l=>{const n=sl[l.b].lr|0;if(n>1)l.n=Math.min(12,n);const v=sl[l.b].cv|0;if(v===1||v===2)l.v=v;});
   return L;
 }
 /* tras cualquier cambio: el ×N solo vive en el acorde que cierra una línea, y nunca en una sección de una línea */
 function lineTidy(sec){
   const sl=(sec&&sec.slots)||[],one=secLines(sec).length<2;
-  sl.forEach((x,i)=>{if(x.lr&&(one||!(x.br||i===sl.length-1)||x.lr<2))delete x.lr;});
+  sl.forEach((x,i)=>{if(x.lr&&(one||!(x.br||i===sl.length-1)||x.lr<2))delete x.lr;
+    if(x.cv&&(one||!(x.br||i===sl.length-1)||!(x.cv===1||x.cv===2)))delete x.cv;});
 }
 /* antes de quitar el acorde ei: si cierra su línea, el anterior de esa línea hereda el salto y el ×N */
 function lineEndOff(slots,ei){
   const x=slots[ei],p=slots[ei-1];if(!x)return;
-  if((x.br||ei===slots.length-1)&&p&&!p.br){if(ei<slots.length-1)p.br=true;if(x.lr)p.lr=x.lr;}
+  if((x.br||ei===slots.length-1)&&p&&!p.br){if(ei<slots.length-1)p.br=true;if(x.lr)p.lr=x.lr;if(x.cv)p.cv=x.cv;}
 }
 /* un acorde que entra al FINAL de la sección pasa a cerrar la última línea: se lleva su ×N */
 function lineEndOn(slots,ns){
   const o=slots[slots.length-1];
   if(o&&!o.br&&o.lr){ns.lr=o.lr;delete o.lr;}
+  if(o&&!o.br&&o.cv){ns.cv=o.cv;delete o.cv;}
 }
-function bareSlot(x){delete x.br;delete x.lr;return x;}
+function bareSlot(x){delete x.br;delete x.lr;delete x.cv;return x;}
+/* ── casillas de 1ª y 2ª vez (2026-11-10) ─────────────────────────────────────────────────────────
+   Una línea marcada «1ª» solo suena en las vueltas que NO son la última; «2ª», solo en la última (como en partitura:
+   «Verso ×2» con dos finales en vez de «Verso» + «Verso 2»). La vuelta es la del ×N de la sección; si la sección
+   no se repite, la del bloque. La marca va a la IZQUIERDA de la línea: a la derecha solo hay ×N. */
+function voltaOn(v,p,n){return v===1?p<n-1:v===2?p===n-1:true;}
 function normSlots(slots,ts){
   (slots||[]).forEach(sl=>{if(sl&&!(typeof sl.beats==='number'&&sl.beats>0))sl.beats=slBeats(sl,ts);});
   return slots;
@@ -3275,16 +3305,21 @@ function renderSections(){
     if(!sec.slots.length)inner='<div class="empty">arrastra acordes aquí '+ICO('guitar')+'</div>';
     else{
       const bm=barMarks(sec.slots,S.ts);
-      const LN=secLines(sec),lnAt={};if(LN.length>1)LN.forEach((l,li)=>{lnAt[l.b]=[li,l.n];});
+      const LN=secLines(sec),lnAt={},lnA={};if(LN.length>1)LN.forEach((l,li)=>{lnAt[l.b]=[li,l.n];lnA[l.a]=[li,l.v||0,l.b];});
       inner='<span class="barline" aria-hidden="true"></span>';
       sec.slots.forEach((sl,ei)=>{
         let sh=slotHTML(sl,si,ei,bm[ei].mids);
+        /* casilla 1ª/2ª: va DENTRO del primer acorde de la línea, en el margen izquierdo (no mueve la rejilla) */
+        if(lnA[ei]){const [li,v]=lnA[ei];
+          const tag='<button class="lvolta'+(v?' v'+v:' ghost')+'" data-cv="'+si+':'+li+'" title="'+(v===1?'Casilla de 1ª vez: esta línea suena en todas las vueltas menos la última':v===2?'Casilla de 2ª vez: esta línea solo suena en la última vuelta':'Casilla: toca para que esta línea sea el final de 1ª vez (otra vez = 2ª vez, otra = quitar)')+' · la vuelta es la del ×N de la sección (o la del bloque)">'+(v?v+'ª':'1·2')+'</button>';
+          sh=sh.replace(/^(<div class="slot[^>]*>)/,'$1'+tag);}
         /* .bs = este acorde empieza compás: en el directo dibuja SU barra delante (ver «directo reticulado») */
         if(ei===0||bm[ei-1].closed)sh=sh.replace('<div class="slot','<div class="slot bs');
         inner+=sh;
         const closed=bm[ei].closed;
         if(closed)inner+='<span class="barline'+(ei===sec.slots.length-1?' bend':'')+'" aria-hidden="true"></span>';
-        if(lnAt[ei]){const [li,n]=lnAt[ei]; /* ×N de la línea, pegado a su último acorde */
+        if(lnAt[ei]){const [li,n]=lnAt[ei]; /* ×N de la línea: barra de cierre junto al acorde y el ×N en su columna, a la derecha */
+          if(n>1)inner+='<span class="lnbar" aria-hidden="true"></span>';
           inner+='<span class="lnend'+(n>1?'':' lg1')+'"><button class="lnrep rqb'+(n>1?'':' ghost')+(n>=10?' dd':'')+'" data-lnrep="'+si+':'+li+'" data-n="'+n+'" title="La línea '+(li+1)+' se toca '+n+(n===1?' vez':' veces')+' antes de seguir — clic para cambiar (1–12) · Mayús+clic para bajar">'+repHTML(n)+'</button></span>';}
         if(sl.br){
           inner+='<span class="lbreak" aria-hidden="true"></span>';
@@ -3349,6 +3384,11 @@ function renderSections(){
       '</div>';
   }).join('');
   wrap.querySelectorAll('.secnote').forEach(autoGrow);
+  { /* margen izquierdo de casillas: igual en toda la canción para no romper la rejilla */
+    const pr=wrap.closest('.progress');
+    if(pr){pr.classList.toggle('hasvolta',S.sections.some(x=>secLines(x).some(l=>l.v)));
+      pr.classList.toggle('hasml',S.sections.some(x=>secLines(x).length>1));}
+  }
   if(play.on&&play.curSecMark!=null){
     const pl=wrap.querySelector('.secrow[data-si="'+play.curSecMark+'"]');
     if(pl)pl.classList.add('playing');
@@ -3574,6 +3614,7 @@ function fitRepCol(root){
   root.classList.remove('rcfit');root.style.removeProperty('--bodyw');
   const notes=root.classList.contains('xport')||document.body.classList.contains('live'); /* en edición la nota es un campo a todo lo ancho */
   let w=0,full=0;
+  root.classList.add('rcmeasure');
   root.querySelectorAll('.secbody').forEach(bd=>{
     if(!bd.offsetWidth)return;
     const r=bd.getBoundingClientRect();full=Math.max(full,r.width);
@@ -3582,6 +3623,7 @@ function fitRepCol(root){
       if(e.width)w=Math.max(w,e.right-r.left+ex);
     });
   });
+  root.classList.remove('rcmeasure');
   w=Math.ceil(w+12); /* el aire de la derecha de la fila */
   if(!w||w>=full-2)return;
   root.style.setProperty('--bodyw',w+'px');root.classList.add('rcfit');
@@ -4351,10 +4393,13 @@ function buildTimeline(scope,desde){
     }
     const reps=sec.repeat||1,LN=secLines(sec);
     for(let r=0;r<reps;r++){
+      /* vuelta que decide las casillas: la de la sección; si no se repite, la del bloque */
+      const vp=reps>1?r:(g?(gp||1)-1:0),vn=reps>1?reps:(g?g.repeat:1);
       LN.forEach((l,li)=>{ /* cada línea, las veces de su ×N (li/lp/ln: línea, vuelta de la línea, total) */
+        if(l.v&&!voltaOn(l.v,vp,vn))return; /* casilla que no toca en esta vuelta */
         for(let lp=0;lp<l.n;lp++)for(let ei=l.a;ei<=l.b;ei++){
           const sl=sec.slots[ei],dur=slBeats(sl); /* en tiempos: ½, 1, 3… o compases enteros */
-          evs.push(Object.assign({start:beat,dur,sl,si,ei,rp:r,rn:reps,li,lp,ln:l.n},gx));
+          evs.push(Object.assign({start:beat,dur,sl,si,ei,rp:r,rn:reps,li,lp,ln:l.n,vp,vn},gx));
           beat=rnd(beat+dur);
         }
       });
@@ -4502,6 +4547,19 @@ function scheduleBeat(g,t){
   if(cur){const k=cur.si+'|'+(cur.rp||0);if(k!==play.curRepMark){play.curRepMark=k;flashRep(cur.si,cur.rp||0,cur.rn||1,t);}}
   /* vuelta del ×N de la LÍNEA («1/2», «2/2») */
   if(cur){const k=cur.si+'|'+(cur.rp||0)+'|'+(cur.li||0)+'|'+(cur.lp||0);if(k!==play.curLineMark){play.curLineMark=k;flashLine(cur.si,cur.li||0,cur.lp||0,cur.ln||1,t);}}
+  /* casillas: en la vuelta en curso se apaga la que no suena */
+  if(cur){const k=cur.si+'|'+(cur.vp||0)+'|'+(cur.vn||1)+'|'+(cur.gp||0);if(k!==play.curVoltaMark){play.curVoltaMark=k;flashVolta(cur.si,cur.vp||0,cur.vn||1,t);}}
+}
+function flashVolta(si,vp,vn,t){
+  setTimeout(()=>{
+    if(!play.on)return;
+    document.querySelectorAll('.vdim').forEach(x=>x.classList.remove('vdim'));
+    const mp=liveMap()[si],ti=mp?mp.t:si,sec=S.sections[ti];if(!sec)return;
+    secLines(sec).forEach(l=>{
+      if(!l.v||voltaOn(l.v,vp,vn))return;
+      for(let ei=l.a;ei<=l.b;ei++){const el=document.querySelector('.slot[data-si="'+ti+'"][data-ei="'+ei+'"]');if(el)el.classList.add('vdim');}
+    });
+  },Math.max(0,(t-AC.currentTime)*1000));
 }
 function flashLine(si,li,lp,ln,t){
   setTimeout(()=>{
@@ -4564,6 +4622,7 @@ function flashRep(si,rp,rn,t){
 function clearPlayMarks(){
   document.querySelectorAll('.secrow.playing').forEach(el=>el.classList.remove('playing'));
   document.querySelectorAll('.passmark,.varnote').forEach(el=>el.remove());
+  document.querySelectorAll('.vdim').forEach(x=>x.classList.remove('vdim'));
   document.querySelectorAll('.rqb.now').forEach(x=>{x.classList.remove('now');x.innerHTML=repHTML(+x.dataset.n);});
 }
 /* ── directo: la pantalla sigue a la canción (2026-10-22) ─────────────────
@@ -5621,7 +5680,7 @@ function xSectionsHTML(d,simple){
         inner+=xs;
         const closed=bm[ei].closed;
         if(closed)inner+='<span class="barline'+(ei===sec.slots.length-1?' bend':'')+'"></span>';
-        if(lnAt[ei])inner+='<span class="lnend"><span class="lnrep rqb'+(lnAt[ei]>=10?' dd':'')+'">'+repHTML(lnAt[ei])+'</span></span>';
+        if(lnAt[ei])inner+='<span class="lnbar"></span><span class="lnend"><span class="lnrep rqb'+(lnAt[ei]>=10?' dd':'')+'">'+repHTML(lnAt[ei])+'</span></span>';
         if(sl.br){
           inner+='<span class="lbreak"></span>';
           if(closed&&ei<sec.slots.length-1)inner+='<span class="barline"></span>';
@@ -6117,6 +6176,18 @@ document.addEventListener('click',e=>{
       }else g.repeat=g.repeat>=12?2:g.repeat+1;
       renderSections();
     }
+    return;
+  }
+  const cvb=e.target.closest&&e.target.closest('[data-cv]');
+  if(cvb){
+    if(document.body.classList.contains('live'))return;
+    const [si,li]=cvb.dataset.cv.split(':').map(Number),sec=S.sections[si],l=sec&&secLines(sec)[li];
+    if(!l)return;
+    pushUndo();
+    const x=sec.slots[l.b],v=((x.cv|0)+1)%3;
+    if(v)x.cv=v;else delete x.cv;
+    renderSections();
+    toast(v===1?'Casilla de 1ª vez: suena en todas las vueltas menos la última':v===2?'Casilla de 2ª vez: solo suena en la última vuelta':'Casilla quitada');
     return;
   }
   const lnb=e.target.closest&&e.target.closest('[data-lnrep]');
@@ -6756,7 +6827,7 @@ document.addEventListener('pointerup',()=>{
   }
   if(from===to){
     const g=groupOf(from);
-    toast(g?'Este bloque se toca ×'+g.repeat+' — usa el ×'+g.repeat+' rojo para cambiarlo':'Arrastra por el margen, de arriba abajo, para repetir un bloque de secciones');
+    toast(g?'Este bloque se toca ×'+g.repeat+' — usa el ×'+g.repeat+' del corchete para cambiarlo':'Arrastra por el margen, de arriba abajo, para repetir un bloque de secciones');
     return;
   }
   pushUndo();
@@ -7650,7 +7721,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.07';
+const APP_VER='2026.11.10';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
