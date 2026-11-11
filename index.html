@@ -3612,6 +3612,7 @@ function repNowHTML(p,n){return '<b>'+p+'</b><i>/'+n+'</i>';}
 function fitRepCol(root){
   root=root||document.querySelector('#sections')&&document.querySelector('#sections').closest('.progress');if(!root)return;
   root.classList.remove('rcfit');root.style.removeProperty('--bodyw');
+  root.querySelectorAll('.secrow').forEach(r=>r.style.removeProperty('--bodyw'));
   const notes=root.classList.contains('xport')||document.body.classList.contains('live'); /* en edición la nota es un campo a todo lo ancho */
   let w=0,full=0;
   root.classList.add('rcmeasure');
@@ -3627,6 +3628,18 @@ function fitRepCol(root){
   w=Math.ceil(w+12); /* el aire de la derecha de la fila */
   if(!w||w>=full-2)return;
   root.style.setProperty('--bodyw',w+'px');root.classList.add('rcfit');
+  /* 2026-11-11: la columna izquierda (nombre + ▷ ▭ ⋯) es más estrecha en las secciones en vista simple que en las
+     de diagramas. Para que el corchete de un bloque que mezcla las dos siga siendo UNA raya, cada fila compensa
+     esa diferencia en el ancho de sus acordes: la columna de repeticiones cae en la misma x en toda la canción.
+     (Las filas con el menú ⋯ abierto no cuentan: su columna izquierda se ensancha solo mientras está abierto.) */
+  const rows=[...root.querySelectorAll('.secrow')].filter(r=>r.offsetWidth&&r.querySelector('.secbody')&&r.querySelector('.secbody').offsetWidth);
+  const lw=r=>{const b=r.querySelector('.secbody'),rr=r.getBoundingClientRect();return b.getBoundingClientRect().left-rr.left;};
+  let maxL=0;rows.forEach(r=>{if(!r.querySelector('.secctl.xopen'))maxL=Math.max(maxL,lw(r));});
+  rows.forEach(r=>{
+    if(r.querySelector('.secctl.xopen'))return;
+    const d=maxL-lw(r);
+    if(d>.25)r.style.setProperty('--bodyw',(w+d).toFixed(2)+'px');
+  });
 }
 function positionReps(){
   fitRepCol();
@@ -7721,7 +7734,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.10';
+const APP_VER='2026.11.11';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
