@@ -1370,6 +1370,9 @@
   body.live #livebar{display:flex}
   /* ── directo con dos módulos (2026-11-16, Rodney): «acordes» (la rejilla) y «letra». Juntos: rejilla 60 % · letra 40 %.
      Solo letra: la canción entera seguida, con la sección que suena marcada. Tamaño de letra por sección, sin cortar líneas. */
+  /* 2026-11-16: sin «anclaje de scroll» — al final de la página (p. ej. en el manual) el navegador devolvía la pantalla
+     abajo cada vez que la barra del título se recolocaba, y no dejaba subir con la rueda */
+  html{overflow-anchor:none}
   #livelyr{display:none}
   body.live.lv-l #livelyr{display:flex;flex-direction:column;position:fixed;left:0;right:0;z-index:70;background:var(--panel);
     padding:8px 22px;overflow:hidden;font-family:var(--font-b);-webkit-user-select:none;user-select:none;touch-action:pan-y}
@@ -1378,7 +1381,12 @@
   body.live.lv-l:not(.lv-a) #sections{display:none}
   body.live.lv-l:not(.lv-a) #livelyr{overflow-y:auto;display:block;padding-top:6px;padding-bottom:40vh}
   body.live:not(.lv-a) #lview{display:none}
-  .llb{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+  .llb{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+  .llb::-webkit-scrollbar{display:none}
+  .llb.long{justify-content:flex-start;flex:none;margin:auto 0}
+  /* mientras la canción avanza (sonando o con el avance solo): la línea que toca, entera; las demás, atenuadas */
+  #livelyr.follow .llsec.on .lll[data-r]{opacity:.45;transition:opacity .3s}
+  #livelyr.follow .llsec.on .lll.cur{opacity:1}
   .llsec{font-size:var(--fs,32px)}
   body.live.lv-l:not(.lv-a) .llsec{padding:.3em 0 .3em 14px;border-left:6px solid transparent;opacity:.42}
   body.live.lv-l:not(.lv-a) .llsec.on{opacity:1;border-left-color:var(--play)}
@@ -5353,7 +5361,7 @@ function startPlay(scopeSi){
   if(!play.evs.length&&!S.metro&&!S.drumsOn){toast(TR('Añade acordes o activa el metrónomo 😉','Add chords or turn on the metronome 😉'));return;}
   try{ksWarm();}catch(e){}
   play.countIn=S.countIn?countBeats():0;
-  play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;play.nextT=AC.currentTime+0.15;
+  play.on=true;play.llMark=null;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;play.nextT=AC.currentTime+0.15;
   play.timer=setInterval(tick,25);
   updatePlayUI();
   if(!play.evs.length)toast(TR('Sin acordes: suena solo el ritmo','No chords: only the rhythm plays'));
@@ -5366,6 +5374,7 @@ function stopPlay(){
   document.querySelectorAll('.slot.playing').forEach(el=>el.classList.remove('playing'));
   clearPlayMarks();updateStrip(null);
   updatePlayUI();
+  {const lp=document.getElementById('livelyr');if(lp)lp.classList.remove('follow');}
   fbPlayChord(null);
   if(AC)bassCut(AC.currentTime+0.03);
 }
@@ -5435,6 +5444,8 @@ function scheduleBeat(g,t){
   /* vuelta del ×N de la sección: también cuando la MISMA sección vuelve a empezar */
   if(cur){const k=cur.si+'|'+(cur.rp||0);if(k!==play.curRepMark){play.curRepMark=k;flashRep(cur.si,cur.rp||0,cur.rn||1,t);}}
   /* vuelta del ×N de la LÍNEA («1/2», «2/2») */
+  if(cur&&llMods().l&&document.body.classList.contains('live')){const lr=llAt(play.evs,cur.si,rb),lk=cur.si+':'+lr;
+    if(lk!==play.llMark){play.llMark=lk;const si0=cur.si;setTimeout(()=>{if(play.on)llGo(si0,lr);},Math.max(0,(t-AC.currentTime)*1000));}}
   if(cur){const k=cur.si+'|'+(cur.rp||0)+'|'+(cur.li||0)+'|'+(cur.lp||0);if(k!==play.curLineMark){play.curLineMark=k;flashLine(cur.si,cur.li||0,cur.lp||0,cur.ln||1,t);}}
   /* casillas: en la vuelta en curso se apaga la que no suena */
   if(cur){const k=cur.si+'|'+(cur.vp||0)+'|'+(cur.vn||1)+'|'+(cur.gp||0);if(k!==play.curVoltaMark){play.curVoltaMark=k;flashVolta(cur.si,cur.vp||0,cur.vn||1,t);}}
@@ -5474,7 +5485,6 @@ function flashSec(si,t,gp,rb){
   setTimeout(()=>{
     if(!play.on)return;
     clearPlayMarks();
-    llSet(si);
     /* en el directo, una sección oculta con pareja ilumina la visible que repite, con su vuelta («2ª») */
     const mp=liveMap()[si],ti=mp?mp.t:si;
     const el=document.querySelector('.secrow[data-si="'+ti+'"]');
@@ -5553,13 +5563,15 @@ function advSegs(){
   out.forEach(x=>{x.sec=m==='tempo'?(x.end-x.start)*spb:(+m||20);});
   return out;
 }
-function advHalt(){clearTimeout(ADV.timer);ADV.timer=null;advCountStop();} /* se para, pero esta canción no vuelve a arrancar sola */
+function advHalt(){clearTimeout(ADV.timer);ADV.timer=null;clearInterval(ADV.llt);ADV.llt=null;advCountStop();{const lp=document.getElementById('livelyr');if(lp)lp.classList.remove('follow');}} /* se para, pero esta canción no vuelve a arrancar sola */
 function advStop(){advHalt();ADV.idx=-1;ADV.song=null;}
 function advGo(i){
   advHalt();
   if(!document.body.classList.contains('live')||play.on||!advMode()||i<0||i>=ADV.segs.length)return;
   ADV.idx=i;const sg=ADV.segs[i],mp=liveMap()[sg.si];
-  llSet(sg.si);
+  if(llMods().l){const ev=ADV.evs||(ADV.evs=buildTimeline(null).evs),t0=performance.now(),dur=Math.max(1,sg.sec)*1000;
+    const paso=()=>{const fr=Math.min(0.999,(performance.now()-t0)/dur);llGo(sg.si,llAt(ev,sg.si,sg.start+fr*(sg.end-sg.start)));};
+    ADV.timer=1;paso();ADV.llt=setInterval(paso,200);}
   liveFollow(mp?mp.t:sg.si,i===0?false:undefined);
   advStrip(sg.start);
   ADV.timer=setTimeout(()=>advGo(i+1),Math.max(1,sg.sec)*1000);
@@ -5586,7 +5598,7 @@ function advCount(done){
   ADV.cnt.push(setTimeout(()=>{ADV.cnt=[];lp.classList.remove('acnt','cnt','down');lp.innerHTML=ICO('play');done();},n*spb*1000));
 }
 function advStart(fromBeat,withCount){
-  ADV.song=advSongKey();ADV.segs=advSegs();
+  ADV.song=advSongKey();ADV.segs=advSegs();ADV.evs=null;
   let i=0;if(fromBeat!=null)ADV.segs.forEach((x,k)=>{if(x.start<=fromBeat+1e-6)i=k;});
   if(withCount&&S.countIn){advCount(()=>advGo(i));return;}
   advGo(i);
@@ -5607,7 +5619,7 @@ document.getElementById('livestrip').addEventListener('click',e=>{
   const el=e.target.closest('.lss');if(!el||play.on)return;
   const sg=LSTRIP[+el.dataset.i];if(!sg)return;
   const mp=liveMap()[sg.si];
-  llSet(sg.si);
+  llGo(sg.si,llAt(buildTimeline(null).evs,sg.si,sg.start));
   liveFollow(mp?mp.t:sg.si,true);
   if(advMode()&&document.body.classList.contains('live'))advStart(sg.start);
 });
@@ -7361,7 +7373,7 @@ const MAN=[
  {id:'directo',ic:'monitor-play',t:TR('Modo directo','Live mode'),p:TR('La pantalla del escenario: solo la canción, con la letra tan grande como quepa.','The stage screen: only the song, with the text as large as it fits.'),li:[
   TR('Todos los acordes crecen a la vez para llenar la pantalla sin romper la rejilla; las notas de cada sección van encima de sus acordes.','All chords grow together to fill the screen without breaking the grid; each section\'s notes go above its chords.'),
   TR('El <b>⌄</b> junto al nombre de cada sección avisa de que se puede abrir: toca el nombre y salen sus diagramas; tócalo otra vez y se pliega.','The <b>⌄</b> next to each section name shows it can be opened: tap the name to see its diagrams; tap again to fold it.'),
-  TR('El directo tiene dos módulos, con sus teclas en la barra de abajo: <b>acordes</b> (la rejilla) y <b>letra</b>. Se encienden por separado —solo acordes, acordes + letra o solo letra— y cada canción recuerda cómo la dejaste. Con los dos, abajo sale la letra de la sección que suena, tan grande como quepa sin cortar líneas, y en gris cómo empieza la siguiente. Solo letra enseña la canción entera y va bajando. <b>Tocar la letra</b> pone o quita los acordes de encima. La letra se escribe en el modo letra del estudio.','Live mode has two modules, with their keys on the bottom bar: <b>chords</b> (the grid) and <b>lyrics</b>. Switch them on separately —chords only, chords + lyrics or lyrics only— and each song remembers how you left it. With both, the lyrics of the section that is sounding appear below, as large as fits without breaking lines, with the start of the next one in grey. Lyrics only shows the whole song and scrolls down. <b>Tap the lyrics</b> to show or hide the chords above them. Lyrics are written in the studio\'s lyrics mode.'),
+  TR('El directo tiene dos módulos, con sus teclas en la barra de abajo: <b>acordes</b> (la rejilla) y <b>letra</b>. Se encienden por separado —solo acordes, acordes + letra o solo letra— y cada canción recuerda cómo la dejaste. Con los dos, abajo sale la letra de la sección que suena, tan grande como quepa sin cortar líneas, y en gris cómo empieza la siguiente. Solo letra enseña la canción entera y va bajando. Nunca se ven más de 5 líneas de una sección: la letra sube sola, línea a línea, y la que toca se resalta. Para que acierte, escribe <b>una línea de letra por cada vuelta de acordes</b> (cada pasada de una línea de acordes, contando repeticiones y casillas); una línea en blanco separa secciones al pegar la letra entera. <b>Tocar la letra</b> pone o quita los acordes de encima. La letra se escribe en el modo letra del estudio.','Live mode has two modules, with their keys on the bottom bar: <b>chords</b> (the grid) and <b>lyrics</b>. Switch them on separately —chords only, chords + lyrics or lyrics only— and each song remembers how you left it. With both, the lyrics of the section that is sounding appear below, as large as fits without breaking lines, with the start of the next one in grey. Lyrics only shows the whole song and scrolls down. No more than 5 lines of a section are shown: the lyrics move up by themselves, line by line, and the current one is highlighted. For that to match, write <b>one lyric line per chord pass</b> (each pass of a chord line, counting repeats and endings); a blank line separates sections when pasting whole lyrics. <b>Tap the lyrics</b> to show or hide the chords above them. Lyrics are written in the studio\'s lyrics mode.'),
   TR('Cambiar de canción: <b>','Change song: <b>')+ICO('skip-back')+' '+ICO('skip-forward')+TR('</b>, <b>deslizar el dedo</b> o un pasapáginas (Av Pág / Re Pág o ← →). La barra espaciadora toca y para.','</b>, <b>swipe</b> or a page-turner pedal (Page Down / Page Up or ← →). The space bar plays and stops.'),
   TR('<b>Toca el nombre de una sección</b> para abrirla con diagramas o plegarla; cada vista lo recuerda, canción por canción.','<b>Tap a section name</b> to open it with diagrams or fold it; each view remembers it, song by song.'),
   TR('Al reproducir, la pantalla sigue a la sección que suena. Con <b>Ajustes → avance en el directo</b> baja sola aunque no reproduzcas (al tempo o cada N segundos); si se desfasa, toca la sección en la tira de abajo.','During playback the screen follows the section that is sounding. With <b>Settings → auto-advance in live mode</b> it scrolls by itself even without playing (at the tempo or every N seconds); if it drifts, tap the section on the strip below.'),
@@ -7629,7 +7641,10 @@ document.addEventListener('click',e=>{
     pushUndo();
     const x=sec.slots[l.b],v=((x.cv|0)+1)%3;
     if(v)x.cv=v;else delete x.cv;
+    /* una casilla solo tiene sentido si la sección se repite: si no se repetía (ni ella ni un bloque), pasa a ×2 */
+    let auto2=false;if(v&&(sec.repeat||1)<2&&!(S.groups||[]).some(g=>si>=g.a&&si<=g.b&&g.repeat>1)){sec.repeat=2;auto2=true;}
     renderSections();
+    if(auto2){toast(TR('Casilla de 1ª vez · la sección pasa a ×2 para que haya dos vueltas','1st ending · the section is now ×2 so there are two passes'));return;}
     toast(v===1?TR('Casilla de 1ª vez: suena en todas las vueltas menos la última','1st ending: plays on every pass except the last'):v===2?TR('Casilla de 2ª vez: solo suena en la última vuelta','2nd ending: only plays on the last pass'):TR('Casilla quitada','Ending removed'));
     return;
   }
@@ -8576,7 +8591,7 @@ function hideSwipeHint(){
    (se cambia tocando la letra). LL.cur = sección cuya letra se ve: la que suena, la del avance solo o la tocada en la tira.
    Con los dos: letra de esa sección al mayor tamaño que quepa sin cortar líneas + 1ª línea de la siguiente, en gris.
    Solo letra: toda la canción, cada sección a su tamaño, y la pantalla baja a la que suena. */
-const LL={cur:0,h:0,song:null};
+const LL={cur:0,line:0,h:0,song:null};
 function llMods(){let a=S.lvA!==false,l=!!S.lvL;if(!a&&!l)a=true;return {a,l};}
 function llLine(text,marks,ch){
   const ms=(ch?marks:[]).slice().sort((a,b)=>a.c-b.c),end=ms.length?Math.max(text.length,ms[ms.length-1].c):text.length,t=text.padEnd(end,' ');
@@ -8592,13 +8607,64 @@ function llHasLyr(sec){return !!(sec&&((sec.lyr&&sec.lyr.trim())||(sec.lch&&sec.
 function llBody(sec,ch){
   if(!llHasLyr(sec))return '<div class="llnote">'+esc((sec.note&&sec.note.trim())||TR('sin letra','no lyrics'))+'</div>';
   const lines=String(sec.lyr||'').split('\n'),n=Math.max(lines.length,...(sec.lch||[]).map(m=>m.l+1));
-  let h='';for(let l=0;l<n;l++)h+=llLine(lines[l]||'',(sec.lch||[]).filter(m=>m.l===l),ch);
+  let h='',r=0;
+  for(let l=0;l<n;l++){const x=llLine(lines[l]||'',(sec.lch||[]).filter(m=>m.l===l),ch);
+    h+=/class="lll gap"/.test(x)?x:x.replace('<div class="lll"','<div class="lll" data-r="'+(r++)+'"');}
   return h;
 }
+function llCount(sec){if(!llHasLyr(sec))return 0;const lines=String(sec.lyr||'').split('\n'),n=Math.max(lines.length,...(sec.lch||[]).map(m=>m.l+1));
+  let r=0;for(let l=0;l<n;l++)if((lines[l]||'').trim()||(sec.lch||[]).some(m=>m.l===l))r++;return r;}
 function llNextHTML(si){
   const nx=S.sections[si+1];if(!nx)return '';
   const first=llHasLyr(nx)?String(nx.lyr||'').split('\n').find(x=>x.trim()):null;
   return '<div class="llnext">'+(first?llLine(first,[],false):'<div class="llnote">'+esc(nx.name+((nx.note&&nx.note.trim())?' · '+nx.note.trim():''))+'</div>')+'</div>';
+}
+/* ── qué línea de la letra toca (2026-11-16, Rodney): «un enter por cada vuelta de acordes» ──
+   Una VUELTA = una pasada de una línea de acordes (cuenta el ×N de la línea, el ×N de la sección, el del bloque y las
+   casillas de 1ª/2ª). La línea k de la letra de una sección va con su vuelta k, en el orden en que suenan en la canción.
+   Si la letra tiene menos líneas que vueltas, vuelve a empezar (un estribillo que se repite igual); si tiene más, las
+   líneas se reparten por igual entre las vueltas y avanzan a tiempo dentro de cada una. */
+function llPasses(evs){
+  if(evs._ll)return evs._ll;
+  const P={};let last=null;
+  evs.forEach(ev=>{const k=ev.si+'|'+(ev.gp||0)+'|'+(ev.rp||0)+'|'+(ev.li==null?'x':ev.li)+'|'+(ev.lp||0),a=P[ev.si]||(P[ev.si]=[]);
+    if(k!==last){a.push({start:ev.start,end:rnd(ev.start+ev.dur)});last=k;}else a[a.length-1].end=rnd(ev.start+ev.dur);});
+  Object.defineProperty(evs,'_ll',{value:P,enumerable:false});
+  return P;
+}
+function llAt(evs,si,beat){
+  const ps=llPasses(evs)[si]||[],N=ps.length,L=llCount(S.sections[si]);
+  if(!L||!N)return 0;
+  let k=0;ps.forEach((x,i)=>{if(x.start<=beat+1e-6)k=i;});
+  if(L<=N)return k%L;
+  const a=Math.floor(k*L/N),b=Math.floor((k+1)*L/N),x=ps[k],fr=Math.max(0,Math.min(0.999,(beat-x.start)/Math.max(1e-6,x.end-x.start)));
+  return Math.min(b-1,a+Math.floor(fr*(b-a)));
+}
+function llFollowing(){return play.on||!!ADV.timer;}
+/* lleva la letra a la sección si y a su línea r, con desplazamiento suave */
+function llGo(si,r,smooth){
+  if(si==null||!S.sections[si])return;
+  const secCh=si!==LL.cur;LL.cur=si;LL.line=r||0;
+  const m=llMods();if(!document.body.classList.contains('live')||!m.l)return;
+  if(m.a&&secCh){llRender();return;}
+  if(!m.a&&secCh)document.querySelectorAll('#livelyr .llsec').forEach(el=>el.classList.toggle('on',+el.dataset.i===si));
+  llLineApply(smooth!==false);
+}
+function llSet(si){if(si!==LL.cur)llGo(si,0);}
+function llLineApply(smooth){
+  const p=document.getElementById('livelyr'),sec=p&&p.querySelector('.llsec.on');if(!sec)return;
+  p.classList.toggle('follow',llFollowing());
+  const rows=[...sec.querySelectorAll('.lll[data-r]')];
+  rows.forEach(x=>x.classList.toggle('cur',+x.dataset.r===LL.line));
+  const beh=smooth?'smooth':'auto';
+  if(llMods().a){ /* ventana de 5 líneas: la que toca va la 2ª, con la anterior asomando */
+    const b=p.querySelector('#llb');if(!b||!rows.length)return;
+    const top=rows[Math.max(0,Math.min(LL.line-1,rows.length-1))]||rows[0];
+    b.scrollTo({top:Math.max(0,top.getBoundingClientRect().top-sec.getBoundingClientRect().top),behavior:beh});
+  }else{
+    const el=rows[Math.min(LL.line,rows.length-1)]||sec;
+    p.scrollTo({top:Math.max(0,el.getBoundingClientRect().top-p.getBoundingClientRect().top+p.scrollTop-Math.round(p.clientHeight*0.25)),behavior:beh});
+  }
 }
 /* el mayor cuerpo con el que ninguna línea se corta (y, si hay tope de alto, todo cabe) */
 function llFitEl(el,box,maxFs,maxH){
@@ -8611,38 +8677,33 @@ function llFitEl(el,box,maxFs,maxH){
   for(let k=0;k<40&&fs>13&&(wid()>avail||(maxH&&el.scrollHeight>maxH+1));k++){fs--;set(fs);}
   return fs;
 }
+const LLMAX=5; /* como mucho 5 líneas de letra a la vista: con más, la letra se queda pequeña */
 function llRender(){
   const p=document.getElementById('livelyr');if(!p)return;
   const m=llMods();
   {const mp=liveMap()[LL.cur],ti=mp?mp.t:LL.cur;document.querySelectorAll('#sections .secrow').forEach(r=>r.classList.toggle('llcur',+r.dataset.si===ti));}
   if(!document.body.classList.contains('live')||!m.l){p.innerHTML='';return;}
   const ch=S.lvC!==false;
-  if(LL.cur>=S.sections.length)LL.cur=0;
+  if(LL.cur>=S.sections.length){LL.cur=0;LL.line=0;}
   if(!S.sections.some(llHasLyr)){p.innerHTML='<div class="llempty">'+TR('Esta canción aún no tiene letra. Escríbela o pégala en el modo «letra» del estudio y aparecerá aquí.','This song has no lyrics yet. Type or paste them in the studio\'s “lyrics” mode and they will show up here.')+'</div>';return;}
   if(m.a){ /* acordes + letra: la sección que suena y, en gris, cómo empieza la siguiente */
     p.innerHTML='<div class="llb" id="llb"><div class="llsec on" data-i="'+LL.cur+'">'+llBody(S.sections[LL.cur],ch)+'</div></div>'+llNextHTML(LL.cur);
     const b=p.querySelector('#llb'),sec=b.firstChild,nx=p.querySelector('.llnext');
-    p.style.setProperty('--fs','40px');
-    const fs=llFitEl(p,p,64,null); /* ancho: también la línea gris */
+    const rows=[...sec.querySelectorAll('.lll[data-r]')],long=rows.length>LLMAX;
+    b.classList.toggle('long',long);
+    let f=llFitEl(p,p,64,null); /* ancho: ninguna línea se corta (tampoco la gris) */
     const room=()=>p.clientHeight-parseFloat(getComputedStyle(p).paddingTop)-parseFloat(getComputedStyle(p).paddingBottom)-(nx?nx.offsetHeight+parseFloat(getComputedStyle(nx).marginTop):0);
-    let f=fs;for(let k=0;k<60&&f>13&&sec.scrollHeight>room()+1;k++){f--;p.style.setProperty('--fs',f+'px');}
+    /* alto: la sección entera o, si es larga, el tramo de 5 líneas más alto */
+    const need=()=>{if(!long)return sec.scrollHeight;let mx=0;
+      for(let i=0;i+LLMAX<=rows.length;i++)mx=Math.max(mx,rows[i+LLMAX-1].getBoundingClientRect().bottom-rows[i].getBoundingClientRect().top);return mx+2;};
+    for(let k=0;k<60&&f>13&&need()>room()+1;k++){f--;p.style.setProperty('--fs',f+'px');}
+    if(long)b.style.height=Math.floor(Math.min(room(),need()))+'px'; /* justo 5 líneas: ni una más asomando */
   }else{ /* solo letra: toda la canción, cada sección a su tamaño */
     p.style.removeProperty('--fs');
     p.innerHTML=S.sections.map((sec,i)=>'<div class="llsec'+(i===LL.cur?' on':'')+'" data-i="'+i+'"><div class="llname">'+esc(sec.name)+((sec.repeat||1)>1?' ×'+sec.repeat:'')+'</div>'+llBody(sec,ch)+'</div>').join('');
     p.querySelectorAll('.llsec').forEach(el=>llFitEl(el,p,46,null));
-    llScroll(false);
   }
-}
-function llScroll(smooth){
-  const p=document.getElementById('livelyr'),on=p&&p.querySelector('.llsec.on');if(!on||llMods().a)return;
-  p.scrollTo({top:Math.max(0,on.offsetTop-14),behavior:smooth?'smooth':'auto'});
-}
-function llSet(si){
-  if(si==null||si===LL.cur||!S.sections[si])return;
-  LL.cur=si;
-  const m=llMods();if(!document.body.classList.contains('live')||!m.l)return;
-  if(m.a){llRender();return;}
-  document.querySelectorAll('#livelyr .llsec').forEach(el=>el.classList.toggle('on',+el.dataset.i===si));llScroll(true);
+  llLineApply(false);
 }
 /* clases, teclas y sitio del panel — ANTES de pintar la rejilla, que mide el alto que le queda */
 function llSync(){
@@ -8652,7 +8713,7 @@ function llSync(){
   if(ba)ba.classList.toggle('on',m.a);if(bl)bl.classList.toggle('on',m.l);
   LL.h=0;if(!p)return;
   if(!live||!m.l){document.documentElement.style.removeProperty('--llh');return;}
-  const k=advSongKey();if(LL.song!==k){LL.song=k;LL.cur=0;}
+  const k=advSongKey();if(LL.song!==k){LL.song=k;LL.cur=0;LL.line=0;}
   const lb=document.getElementById('livebar').offsetHeight;
   p.style.bottom=lb+'px';
   if(m.a){const h=Math.round((window.innerHeight-lb)*0.4);p.style.top='auto';p.style.height=h+'px';LL.h=h;}
