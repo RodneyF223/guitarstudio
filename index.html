@@ -1391,7 +1391,7 @@
   .llnote{font-style:italic;font-weight:600;color:var(--mut);font-size:.8em;white-space:nowrap;width:max-content}
   .llnext{flex:none;font-size:calc(var(--fs,32px)*.6);border-top:1.5px dashed var(--line2);margin-top:.5em;padding-top:.35em}
   .llnext .lll,.llnext .llnote{color:var(--mut);font-weight:600;margin-top:0;font-size:1em}
-  body.live.lv-l.lv-a .secrow.llcur{box-shadow:inset 5px 0 0 var(--play)} /* la sección cuya letra se ve abajo */
+  body.live.lv-l.lv-a .secrow.llcur .secname{box-shadow:inset 5px 0 0 var(--play)} /* la sección cuya letra se ve abajo */
   .llempty{margin:auto;color:var(--mut);font-size:18px;text-align:center;max-width:30em;line-height:1.4}
   .livetop{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--mut);font-weight:600;flex-wrap:wrap}
   .livetop #livepos{color:var(--ink);font-family:var(--font-d);font-weight:800;font-size:15px}
@@ -1441,7 +1441,12 @@
   body.live .secname .tname,body.live .secrow.compact .secname .tname{position:absolute;left:4px;top:5px;bottom:5px;width:24px;
     writing-mode:vertical-rl;transform:rotate(180deg);max-width:none;max-height:none;overflow:hidden;white-space:nowrap;
     text-align:center;line-height:24px}
-  body.live .secname .vmark{display:none}
+  /* 2026-11-16 (Rodney): un «⌄» pequeño al final del nombre, siempre a la vista: tocar el nombre abre los diagramas de la
+     sección (y «⌃» los vuelve a plegar). Sustituye a la tecla «vista» de la barra, que se quitó del directo. */
+  body.live .secname .vmark{display:block;position:absolute;left:0;right:0;top:2px;margin:0;font-size:16px;line-height:1;opacity:.8;text-align:center;z-index:1}
+  body.live .secname .vmark.open .ic{transform:rotate(180deg)}
+  body.live .secname .tname,body.live .secrow.compact .secname .tname{top:20px}
+  body.live #lview{display:none}
   body.live .secname .lhmark{position:absolute;left:0;right:0;bottom:4px;margin:0;font-size:13px;z-index:1}
   body.live .secname .passmark{position:absolute;left:1px;right:1px;bottom:3px;margin:0;z-index:1;font-size:11px;padding:1px 0;text-align:center}
   body.live .secrow.on .secname{box-shadow:inset 0 0 0 2px var(--ink),inset -4px 0 0 0 var(--ink)}
@@ -3750,7 +3755,7 @@ function renderSections(){
     const cpt=isCompact(sec);
     return '<div class="secrow'+(si===S.active?' on':'')+(cpt?' compact':'')+(!sec.slots.length?' noslots':'')+(sec.lh?' lhid':'')+'" data-si="'+si+'"'+(sec.lh?' data-nm="'+esc(sec.name)+'"':'')+(sec.color?' data-c="'+sec.color+'" style="--secc:var(--'+sec.color+')"':'')+'>'+
       '<div class="secleft">'+
-      '<div class="secname" data-selsec="'+si+TR('" draggable="true" role="button" tabindex="0" title="clic = sección activa · arrastra = reordenar · doble clic = renombrar · en directo: toca para plegar/abrir"><span class="tname">','" draggable="true" role="button" tabindex="0" title="click = active section · drag = reorder · double-click = rename · in live: tap to fold/open"><span class="tname">')+esc(sec.name)+'</span><span class="vmark">'+ICO(cpt?'grid-3x3':'rectangle-horizontal')+'</span>'+(sec.lh?TR('<span class="lhmark" title="Oculta en el modo directo">','<span class="lhmark" title="Hidden in live mode">')+ICO('eye-off')+'</span>':'')+'</div>'+
+      '<div class="secname" data-selsec="'+si+TR('" draggable="true" role="button" tabindex="0" title="clic = sección activa · arrastra = reordenar · doble clic = renombrar · en directo: toca para plegar/abrir"><span class="tname">','" draggable="true" role="button" tabindex="0" title="click = active section · drag = reorder · double-click = rename · in live: tap to fold/open"><span class="tname">')+esc(sec.name)+'</span><span class="vmark'+(cpt?'':' open')+'">'+ICO('chevron-down')+'</span>'+(sec.lh?TR('<span class="lhmark" title="Oculta en el modo directo">','<span class="lhmark" title="Hidden in live mode">')+ICO('eye-off')+'</span>':'')+'</div>'+
       secCtlHTML(sec,si,cpt,showNote)+
       '</div>'+
       '<div class="secbody'+(sec.note&&sec.note.trim()?' hasnote':'')+'"><div class="slots'+(sec.slots.length&&secLines(sec).length>1?' ml':'')+'" data-si="'+si+'">'+inner+'</div>'+noteHTML+lickHTML+'</div>'+gut+
@@ -7355,6 +7360,7 @@ const MAN=[
   TR('Ajustes → idioma cambia entre español e inglés. Lo que tú escribes (nombres, notas, letra) no se traduce.','Settings → language switches between Spanish and English. What you write (names, notes, lyrics) is not translated.')]},
  {id:'directo',ic:'monitor-play',t:TR('Modo directo','Live mode'),p:TR('La pantalla del escenario: solo la canción, con la letra tan grande como quepa.','The stage screen: only the song, with the text as large as it fits.'),li:[
   TR('Todos los acordes crecen a la vez para llenar la pantalla sin romper la rejilla; las notas de cada sección van encima de sus acordes.','All chords grow together to fill the screen without breaking the grid; each section\'s notes go above its chords.'),
+  TR('El <b>⌄</b> junto al nombre de cada sección avisa de que se puede abrir: toca el nombre y salen sus diagramas; tócalo otra vez y se pliega.','The <b>⌄</b> next to each section name shows it can be opened: tap the name to see its diagrams; tap again to fold it.'),
   TR('El directo tiene dos módulos, con sus teclas en la barra de abajo: <b>acordes</b> (la rejilla) y <b>letra</b>. Se encienden por separado —solo acordes, acordes + letra o solo letra— y cada canción recuerda cómo la dejaste. Con los dos, abajo sale la letra de la sección que suena, tan grande como quepa sin cortar líneas, y en gris cómo empieza la siguiente. Solo letra enseña la canción entera y va bajando. <b>Tocar la letra</b> pone o quita los acordes de encima. La letra se escribe en el modo letra del estudio.','Live mode has two modules, with their keys on the bottom bar: <b>chords</b> (the grid) and <b>lyrics</b>. Switch them on separately —chords only, chords + lyrics or lyrics only— and each song remembers how you left it. With both, the lyrics of the section that is sounding appear below, as large as fits without breaking lines, with the start of the next one in grey. Lyrics only shows the whole song and scrolls down. <b>Tap the lyrics</b> to show or hide the chords above them. Lyrics are written in the studio\'s lyrics mode.'),
   TR('Cambiar de canción: <b>','Change song: <b>')+ICO('skip-back')+' '+ICO('skip-forward')+TR('</b>, <b>deslizar el dedo</b> o un pasapáginas (Av Pág / Re Pág o ← →). La barra espaciadora toca y para.','</b>, <b>swipe</b> or a page-turner pedal (Page Down / Page Up or ← →). The space bar plays and stops.'),
   TR('<b>Toca el nombre de una sección</b> para abrirla con diagramas o plegarla; cada vista lo recuerda, canción por canción.','<b>Tap a section name</b> to open it with diagrams or fold it; each view remembers it, song by song.'),
