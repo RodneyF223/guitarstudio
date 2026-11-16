@@ -329,6 +329,10 @@
     color:var(--ink);font-family:var(--font-n);font-size:13.5px;font-weight:600}
   .tseg button+button{border-left:1.5px solid var(--line2)}
   .tseg button.on{background:var(--ink);color:var(--panel)}
+  .tsmeter{flex:1}
+  .tsmeter button{flex:1;padding:0 4px}
+  .cmphint{font-size:12px;line-height:1.35;color:var(--mut);margin-top:-6px}
+  .cmphint[hidden]{display:none}
   .tswrow{display:flex;gap:8px}
   .tswrow .tsw{flex:1;justify-content:center;border-radius:2px;font-size:13px;padding:0 10px}
   .tpsld{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mut)}
@@ -1904,9 +1908,10 @@
         <button id="tapbtn" title="Haz clic al ritmo para fijar el tempo">TAP</button>
       </div>
       <div class="tprow"><b>compás</b>
-        <div class="tseg"><button type="button" data-ts="4">4/4</button><button type="button" data-ts="3">3/4</button></div>
-        <select id="ts" hidden><option value="4">4/4</option><option value="3">3/4</option></select>
+        <div class="tseg tsmeter"><button type="button" data-ts="4">4/4</button><button type="button" data-ts="3">3/4</button><button type="button" data-ts="6" title="6/8: dos pulsos por compás, cada uno dividido en tres">6/8</button><button type="button" data-ts="12" title="12/8: cuatro pulsos por compás, cada uno dividido en tres (blues lento, shuffle)">12/8</button></div>
+        <select id="ts" hidden><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option><option value="12">12/8</option></select>
       </div>
+      <div class="cmphint" id="cmphint" hidden>En 6/8 y 12/8 el tempo cuenta los pulsos (2 o 4 por compás), no cada corchea</div>
       <div class="tpsep"></div>
       <div class="tprow"><b>batería</b>
         <select id="drums" title="Estilo de batería de esta canción (se guarda con ella)">
@@ -2036,7 +2041,7 @@ const STORE=(()=>{
 const LANG=(()=>{let v=null;try{v=STORE.getItem('gc-lang');}catch(e){}
   if(v!=='es'&&v!=='en')v=/^(es|ca|gl|eu)\b/i.test(navigator.language||'es')?'es':'en';return v;})();
 function TR(es,en){return LANG==='en'?en:es;}
-const I18N_HTML={"Canción anterior del set":"Previous song in the set","Canción anterior":"Previous song","Mis canciones: sets, carpetas, archivo":"My songs: sets, folders, file","Canción siguiente del set":"Next song in the set","Canción siguiente":"Next song","Guardar la canción actual (Ctrl+S)":"Save the current song (Ctrl+S)","Modo letra: la letra de la canción por secciones, con los acordes encima":"Lyrics mode: the song's lyrics by section, with the chords above","Modo directo: pantalla de escenario con botones grandes (también responde a pasapáginas Bluetooth y al teclado)":"Live mode: stage screen with big buttons (also responds to Bluetooth page-turners and the keyboard)","Canciones":"Songs","Cerrar (Esc)":"Close (Esc)","Nueva canción, set o carpeta":"New song, set or folder","Importar y exportar (.json) · imágenes del set":"Import and export (.json) · set images","Marcar canciones para moverlas, añadirlas a un set, duplicarlas, exportarlas o borrarlas · doble clic en un nombre = renombrar":"Check songs to move them, add them to a set, duplicate, export or delete them · double-click a name = rename","Salir (Esc)":"Exit (Esc)","La última nota que tocaste en el mástil":"The last note you played on the neck","Muestra solo las notas de una escala desde la tónica":"Shows only the notes of a scale from the tonic","modos":"modes","Resalta las notas de un acorde (su arpegio) y apaga las demás. «el que suena» lo sigue mientras reproduces la canción":"Highlights the notes of a chord (its arpeggio) and dims the rest. “the one sounding” follows it while the song plays","Cejilla: los acordes y los diagramas se cuentan desde ella. Toca para transponer o moverla":"Capo: chords and diagrams count from it. Tap to transpose or move it","Ocultar o mostrar los diagramas de acordes (vista compacta: solo nombre y grado)":"Hide or show the chord diagrams (compact view: just name and degree)","Transponer toda la canción (acordes, voicings y licks) y poner cejilla":"Transpose the whole song (chords, voicings and licks) and set a capo","Coro, Verso, Solo…":"Chorus, Verse, Solo…","Agregar sección":"Add section","Ver u ocultar los acordes sobre la letra":"Show or hide the chords above the lyrics","Letra más pequeña":"Smaller text","Letra más grande":"Larger text","Transponer toda la canción y poner cejilla":"Transpose the whole song and set a capo","Pegar la letra entera y repartirla por las secciones de la canción":"Paste the whole lyrics and spread them over the song's sections","Capítulos del manual":"Manual chapters","Tempo, compás, batería y opciones de reproducción":"Tempo, time signature, drums and playback options","Cerrar":"Close","5 bpm menos":"5 bpm less","5 bpm más":"5 bpm more","Haz clic al ritmo para fijar el tempo":"Click in time to set the tempo","Estilo de batería de esta canción (se guarda con ella)":"Drum style of this song (saved with it)","Escucha el estilo elegido: un compás de cada nivel — 1 suave · 2 verso · 3 estribillo · 4 clímax — y luego el redoble y el final":"Hear the chosen style: one bar of each level — 1 soft · 2 verse · 3 chorus · 4 climax — and then the fill and the ending","Qué toca el bajo de esta canción (se guarda con ella). Siempre ataca al entrar cada acorde":"What the bass plays in this song (saved with it). It always hits when each chord comes in","Metrónomo":"Metronome","Activa o desactiva la batería":"Turn the drums on or off","Activa o desactiva la guitarra: apágala para tocar tú los acordes con la batería y el bajo (la canción sigue iluminándose y avanzando)":"Turn the guitar on or off: switch it off to play the chords yourself over the drums and bass (the song keeps lighting up and moving on)","Volumen y mezcla de metrónomo, batería, bajo y guitarra":"Volume and mix of metronome, drums, bass and guitar","Ajustes: sonido de la guitarra, tema, resaltado, avance del directo e idioma":"Settings: guitar sound, theme, highlighting, live auto-advance and language","Ajustes":"Settings","sonido de la guitarra":"guitar sound","Activa o desactiva el bajo: toca la fundamental de cada acorde (o su bajo, en acordes tipo D/F♯)":"Turn the bass on or off: it plays the root of each chord (or its bass note, in chords like D/F♯)","Deshacer el último cambio (Ctrl+Z)":"Undo the last change (Ctrl+Z)","Rehacer lo deshecho (Ctrl+Y)":"Redo (Ctrl+Y)","Ajustes: volumen, mezcla, sonido de la guitarra, tema, resaltado y avance del directo":"Settings: volume, mix, guitar sound, theme, highlighting and live auto-advance","Silenciado":"Muted","Volumen general":"Master volume","Silenciar / restablecer el volumen":"Mute / restore the volume","Volumen de la guitarra (acordes)":"Guitar volume (chords)","Volumen de la batería":"Drum volume","Volumen del bajo":"Bass volume","Volumen del metrónomo":"Metronome volume","Velocidad del rasgueo: izquierda = todas las cuerdas a la vez (plaqué), derecha = rasgueo lento":"Strum speed: left = all strings at once, right = slow strum","Caída máxima del rasgueo inicial de cada acorde: izquierda = corto y seco, derecha = largo. Los tiempos siguientes del acorde van en palm mute":"Maximum decay of each chord's first strum: left = short and dry, right = long. The following beats of the chord are palm-muted","Sonido de la guitarra — «cuerda»: cada nota se calcula como una cuerda pulsada, más real · «clásico»: el sonido de siempre (dos osciladores). De este aparato":"Guitar sound — “string”: each note is computed as a plucked string, more realistic · “classic”: the original sound (two oscillators). For this device","Sonido de la guitarra":"Guitar sound","Ambiente: un poco de reverberación de sala para la guitarra y la batería. A la izquierda del todo, apagado. De este aparato":"Room: a little room reverb for guitar and drums. All the way left, off. For this device","Tema":"Theme","Según el sistema":"Follow the system","Tema claro":"Light theme","Tema oscuro":"Dark theme","Qué se ilumina mientras suena: cada acorde, o solo la sección entera — en directo, si la banda no va clavada al clic, la sección es más fiable que el acorde exacto":"What lights up during playback: each chord, or just the whole section — live, if the band isn't locked to the click, the section is more reliable than the exact chord","Resaltar al reproducir":"Highlight during playback","En el modo directo, aunque NO le des a reproducir, la pantalla va bajando sola, sección a sección, desde que la canción sale en pantalla. «Al tempo» usa los compases y las repeticiones de cada sección con el tempo de la canción; «cada N s» da el mismo tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca la sección que suena en la tira de abajo y sigue desde ahí.":"In live mode, even if you DON'T press play, the screen scrolls down by itself, section by section, from the moment the song appears. “At tempo” uses each section's bars and repeats with the song's tempo; “every N s” gives the same time to each pass of each section. If it runs ahead or behind, tap the section that is sounding on the strip below and it continues from there.","Reglas palabra → color para pintar de golpe las secciones de tus canciones":"Word → colour rules to paint the sections of your songs in one go","Abrir el manual de GuitarStudio":"Open the GuitarStudio manual","Volver al estudio":"Back to the studio","Reproducir / parar":"Play / stop","Vista simple / diagramas":"Simple view / diagrams","Ver también las secciones ocultas":"Also show the hidden sections","compón · ensaya · toca":"compose · rehearse · play","Sin título":"Untitled","Guardar":"Save","letra":"lyrics","directo":"live","BIBLIOTECA":"LIBRARY","Nueva":"New","Archivo":"File","Editar":"Edit","Imágenes":"Images","salir":"exit","todas":"all","vista":"view","simple (chuleta)":"simple (cheat sheet)","con diagramas":"with diagrams","tema":"theme","blanco":"white","negro":"black","ancho":"width","nitidez":"sharpness","destino":"destination","ZIP (descargas)":"ZIP (downloads)","Exportar":"Export","nombre de cada imagen:":"name of each image:","Nº-Canción-Tono.png":"No-Song-Key.png","· el número sigue el orden del set":"· the number follows the set order","círculo de quintas · tonalidad":"circle of fifths · key","Clic en un acorde coloreado = ver sus voicings · clic fuera de la escala = cambiar de tonalidad (anillo exterior = mayor · anillo medio = menor)":"Click a coloured chord = see its voicings · click outside the scale = change key (outer ring = major · middle ring = minor)","leyenda":"legend","trucos de composición":"songwriting tricks","acordes de la escala":"chords of the scale","voicings del acorde":"chord voicings","diapasón · intervalos desde la tónica":"fretboard · intervals from the tonic","toca una nota del mástil":"tap a note on the neck","escala":"scale","— todas las notas":"— all notes","la de la canción":"the song's","mayor (jónico)":"major (Ionian)","menor natural (eólico)":"natural minor (Aeolian)","menor armónica":"harmonic minor","pentatónica mayor":"major pentatonic","pentatónica menor":"minor pentatonic","blues (con blue note)":"blues (with blue note)","dórico":"Dorian","frigio":"Phrygian","lidio":"Lydian","mixolidio":"Mixolydian","locrio":"Locrian","acorde":"chord","clic":"click","= escuchar ·":"= listen ·","doble clic":"double-click","= esa nota pasa a ser la tónica (modular) · la caja lisa es la nota, la de color su grado":"= that note becomes the tonic (modulate) · the plain box is the note, the coloured one its degree","dibujar un lick · solo (diagrama para la canción)":"draw a lick · solo (diagram for the song)","toca la rejilla para poner o quitar notas ·":"tap the grid to add or remove notes ·","arrastra":"drag","una nota para moverla ·":"a note to move it ·","en una nota, flecha, slide, bend o grupo = borrarlo (con":"on a note, arrow, slide, bend or group = delete it (with",", los toques seguidos sobre la nota cambian el bend; para quitarlo, doble clic en su etiqueta) · flecha,":", repeated taps on the note change the bend; to remove it, double-click its label) · arrow,",": toca dos notas ·":": tap two notes ·",": toca una nota (½ → 1 → 1½ tono → sin bend) ·":": tap a note (½ → 1 → 1½ step → no bend) ·","agrupar":"group",": toca las notas y pulsa «cerrar grupo» · fuera de la rejilla = nota desplazada; con «pos» 1, encima de la cejuela = al aire ·":": tap the notes and press “close group” · outside the grid = shifted note; with “pos” 1, above the nut = open string ·","deshace el dibujo":"undoes the drawing","compacto":"compact","transponer":"transpose","agregar sección:":"add section:","clic en «×N» = duración del acorde (compases o tiempos) · N.C. = silencio ·":"click “×N” = chord duration (bars or beats) · N.C. = rest ·","salta de línea · arrastra para reordenar":"breaks the line · drag to reorder","acordes":"chords","pegar letra…":"paste lyrics…","Toca un acorde de la sección y luego la sílaba donde entra · arrástralo para moverlo · tócalo para afinar su sitio (◀ ▶) o quitarlo ·":"Tap a chord of the section and then the syllable where it comes in · drag it to move it · tap it to fine-tune its place (◀ ▶) or remove it ·","escribe la letra":"writes the lyrics","Manual de GuitarStudio":"GuitarStudio manual","Reproducir":"Play","ritmo":"rhythm","compás":"time","batería":"drums","pop 80":"80s pop","rock rápido (movida)":"fast rock (movida)","medio tiempo":"mid-tempo","balada":"ballad","vals (3/4)":"waltz (3/4)","oír el estilo":"hear the style","bajo":"bass","con el bombo":"with the kick drum","una nota por acorde":"one note per chord","negras":"quarter notes","corcheas":"eighth notes","fundamental y quinta":"root and fifth","cuenta de entrada":"count-in","bucle":"loop","metrónomo":"metronome","ajustes":"settings","volumen":"volume","mezcla":"mix","guitarra":"guitar","ataque":"attack","sonido":"sound","cuerda":"string","clásico":"classic","sala":"room","pantalla":"display","· de este aparato":"· for this device","claro":"light","oscuro":"dark","resaltar":"highlight","cada acorde":"each chord","la sección":"the section","solo la sección":"just the section","avance en el directo":"auto-advance in live mode","solo al reproducir":"only during playback","sin reproducir · al tempo":"without playing · at tempo","sin reproducir · cada 10 s":"without playing · every 10 s","sin reproducir · cada 15 s":"without playing · every 15 s","sin reproducir · cada 20 s":"without playing · every 20 s","sin reproducir · cada 30 s":"without playing · every 30 s","sin reproducir · cada 45 s":"without playing · every 45 s","sin reproducir · cada 60 s":"without playing · every 60 s","secciones":"sections","colores automáticos…":"automatic colours…","desliza para cambiar de canción":"swipe to change song","Cambios sin guardar":"Unsaved changes","Cancelar":"Cancel","Descartar":"Discard","Guardar y seguir":"Save and continue","Idioma":"Language","idioma":"language","Si GuitarStudio te sirve, puedes apoyarlo con una donación":"If GuitarStudio is useful to you, you can support it with a donation","apoyar GuitarStudio":"support GuitarStudio","y":"and"};/*@I18N_HTML@*/
+const I18N_HTML={"Canción anterior del set":"Previous song in the set","Canción anterior":"Previous song","Mis canciones: sets, carpetas, archivo":"My songs: sets, folders, file","Canción siguiente del set":"Next song in the set","Canción siguiente":"Next song","Guardar la canción actual (Ctrl+S)":"Save the current song (Ctrl+S)","Modo letra: la letra de la canción por secciones, con los acordes encima":"Lyrics mode: the song's lyrics by section, with the chords above","Modo directo: pantalla de escenario con botones grandes (también responde a pasapáginas Bluetooth y al teclado)":"Live mode: stage screen with big buttons (also responds to Bluetooth page-turners and the keyboard)","Canciones":"Songs","Cerrar (Esc)":"Close (Esc)","Nueva canción, set o carpeta":"New song, set or folder","Importar y exportar (.json) · imágenes del set":"Import and export (.json) · set images","Marcar canciones para moverlas, añadirlas a un set, duplicarlas, exportarlas o borrarlas · doble clic en un nombre = renombrar":"Check songs to move them, add them to a set, duplicate, export or delete them · double-click a name = rename","Salir (Esc)":"Exit (Esc)","La última nota que tocaste en el mástil":"The last note you played on the neck","Muestra solo las notas de una escala desde la tónica":"Shows only the notes of a scale from the tonic","modos":"modes","Resalta las notas de un acorde (su arpegio) y apaga las demás. «el que suena» lo sigue mientras reproduces la canción":"Highlights the notes of a chord (its arpeggio) and dims the rest. “the one sounding” follows it while the song plays","Cejilla: los acordes y los diagramas se cuentan desde ella. Toca para transponer o moverla":"Capo: chords and diagrams count from it. Tap to transpose or move it","Ocultar o mostrar los diagramas de acordes (vista compacta: solo nombre y grado)":"Hide or show the chord diagrams (compact view: just name and degree)","Transponer toda la canción (acordes, voicings y licks) y poner cejilla":"Transpose the whole song (chords, voicings and licks) and set a capo","Coro, Verso, Solo…":"Chorus, Verse, Solo…","Agregar sección":"Add section","Ver u ocultar los acordes sobre la letra":"Show or hide the chords above the lyrics","Letra más pequeña":"Smaller text","Letra más grande":"Larger text","Transponer toda la canción y poner cejilla":"Transpose the whole song and set a capo","Pegar la letra entera y repartirla por las secciones de la canción":"Paste the whole lyrics and spread them over the song's sections","Capítulos del manual":"Manual chapters","Tempo, compás, batería y opciones de reproducción":"Tempo, time signature, drums and playback options","Cerrar":"Close","5 bpm menos":"5 bpm less","5 bpm más":"5 bpm more","Haz clic al ritmo para fijar el tempo":"Click in time to set the tempo","Estilo de batería de esta canción (se guarda con ella)":"Drum style of this song (saved with it)","Escucha el estilo elegido: un compás de cada nivel — 1 suave · 2 verso · 3 estribillo · 4 clímax — y luego el redoble y el final":"Hear the chosen style: one bar of each level — 1 soft · 2 verse · 3 chorus · 4 climax — and then the fill and the ending","Qué toca el bajo de esta canción (se guarda con ella). Siempre ataca al entrar cada acorde":"What the bass plays in this song (saved with it). It always hits when each chord comes in","Metrónomo":"Metronome","6/8: dos pulsos por compás, cada uno dividido en tres":"6/8: two pulses per bar, each split in three","12/8: cuatro pulsos por compás, cada uno dividido en tres (blues lento, shuffle)":"12/8: four pulses per bar, each split in three (slow blues, shuffle)","En 6/8 y 12/8 el tempo cuenta los pulsos (2 o 4 por compás), no cada corchea":"In 6/8 and 12/8 the tempo counts the pulses (2 or 4 per bar), not each eighth note","Activa o desactiva la batería":"Turn the drums on or off","Activa o desactiva la guitarra: apágala para tocar tú los acordes con la batería y el bajo (la canción sigue iluminándose y avanzando)":"Turn the guitar on or off: switch it off to play the chords yourself over the drums and bass (the song keeps lighting up and moving on)","Volumen y mezcla de metrónomo, batería, bajo y guitarra":"Volume and mix of metronome, drums, bass and guitar","Ajustes: sonido de la guitarra, tema, resaltado, avance del directo e idioma":"Settings: guitar sound, theme, highlighting, live auto-advance and language","Ajustes":"Settings","sonido de la guitarra":"guitar sound","Activa o desactiva el bajo: toca la fundamental de cada acorde (o su bajo, en acordes tipo D/F♯)":"Turn the bass on or off: it plays the root of each chord (or its bass note, in chords like D/F♯)","Deshacer el último cambio (Ctrl+Z)":"Undo the last change (Ctrl+Z)","Rehacer lo deshecho (Ctrl+Y)":"Redo (Ctrl+Y)","Ajustes: volumen, mezcla, sonido de la guitarra, tema, resaltado y avance del directo":"Settings: volume, mix, guitar sound, theme, highlighting and live auto-advance","Silenciado":"Muted","Volumen general":"Master volume","Silenciar / restablecer el volumen":"Mute / restore the volume","Volumen de la guitarra (acordes)":"Guitar volume (chords)","Volumen de la batería":"Drum volume","Volumen del bajo":"Bass volume","Volumen del metrónomo":"Metronome volume","Velocidad del rasgueo: izquierda = todas las cuerdas a la vez (plaqué), derecha = rasgueo lento":"Strum speed: left = all strings at once, right = slow strum","Caída máxima del rasgueo inicial de cada acorde: izquierda = corto y seco, derecha = largo. Los tiempos siguientes del acorde van en palm mute":"Maximum decay of each chord's first strum: left = short and dry, right = long. The following beats of the chord are palm-muted","Sonido de la guitarra — «cuerda»: cada nota se calcula como una cuerda pulsada, más real · «clásico»: el sonido de siempre (dos osciladores). De este aparato":"Guitar sound — “string”: each note is computed as a plucked string, more realistic · “classic”: the original sound (two oscillators). For this device","Sonido de la guitarra":"Guitar sound","Ambiente: un poco de reverberación de sala para la guitarra y la batería. A la izquierda del todo, apagado. De este aparato":"Room: a little room reverb for guitar and drums. All the way left, off. For this device","Tema":"Theme","Según el sistema":"Follow the system","Tema claro":"Light theme","Tema oscuro":"Dark theme","Qué se ilumina mientras suena: cada acorde, o solo la sección entera — en directo, si la banda no va clavada al clic, la sección es más fiable que el acorde exacto":"What lights up during playback: each chord, or just the whole section — live, if the band isn't locked to the click, the section is more reliable than the exact chord","Resaltar al reproducir":"Highlight during playback","En el modo directo, aunque NO le des a reproducir, la pantalla va bajando sola, sección a sección, desde que la canción sale en pantalla. «Al tempo» usa los compases y las repeticiones de cada sección con el tempo de la canción; «cada N s» da el mismo tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca la sección que suena en la tira de abajo y sigue desde ahí.":"In live mode, even if you DON'T press play, the screen scrolls down by itself, section by section, from the moment the song appears. “At tempo” uses each section's bars and repeats with the song's tempo; “every N s” gives the same time to each pass of each section. If it runs ahead or behind, tap the section that is sounding on the strip below and it continues from there.","Reglas palabra → color para pintar de golpe las secciones de tus canciones":"Word → colour rules to paint the sections of your songs in one go","Abrir el manual de GuitarStudio":"Open the GuitarStudio manual","Volver al estudio":"Back to the studio","Reproducir / parar":"Play / stop","Vista simple / diagramas":"Simple view / diagrams","Ver también las secciones ocultas":"Also show the hidden sections","compón · ensaya · toca":"compose · rehearse · play","Sin título":"Untitled","Guardar":"Save","letra":"lyrics","directo":"live","BIBLIOTECA":"LIBRARY","Nueva":"New","Archivo":"File","Editar":"Edit","Imágenes":"Images","salir":"exit","todas":"all","vista":"view","simple (chuleta)":"simple (cheat sheet)","con diagramas":"with diagrams","tema":"theme","blanco":"white","negro":"black","ancho":"width","nitidez":"sharpness","destino":"destination","ZIP (descargas)":"ZIP (downloads)","Exportar":"Export","nombre de cada imagen:":"name of each image:","Nº-Canción-Tono.png":"No-Song-Key.png","· el número sigue el orden del set":"· the number follows the set order","círculo de quintas · tonalidad":"circle of fifths · key","Clic en un acorde coloreado = ver sus voicings · clic fuera de la escala = cambiar de tonalidad (anillo exterior = mayor · anillo medio = menor)":"Click a coloured chord = see its voicings · click outside the scale = change key (outer ring = major · middle ring = minor)","leyenda":"legend","trucos de composición":"songwriting tricks","acordes de la escala":"chords of the scale","voicings del acorde":"chord voicings","diapasón · intervalos desde la tónica":"fretboard · intervals from the tonic","toca una nota del mástil":"tap a note on the neck","escala":"scale","— todas las notas":"— all notes","la de la canción":"the song's","mayor (jónico)":"major (Ionian)","menor natural (eólico)":"natural minor (Aeolian)","menor armónica":"harmonic minor","pentatónica mayor":"major pentatonic","pentatónica menor":"minor pentatonic","blues (con blue note)":"blues (with blue note)","dórico":"Dorian","frigio":"Phrygian","lidio":"Lydian","mixolidio":"Mixolydian","locrio":"Locrian","acorde":"chord","clic":"click","= escuchar ·":"= listen ·","doble clic":"double-click","= esa nota pasa a ser la tónica (modular) · la caja lisa es la nota, la de color su grado":"= that note becomes the tonic (modulate) · the plain box is the note, the coloured one its degree","dibujar un lick · solo (diagrama para la canción)":"draw a lick · solo (diagram for the song)","toca la rejilla para poner o quitar notas ·":"tap the grid to add or remove notes ·","arrastra":"drag","una nota para moverla ·":"a note to move it ·","en una nota, flecha, slide, bend o grupo = borrarlo (con":"on a note, arrow, slide, bend or group = delete it (with",", los toques seguidos sobre la nota cambian el bend; para quitarlo, doble clic en su etiqueta) · flecha,":", repeated taps on the note change the bend; to remove it, double-click its label) · arrow,",": toca dos notas ·":": tap two notes ·",": toca una nota (½ → 1 → 1½ tono → sin bend) ·":": tap a note (½ → 1 → 1½ step → no bend) ·","agrupar":"group",": toca las notas y pulsa «cerrar grupo» · fuera de la rejilla = nota desplazada; con «pos» 1, encima de la cejuela = al aire ·":": tap the notes and press “close group” · outside the grid = shifted note; with “pos” 1, above the nut = open string ·","deshace el dibujo":"undoes the drawing","compacto":"compact","transponer":"transpose","agregar sección:":"add section:","clic en «×N» = duración del acorde (compases o tiempos) · N.C. = silencio ·":"click “×N” = chord duration (bars or beats) · N.C. = rest ·","salta de línea · arrastra para reordenar":"breaks the line · drag to reorder","acordes":"chords","pegar letra…":"paste lyrics…","Toca un acorde de la sección y luego la sílaba donde entra · arrástralo para moverlo · tócalo para afinar su sitio (◀ ▶) o quitarlo ·":"Tap a chord of the section and then the syllable where it comes in · drag it to move it · tap it to fine-tune its place (◀ ▶) or remove it ·","escribe la letra":"writes the lyrics","Manual de GuitarStudio":"GuitarStudio manual","Reproducir":"Play","ritmo":"rhythm","compás":"time","batería":"drums","pop 80":"80s pop","rock rápido (movida)":"fast rock (movida)","medio tiempo":"mid-tempo","balada":"ballad","vals (3/4)":"waltz (3/4)","oír el estilo":"hear the style","bajo":"bass","con el bombo":"with the kick drum","una nota por acorde":"one note per chord","negras":"quarter notes","corcheas":"eighth notes","fundamental y quinta":"root and fifth","cuenta de entrada":"count-in","bucle":"loop","metrónomo":"metronome","ajustes":"settings","volumen":"volume","mezcla":"mix","guitarra":"guitar","ataque":"attack","sonido":"sound","cuerda":"string","clásico":"classic","sala":"room","pantalla":"display","· de este aparato":"· for this device","claro":"light","oscuro":"dark","resaltar":"highlight","cada acorde":"each chord","la sección":"the section","solo la sección":"just the section","avance en el directo":"auto-advance in live mode","solo al reproducir":"only during playback","sin reproducir · al tempo":"without playing · at tempo","sin reproducir · cada 10 s":"without playing · every 10 s","sin reproducir · cada 15 s":"without playing · every 15 s","sin reproducir · cada 20 s":"without playing · every 20 s","sin reproducir · cada 30 s":"without playing · every 30 s","sin reproducir · cada 45 s":"without playing · every 45 s","sin reproducir · cada 60 s":"without playing · every 60 s","secciones":"sections","colores automáticos…":"automatic colours…","desliza para cambiar de canción":"swipe to change song","Cambios sin guardar":"Unsaved changes","Cancelar":"Cancel","Descartar":"Discard","Guardar y seguir":"Save and continue","Idioma":"Language","idioma":"language","Si GuitarStudio te sirve, puedes apoyarlo con una donación":"If GuitarStudio is useful to you, you can support it with a donation","apoyar GuitarStudio":"support GuitarStudio","y":"and"};/*@I18N_HTML@*/
 function i18nDom(root){
   if(LANG!=='en'||!root)return;
   const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),ns=[];
@@ -2596,7 +2601,7 @@ function chordSVG(v,cls,ghost,nf){
 }
 
 /* ════════ estado ════════ */
-let S={key:2,minorView:false,tempo:90,ts:4,metro:true,drums:'rock',drumsOn:true,gtrOn:true,loop:true,vol:0.8,countIn:false,
+let S={key:2,minorView:false,tempo:90,ts:4,cmp:false,metro:true,drums:'rock',drumsOn:true,gtrOn:true,loop:true,vol:0.8,countIn:false,
   attack:0.02,sustain:1.7,viewMode:'diag',volChords:0.9,volDrums:0.85,volMetro:0.5,
   bassOn:true,bassPat:'kick',volBass:0.8,capo:0,
   selChord:null,sections:[{name:TR('Sección A','Section A'),slots:[],note:''}],groups:[],active:0,songName:'',songId:null,
@@ -3298,6 +3303,12 @@ function slotHTML(sl,si,ei,mids){
    beats = measures × compás. Se sigue escribiendo measures (= beats / compás)
    para que un archivo nuevo aún se abra, aproximado, en una versión antigua. */
 function rnd(x){return Math.round(x*1000)/1000;}
+/* ── compás (2026-11-16, Rodney): simple (4/4, 3/4 — cada pulso en 4 pasos) o COMPUESTO (6/8, 12/8 — cada pulso
+   en 3 corcheas). S.ts = pulsos por compás (4 · 3 · 2 en 6/8 · 4 en 12/8); S.cmp = compuesto.
+   El tempo y la duración de los acordes cuentan siempre PULSOS (en compuesto, la negra con puntillo). */
+function meterId(){return String(S.cmp?S.ts*3:S.ts);}
+function meterTxt(ts,cmp){if(ts==null){ts=S.ts;cmp=S.cmp;}return cmp?(ts*3)+'/8':ts+'/4';}
+function countBeats(){return (S.cmp&&S.ts===2)?4:S.ts;} /* cuenta de entrada: un compás (en 6/8, dos: 2 clics es muy poco) */
 function slBeats(sl,ts){
   ts=ts||S.ts;
   if(sl&&typeof sl.beats==='number'&&sl.beats>0)return sl.beats;
@@ -3346,8 +3357,10 @@ function normSlots(slots,ts){
 function retimeSlots(o,n){
   if(o===n)return;
   S.sections.forEach(sec=>(sec.slots||[]).forEach(sl=>{
-    const b=slBeats(sl,o),q=b/o;
-    sl.beats=Math.abs(q-Math.round(q))<1e-6?rnd(Math.round(q)*n):rnd(b);
+    const b=slBeats(sl,o),q=b/o,pr=q*n;
+    /* hacia o desde 6/8 (2 pulsos por compás): medio compás sigue siendo medio compás si cae en pulso entero */
+    const prop=(o===2||n===2)&&pr>0&&Math.abs(pr-Math.round(pr))<1e-6;
+    sl.beats=Math.abs(q-Math.round(q))<1e-6?rnd(Math.round(q)*n):prop?rnd(Math.round(pr)):rnd(b);
     sl.measures=rnd(sl.beats/n);
   }));
 }
@@ -3363,7 +3376,7 @@ function durTxt(beats,ts){
   ts=ts||S.ts;
   const b=rnd(beats),bars=rnd(b/ts);
   if(Number.isInteger(bars))return '×'+bars;
-  if(ts===4&&FRAC[rnd(bars-Math.floor(bars))])return numTxt(bars);
+  if((ts===4||ts===2)&&FRAC[rnd(bars-Math.floor(bars))])return numTxt(bars);
   const w=Math.floor(b/ts+1e-9),rest=rnd(b-w*ts);
   return (w?w+'+':'')+numTxt(rest)+'t';
 }
@@ -3412,7 +3425,7 @@ function openDurPop(si,ei,anchor,keepPlus){
   const plus=keepPlus!=null?keepPlus:(B>0&&E>0);
   closeDurPop();
   const k=si+':'+ei;
-  const bars=[1,2,3,4,6,8],bts=ts===3?[0.5,1,2]:[0.5,1,2,3];
+  const bars=[1,2,3,4,6,8],bts=S.cmp?(ts===2?[1]:[1,2,3]):(ts===3?[0.5,1,2]:[0.5,1,2,3]); /* en compuesto, pulsos enteros */
   const bb=(kind,v,lab,on,t)=>'<button class="dpbtn'+(on?' sel':'')+'" data-dp="'+kind+':'+v+'" title="'+t+'">'+lab+'</button>';
   let h=TR('<div class="dprow"><span class="dplab">compases</span>','<div class="dprow"><span class="dplab">bars</span>')+
     bars.map(n=>bb('m',n,String(n),B===n&&(plus||E===0),n+(n===1?TR(' compás',' bar'):TR(' compases',' bars'))+' ('+(n*ts)+' tiempos)')).join('')+'</div>'+
@@ -3616,9 +3629,9 @@ function renderProgHead(){
   const k=keyObj();
   document.getElementById('prname').textContent=S.songName||TR('Sin título','Untitled');
   document.getElementById('prkey').textContent=S.minorView?nName(relMinorPc(),k.flat)+'m':k.label;
-  document.getElementById('prtempo').textContent='♩ '+S.tempo+' bpm';
+  document.getElementById('prtempo').textContent=(S.cmp?'♩. ':'♩ ')+S.tempo+' bpm';
   const pc=document.getElementById('prcapo');if(pc){pc.hidden=!(S.capo>0);pc.innerHTML=S.capo>0?TR('cejilla <b>','capo <b>')+S.capo+TR('</b><small> · suena en ','</b><small> · sounds in ')+esc(soundKeyLabel())+'</small>':'';}
-  document.getElementById('tslabel').textContent=S.ts+'/4';
+  document.getElementById('tslabel').textContent=meterTxt();
 }
 function renderSections(){
   closeColPop(); /* los índices de la paleta abierta dejarían de valer tras redibujar */
@@ -3663,7 +3676,7 @@ function renderSections(){
       const resto=rnd(bm.total%S.ts);
       if(resto>1e-6){
         const falta=rnd(S.ts-resto);
-        inner+=TR('<span class="barwarn" title="Esta sección suma ','<span class="barwarn" title="This section adds up to ')+esc(beatsWord(bm.total))+TR(': su último compás es corto, de ',': its last bar is short, ')+esc(beatsWord(resto))+(Number.isInteger(resto)?TR(' (como un ',' (like a ')+resto+'/4)':'')+TR('. La batería y el metrónomo lo respetan y la sección siguiente empieza en el «1». Si no es a propósito, ','. Drums and metronome follow it and the next section starts on “1”. If it isn\'t on purpose, ')+(falta<=1?TR('falta ','missing '):TR('faltan ','missing '))+esc(beatsWord(falta))+TR('.">compás de ','.">bar of ')+numTxt(resto)+'t</span>';
+        inner+=TR('<span class="barwarn" title="Esta sección suma ','<span class="barwarn" title="This section adds up to ')+esc(beatsWord(bm.total))+TR(': su último compás es corto, de ',': its last bar is short, ')+esc(beatsWord(resto))+(Number.isInteger(resto)?TR(' (como un ',' (like a ')+(S.cmp?(resto*3)+'/8':resto+'/4')+')':'')+TR('. La batería y el metrónomo lo respetan y la sección siguiente empieza en el «1». Si no es a propósito, ','. Drums and metronome follow it and the next section starts on “1”. If it isn\'t on purpose, ')+(falta<=1?TR('falta ','missing '):TR('faltan ','missing '))+esc(beatsWord(falta))+TR('.">compás de ','.">bar of ')+numTxt(resto)+'t</span>';
       }
     }
     const showNote=!!(sec.note&&sec.note.trim())||!!sec.noteOpen||(!sec.slots.length&&!!(sec.licks&&sec.licks.length));
@@ -4520,20 +4533,22 @@ function bassPcOf(sl){
 }
 function bassMidi(pc){return 28+((pc-4)%12+12)%12;} /* Mi1 … Re♯2: el registro de un bajo de 4 cuerdas */
 function bassBeat(g,t,spb){
-  const rb=g.pos,nj=Math.max(1,Math.round(g.len*4)),ts=S.ts,pat=S.bassPat||'kick',b0=Math.round(g.bim*4);
+  const q=S.cmp?3:4; /* pasos por pulso: semicorcheas, o corcheas en 6/8 y 12/8 */
+  const rb=g.pos,nj=Math.max(1,Math.round(g.len*q)),ts=S.ts,pat=S.bassPat||'kick',b0=Math.round(g.bim*q);
+  const r5=(S.cmp&&ts===2)?q:2*q; /* la quinta, cada 2 pulsos (en 6/8, en el 2º pulso del compás) */
   let kp='';
-  if(pat==='kick'){const info=drumBarInfo(g.bar),lvl=info&&info.kind!=='fin'&&info.lvl>0?info.lvl:2;kp=drumPat(S.drums,lvl,ts).k||'';}
+  if(pat==='kick'){const info=drumBarInfo(g.bar),lvl=info&&info.kind!=='fin'&&info.lvl>0?info.lvl:2;kp=drumPat(S.drums,lvl,ts,info&&info.barN).k||'';}
   for(let j=0;j<nj;j++){
-    const pos=rb+j/4,i=b0+j;
+    const pos=rb+j/q,i=b0+j;
     const ev=play.evs.find(e=>e.sl&&pos>=e.start-1e-6&&pos<e.start+e.dur-1e-6);
     if(!ev)continue;
-    const tt=t+j*spb/4,first=Math.abs(pos-ev.start)<1e-6;
+    const tt=t+j*spb/q,first=Math.abs(pos-ev.start)<1e-6;
     if(ev.sl.nc){if(first)bassCut(tt);continue;}
     let hit=first,fifth=false,len=spb;
     if(pat==='whole')len=(ev.start+ev.dur-pos)*spb;
-    else if(pat==='beat'){hit=hit||i%4===0;len=spb*0.92;}
-    else if(pat==='eighth'){hit=hit||i%2===0;len=spb*0.46;}
-    else if(pat==='r5'){if(i%8===0&&i>0){hit=true;fifth=true;}else hit=hit||i===0;len=spb*1.9;}
+    else if(pat==='beat'){hit=hit||i%q===0;len=spb*0.92;}
+    else if(pat==='eighth'){hit=hit||S.cmp||i%2===0;len=spb*(S.cmp?0.31:0.46);}
+    else if(pat==='r5'){if(i%r5===0&&i>0){hit=true;fifth=true;}else hit=hit||i===0;len=spb*(r5/q)*0.95;}
     else{hit=hit||(kp[i]&&kp[i]!=='-');len=spb*0.9;}
     if(!hit)continue;
     const b=bassPcOf(ev.sl);if(!b)continue;
@@ -4661,9 +4676,15 @@ function rim(t,vol){vol=vol==null?1:vol;
   const s=dNoise(t,0.03);
   const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=3200;bp.Q.value=1.4;
   const g3=AC.createGain();dEnv(g3,t,0.18*vol,0.02);s.connect(bp);bp.connect(g3);g3.connect(dOut());}
-function click(t,accent){const o=AC.createOscillator();o.type='triangle';o.frequency.value=accent?1750:1150;
-  const g=AC.createGain();g.gain.setValueAtTime(accent?0.65:0.42,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.03);
+function click(t,accent,sub){const o=AC.createOscillator();o.type='triangle';o.frequency.value=(accent&&!sub)?1750:1150;
+  const g=AC.createGain();g.gain.setValueAtTime(sub?0.12:accent?0.65:0.42,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.03);
   o.connect(g);g.connect(metroGain);o.start(t);o.stop(t+0.04);}
+/* un pulso del metrónomo: en 6/8 y 12/8 suenan además, muy flojas, las dos corcheas de dentro («TIC-ta-ta»):
+   sin ellas un 12/8 sonaría igual que un 4/4 y no se sabría dónde cae el tresillo */
+function metroClick(t,accent,spb,len){
+  click(t,accent);
+  if(S.cmp){const n=Math.min(3,Math.round((len==null?1:len)*3));for(let j=1;j<n;j++)click(t+j*spb/3,false,true);}
+}
 
 /* ── estilos de batería: patrones escritos como DATOS (un compás en una cuadrícula de pasos) ──
    16 pasos en 4/4 (semicorcheas: 1 e & a 2 e & a…), 12 en 3/4.
@@ -4801,6 +4822,77 @@ const DSTY3={
     fill:{s:'----xgxg----',t1:'--------x---',t2:'---------x--',t3:'----------xx'},
     fin:{c:'X-----------',k:'X-----------'}}
 };
+/* ── 2026-11-16 (Rodney): compases COMPUESTOS (6/8 y 12/8) — cada pulso se divide en TRES corcheas.
+   Un patrón = 12 pasos = 4 pulsos × 3 corcheas (1 · · 2 · · 3 · · 4 · ·). En 12/8 suena entero; en 6/8 cada compás son
+   2 pulsos, así que los compases pares tocan la 1ª mitad y los impares la 2ª (dos compases de 6/8 = uno de 12/8).
+   Caja en los pulsos 2 y 4 (pasos 3 y 9): en 6/8 es bombo al «1» y caja al «4», el balanceo de la balada de rock.
+   «x-x» dentro de un pulso = shuffle (el salto del blues). Redoble: solo cuenta su 2ª mitad (pasos 6–11).
+   Como en 3/4, el usuario ve un solo estilo y la app elige esta versión cuando el compás es compuesto. */
+const DSTYC={
+  rock:{lv:[
+    {h:'oggoggoggogg',k:'x-----x-----',r:'---x-----x--'},
+    {h:'xooxooxooxoo',k:'x-----x----x',s:'---x-----x--'},
+    {o:'xooxooxooxoo',k:'x----xx----x',s:'---X-----X--',cr:4},
+    {y:'xooxooxooxoo',k:'x-x--xx-x--x',s:'---X-----X--',cr:4}],
+    fill:{s:'------xxx---',t1:'---------x--',t2:'----------x-',t3:'-----------x',k:'------x-----'},
+    fin:{c:'X-----------',k:'X-----------',s:'o-----------'}},
+  pop80:{lv:[
+    {h:'o-oo-oo-oo-o',k:'x-----x-----',r:'---o-----o--'},
+    {h:'xgoxgoxgoxgo',k:'x----xx-----',s:'---X-----X--'},
+    {h:'x--x--x--x--',o:'--x--x--x--x',k:'x--x--x--x--',s:'---X-----X--',cr:4},
+    {y:'x-xx-xx-xx-x',k:'x--x--x--x--',s:'---X-----X-x',cr:4}],
+    fill:{t1:'------xxx---',t2:'---------xx-',t3:'-----------x',k:'------x-----'},
+    fin:{c:'X-----------',k:'X-----------',s:'o-----------'}},
+  movida:{lv:[
+    {h:'o-oo-oo-oo-o',k:'x-----x-----',r:'---x-----x--'},
+    {h:'x-xx-xx-xx-x',k:'x-----x----x',s:'---x-----x--'},
+    {o:'x--x--x--x--',k:'x--x--x--x--',s:'--x--x--x--x',cr:4},
+    {y:'x-xx-xx-xx-x',k:'x-xx-xx-xx-x',s:'---X-----X--',cr:2}],
+    fill:{s:'------xxxxxx',k:'------x--x--'},
+    fin:{c:'X-----------',k:'X-----------'}},
+  medio:{lv:[
+    {h:'o--o--o--o--',k:'x-----------',r:'------x-----'},
+    {h:'xooxooxooxoo',k:'x----x------',s:'------x-----'},
+    {o:'xooxooxooxoo',k:'x----x---x--',s:'------X-----',cr:4},
+    {y:'xooxooxooxoo',k:'x-x--x---x-x',s:'------X----g',cr:4}],
+    fill:{t1:'------x-x---',t2:'---------x--',t3:'----------x-',s:'-----------x'},
+    fin:{c:'X-----------',k:'X-----------'}},
+  balada:{lv:[
+    {h:'o--o--o--o--',k:'x-----x-----',r:'---o-----o--'},
+    {h:'oggoggoggogg',k:'x-----x-----',s:'---o-----o--'},
+    {h:'xooxooxooxoo',k:'x-----x----x',s:'---x-----x--',cr:4},
+    {y:'xooxooxooxoo',k:'x----xx----x',s:'---X-----X--',cr:4}],
+    fill:{t1:'------x-x---',t2:'---------xx-',t3:'-----------x'},
+    fin:{c:'x-----------',k:'x-----------'}},
+  rumba:{lv:[
+    {h:'o-o-oo-o-o-o',k:'x-----x-----',r:'---x-----x--'},
+    {h:'x-x-xx-x-x-x',k:'x----xx----x',r:'---x-----xx-'},
+    {o:'--o--o--o--o',k:'x----xx----x',s:'---x-----x--',t1:'-----x-----x',t2:'--x-----x---',cr:4},
+    {y:'x-x-xx-x-x-x',k:'x-x--xx-x--x',s:'---X-----X--',r:'-----x-----x',cr:4}],
+    fill:{t1:'------xx----',t2:'--------xx--',t3:'----------xx'},
+    fin:{c:'X-----------',k:'X-----------'}},
+  ska:{lv:[
+    {h:'--o--o--o--o',k:'x-----x-----',r:'---x-----x--'},
+    {h:'g-xg-xg-xg-x',k:'x-----x-----',s:'---x-----x--'},
+    {h:'x--x--x--x--',o:'--x--x--x--x',k:'x-----x-----',s:'---X-----X--',cr:4},
+    {h:'x--x--x--x--',y:'--x--x--x--x',k:'x--x--x--x--',s:'---X-----X--',cr:2}],
+    fill:{s:'------x-xxxx',k:'------x-----'},
+    fin:{c:'X-----------',k:'X-----------',s:'o-----------'}},
+  funk:{lv:[
+    {h:'ogoogoogoogo',k:'x----x------',r:'---------o--'},
+    {h:'xgoxgoxgoxgo',k:'x----xx-x---',s:'---X-g-g-X-g'},
+    {h:'xgoxgoxgox--',o:'----------x-',k:'x-x--xx-x--x',s:'---X-g-g-X-g',cr:4},
+    {y:'x-xx-xx-xx-x',k:'x-x--xx-xx-x',s:'---X-g-g-Xgg',cr:4}],
+    fill:{s:'------xgx---',t1:'---------x--',t2:'----------x-',t3:'-----------x'},
+    fin:{c:'X-----------',k:'X-----------'}},
+  vals:{lv:[
+    {h:'o--o--o--o--',k:'x-----x-----',r:'---g-----g--'},
+    {h:'o-oo-oo-oo-o',k:'x-----x-----',s:'---o-----o--'},
+    {h:'oooooooooooo',o:'---x-----x--',k:'x-----x-----',cr:4},
+    {y:'xooxooxooxoo',k:'x-----x--x--',s:'---x-----x--',cr:4}],
+    fill:{s:'------x-x---',t1:'---------x--',t2:'----------x-',t3:'-----------x'},
+    fin:{c:'X-----------',k:'X-----------'}}
+};
 const DSTY_ORDER=['rock','pop80','movida','medio','balada','rumba','ska','funk','vals'];
 /* estilos guardados con el nombre antiguo */
 function drumStyle(k){k=({pop:'pop80'})[k]||k;return DSTY[k]?k:'rock';}
@@ -4816,7 +4908,14 @@ function fitSteps(str,n,tail){
   return str+str.slice(4,4+n-str.length);              /* 3/4 → 4/4: se repite el 2º tiempo */
 }
 /* el patrón de un estilo para este compás: kind = 1…4 (nivel) · 'fill' · 'fin' */
-function drumPat(style,kind,ts){
+function drumPat(style,kind,ts,barN){
+  if(S.cmp&&(ts===2||ts===4)){ /* 6/8 y 12/8: patrones de 12 corcheas; en 6/8, media cada compás */
+    const stc=DSTYC[style]||DSTYC.rock,srcc=typeof kind==='number'?stc.lv[Math.max(1,Math.min(4,kind))-1]:stc[kind];
+    const half=ts===2?(kind==='fill'?1:kind==='fin'?0:((barN|0)%2)):-1;
+    const outc={cr:(srcc&&srcc.cr||0)*(ts===2?2:1)};
+    for(const k in DSOUND)if(srcc&&srcc[k])outc[k]=half<0?srcc[k]:srcc[k].slice(half*6,half*6+6);
+    return outc;
+  }
   const st0=DSTY[style]||DSTY.rock,n=ts*4;
   const st=(ts===3&&st0.m!==3&&DSTY3[style])||st0; /* en 3/4, su versión escrita para 3 tiempos */
   const src=typeof kind==='number'?st.lv[Math.max(1,Math.min(4,kind))-1]:st[kind];
@@ -4929,19 +5028,19 @@ function buildDrumMap(G){
 }
 /* la batería de un tiempo (4 semicorcheas) */
 function drumBeat(g,t,spb){
-  const ts=S.ts,bim=g.bim,info=drumBarInfo(g.bar);
+  const ts=S.ts,q=S.cmp?3:4,bim=g.bim,info=drumBarInfo(g.bar); /* q = pasos por pulso */
   if(!info||(info.kind!=='fin'&&info.lvl===0&&!info.fill))return; /* «sin batería» (salvo el redoble de entrada) */
   const style=S.drums;
   let pat,fillPat=null,fillFrom=99;
-  if(info.kind==='fin')pat=drumPat(style,'fin',ts);
+  if(info.kind==='fin')pat=drumPat(style,'fin',ts,info.barN);
   else{
-    pat=info.lvl>0?drumPat(style,info.lvl,ts):{cr:0};
-    if(info.fill){fillPat=drumPat(style,'fill',ts);fillFrom=ts===3?4:8;}
+    pat=info.lvl>0?drumPat(style,info.lvl,ts,info.barN):{cr:0};
+    if(info.fill){fillPat=drumPat(style,'fill',ts,info.barN);fillFrom=(ts-2)*q;} /* el redoble ocupa los 2 últimos pulsos */
   }
   /* compás corto: el redoble se alinea con su FINAL (acaba justo antes de la sección siguiente) */
-  const fo=Math.round((ts-(info.len||ts))*4),nj=Math.max(1,Math.round(g.len*4));
+  const fo=Math.round((ts-(info.len||ts))*q),nj=Math.max(1,Math.round(g.len*q));
   for(let j=0;j<nj;j++){
-    const i=bim*4+j,tt=t+j*spb/4;
+    const i=bim*q+j,tt=t+j*spb/q;
     if(fillPat&&i+fo>=fillFrom)playDStep(fillPat,i+fo,tt);else playDStep(pat,i,tt);
     if(i===0&&info.kind!=='fin'&&(info.crash||(pat.cr&&info.barN%pat.cr===0)))crash(tt,0.9);
   }
@@ -4960,7 +5059,8 @@ function drumDemo(){
   ac();
   if(DEMO){stopDemo();return;}
   if(play.on)stopPlay();
-  const style=S.drums,ts=S.ts,n=ts*4,spb=60/S.tempo,t0=AC.currentTime+0.12,bar=spb*ts;
+  /* en 6/8 la muestra va de dos en dos compases (= un 12/8), para oír el patrón entero */
+  const style=S.drums,q=S.cmp?3:4,ts=(S.cmp&&S.ts===2)?4:S.ts,n=ts*q,spb=60/S.tempo,t0=AC.currentTime+0.12,bar=spb*ts;
   const g=AC.createGain();g.connect(drumGain);
   const plan=[[1,TR('nivel 1 · suave','level 1 · soft')],[2,TR('nivel 2 · verso','level 2 · verse')],[3,TR('nivel 3 · estribillo','level 3 · chorus')],[4,TR('nivel 4 · clímax','level 4 · climax')],['fill',TR('redoble','fill')],['fin',TR('final','ending')]];
   const timers=[];
@@ -4968,8 +5068,8 @@ function drumDemo(){
   plan.forEach(([kind,lab],bi)=>{
     const tb=t0+bi*bar;
     const pat=kind==='fill'?drumPat(style,2,ts):drumPat(style,kind,ts);
-    const fp=kind==='fill'?drumPat(style,'fill',ts):null,ff=ts===3?4:8;
-    for(let i=0;i<n;i++){const tt=tb+i*spb/4;if(fp&&i>=ff)playDStep(fp,i,tt);else playDStep(pat,i,tt);}
+    const fp=kind==='fill'?drumPat(style,'fill',ts):null,ff=(ts-2)*q;
+    for(let i=0;i<n;i++){const tt=tb+i*spb/q;if(fp&&i>=ff)playDStep(fp,i,tt);else playDStep(pat,i,tt);}
     if(kind===3||kind===4)crash(tb,0.9);
     timers.push(setTimeout(()=>toast((DSTY[style]||DSTY.rock).name+' — '+lab),Math.max(0,(tb-AC.currentTime)*1000)));
   });
@@ -5219,7 +5319,7 @@ function startPlay(scopeSi){
   play.evs=tl.evs;play.total=tl.total;
   if(!play.evs.length&&!S.metro&&!S.drumsOn){toast(TR('Añade acordes o activa el metrónomo 😉','Add chords or turn on the metronome 😉'));return;}
   try{ksWarm();}catch(e){}
-  play.countIn=S.countIn?S.ts:0;
+  play.countIn=S.countIn?countBeats():0;
   play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;play.nextT=AC.currentTime+0.15;
   play.timer=setInterval(tick,25);
   updatePlayUI();
@@ -5239,7 +5339,7 @@ function stopPlay(){
 function tick(){
   while(play.on&&play.nextT<AC.currentTime+0.12){
     const spb=60/S.tempo;
-    if(play.beat<play.countIn){click(play.nextT,play.beat%S.ts===0);liveBeat(play.nextT,play.beat%S.ts,play.countIn-play.beat);play.nextT+=spb;play.beat++;continue;} /* cuenta de entrada */
+    if(play.beat<play.countIn){metroClick(play.nextT,play.beat%S.ts===0,spb,1);liveBeat(play.nextT,play.beat%S.ts,play.countIn-play.beat);play.nextT+=spb;play.beat++;continue;} /* cuenta de entrada */
     const G=playGrid(),g=G.steps[play.beat-play.countIn];
     if(g){scheduleBeat(g,play.nextT);play.nextT+=g.len*spb;}else play.nextT+=spb;
     play.beat++;
@@ -5278,7 +5378,7 @@ function stopSoon(t){setTimeout(stopPlay,Math.max(0,(t-AC.currentTime)*1000)+60)
 /* un tiempo de la rejilla (g: pos, len, bar, bim) — puede durar menos de 1 al final de un compás corto */
 function scheduleBeat(g,t){
   const spb=60/S.tempo,rb=g.pos,len=g.len;
-  if(S.metro)click(t,g.bim===0);
+  if(S.metro)metroClick(t,g.bim===0,spb,len);
   if(Math.abs(g.bim-Math.round(g.bim))<1e-6)liveBeat(t,Math.round(g.bim)%S.ts,0); /* luz de pulso del ▶ del directo */
   /* un silencio (N.C.) con «la batería para» calla la batería mientras dura (el metrónomo sigue) */
   const ncStop=play.evs.some(ev=>ev.sl&&ev.sl.nc&&ev.sl.drums!=='go'&&rb>=ev.start-1e-6&&rb<ev.start+ev.dur-1e-6);
@@ -5439,14 +5539,14 @@ function advCountStop(){
 }
 function advCount(done){
   advCountStop();
-  const lp=document.getElementById('lplay'),n=S.ts,spb=60/S.tempo;
+  const lp=document.getElementById('lplay'),n=countBeats(),spb=60/S.tempo;
   if(!lp||!S.countIn){done();return;}
   if(S.metro)ac();
   lp.classList.add('acnt');lp.innerHTML=ICO('play')+liveBeatsHTML();
   ADV.cnt=[];
   for(let k=0;k<n;k++)ADV.cnt.push(setTimeout(()=>{
-    liveBeatShow(k,n-k);
-    if(S.metro&&typeof AC!=='undefined'&&AC)click(AC.currentTime+0.01,k===0);
+    liveBeatShow(k%S.ts,n-k);
+    if(S.metro&&typeof AC!=='undefined'&&AC)metroClick(AC.currentTime+0.01,k%S.ts===0,spb,1);
   },k*spb*1000));
   ADV.cnt.push(setTimeout(()=>{ADV.cnt=[];lp.classList.remove('acnt','cnt','down');lp.innerHTML=ICO('play');done();},n*spb*1000));
 }
@@ -6045,7 +6145,7 @@ function mixFromDevice(){
   MIXKEYS.forEach(k=>{if(typeof m[k]===typeof S[k])S[k]=m[k];});
 }
 function mixSave(){const m={};MIXKEYS.forEach(k=>{m[k]=S[k];});try{STORE.setItem('gc-mix',JSON.stringify(m));}catch(e){}}
-function snapshot(){return {v:5,key:S.key,minorView:S.minorView,tempo:S.tempo,ts:S.ts,
+function snapshot(){return {v:5,key:S.key,minorView:S.minorView,tempo:S.tempo,ts:S.ts,cmp:!!S.cmp,
   metro:S.metro,drums:S.drums,drumsOn:S.drumsOn,loop:S.loop,vol:S.vol,countIn:S.countIn,
   attack:S.attack,sustain:S.sustain,compact:S.viewMode==='simple',viewMode:S.viewMode,
   volChords:S.volChords,volDrums:S.volDrums,volMetro:S.volMetro,
@@ -6071,6 +6171,7 @@ function songJSON(){const s=snapshot();
     })};
   if(s.groups&&s.groups.length)j.groups=s.groups; /* corchetes de repetición: solo si los hay */
   if(s.capo)j.capo=s.capo; /* cejilla: solo si la lleva */
+  if(s.cmp)j.cmp=true; /* compás compuesto (6/8, 12/8): solo si lo es — las canciones de antes no cambian */
   return JSON.stringify(j);}
 let BASE='';
 function isDirty(){return songJSON()!==BASE;}
@@ -6094,7 +6195,7 @@ function persistNow(){clearTimeout(persist._t);persist._t=null;try{const d=snaps
 window.addEventListener('pagehide',()=>{if(persist._t)persistNow();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&persist._t)persistNow();});
 function applySnapshot(d){
-  S.key=d.key??2;S.minorView=!!d.minorView;S.tempo=d.tempo||90;S.ts=d.ts||4;
+  S.key=d.key??2;S.minorView=!!d.minorView;S.tempo=d.tempo||90;S.ts=d.ts||4;S.cmp=!!d.cmp&&(S.ts===2||S.ts===4);
   S.metro=d.metro??true;S.vol=d.vol??0.8; /* S.loop NO: es del dispositivo (gc-loop), no cambia al abrir otra canción ni con Ctrl+Z */S.countIn=!!d.countIn;
   const dr=typeof d.drums==='string'?d.drums:(d.drums===false?'off':'rock');
   S.drumsOn=d.drumsOn??(dr!=='off');
@@ -6989,8 +7090,8 @@ function xBuild(d,opts){
   wrap.innerHTML='<section class="panel progress'+(opts.simple?' compact':'')+'">'+
     '<div class="proghead"><h2>'+esc(d.name||TR('Sin título','Untitled'))+'</h2>'+
     '<span class="prkey">'+esc(keyLabel)+'</span>'+
-    '<span class="prmeta">♩ '+(d.tempo||90)+' bpm</span>'+
-    '<span class="tschip">'+(d.ts||4)+'/4</span></div>'+
+    '<span class="prmeta">'+(d.cmp?'♩. ':'♩ ')+(d.tempo||90)+' bpm</span>'+
+    '<span class="tschip">'+meterTxt(d.ts||4,!!d.cmp)+'</span></div>'+
     xSectionsHTML(d,opts.simple)+'</section>';
   document.body.appendChild(wrap);
   if(opts.simple){ /* columnas uniformes dentro del lienzo */
@@ -7182,8 +7283,9 @@ const MAN=[
   TR('Opciones: pintar también al <b>crear o renombrar</b> una sección, y quitar el color a las que no coinciden. Las reglas son de este aparato.','Options: also paint when you <b>create or rename</b> a section, and remove the colour from those that don\'t match. Rules belong to this device.')]},
  {id:'sonido',ic:'audio-lines',t:TR('Escuchar y batería','Listening and drums'),p:TR('Todos los controles de reproducción viven en la barra de abajo.','All the playback controls live on the bottom bar.'),li:[
   '<b>'+ICO('play')+TR(' Reproducir</b> (o la barra espaciadora) toca la canción entera; la tarjeta que suena se ilumina.',' Play</b> (or the space bar) plays the whole song; the card that is sounding lights up.'),
-  TR('La píldora del <b>tempo</b> abre el ritmo: bpm, <b>TAP</b>, compás 4/4 o 3/4, estilo de batería (rock, pop 80, movida, medio tiempo, balada, rumba, ska, funk, vals), <b>oír el estilo</b>, cuenta de entrada y bucle. Metrónomo, batería, bajo y guitarra se encienden con sus botones.','The <b>tempo</b> pill opens the rhythm: bpm, <b>TAP</b>, 4/4 or 3/4 time, drum style (rock, 80s pop, fast rock, mid-tempo, ballad, rumba, ska, funk, waltz), <b>hear the style</b>, count-in and loop. Metronome, drums, bass and guitar are switched on with their buttons.'),
+  TR('La píldora del <b>tempo</b> abre el ritmo: bpm, <b>TAP</b>, compás 4/4, 3/4, 6/8 o 12/8, estilo de batería (rock, pop 80, movida, medio tiempo, balada, rumba, ska, funk, vals), <b>oír el estilo</b>, cuenta de entrada y bucle. Metrónomo, batería, bajo y guitarra se encienden con sus botones.','The <b>tempo</b> pill opens the rhythm: bpm, <b>TAP</b>, 4/4, 3/4, 6/8 or 12/8 time, drum style (rock, 80s pop, fast rock, mid-tempo, ballad, rumba, ska, funk, waltz), <b>hear the style</b>, count-in and loop. Metronome, drums, bass and guitar are switched on with their buttons.'),
   TR('Cada estilo tiene su versión en <b>3/4</b>, escrita para tres tiempos: al cambiar el compás a 3/4 la batería la usa sola (el vals es de 3/4 de por sí).','Every style has its own <b>3/4</b> version, written for three beats: switch the time to 3/4 and the drums use it automatically (the waltz is 3/4 by nature).'),
+  TR('En <b>6/8 y 12/8</b> cada pulso se divide en tres corcheas (el balanceo de las baladas de rock y el shuffle del blues). El tempo y la duración de los acordes cuentan pulsos: 2 por compás en 6/8 y 4 en 12/8. El metrónomo marca el pulso fuerte y, muy flojas, las dos corcheas de dentro; la batería y el bajo tocan la versión en tresillos de cada estilo.','In <b>6/8 and 12/8</b> each pulse splits into three eighth notes (the sway of rock ballads and the blues shuffle). Tempo and chord lengths count pulses: 2 per bar in 6/8 and 4 in 12/8. The metronome plays the pulse loud and the two inner eighths very softly; drums and bass play the triplet version of each style.'),
   TR('La guitarra da un rasgueo al empezar cada acorde y, en los tiempos siguientes, un golpe en palm mute.','The guitar strums at the start of each chord and, on the following beats, plays a palm-muted hit.'),
   TR('La batería elige su <b>energía</b> por el nombre de la sección (en inglés o en castellano): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3. Al cambiar de nivel hay redoble, al subir a 3–4 entra con crash, y la canción acaba con golpe final. A mano: <b>⋯ → batería</b>.','The drums pick their <b>energy</b> from the section name (in English or Spanish): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break no drums · Outro 3. When the level changes there is a fill, going up to 3–4 comes in with a crash, and the song ends with a final hit. By hand: <b>⋯ → drums</b>.')]},
  {id:'ajustes',ic:'settings-2',t:TR('Ajustes','Settings'),p:TR('El engranaje de la barra de arriba reúne lo que se toca poco: el sonido de la guitarra y la pantalla. El volumen está abajo.','The gear on the top bar gathers what you rarely touch: the guitar sound and the display. Volume is at the bottom.'),li:[
@@ -7319,7 +7421,7 @@ function renderAll(){
 }
 function syncControls(){
   document.getElementById('tempo').value=S.tempo;
-  document.getElementById('ts').value=String(S.ts);
+  document.getElementById('ts').value=meterId();
   document.getElementById('metro').checked=S.metro;
   document.getElementById('drums').value=S.drums;
   document.getElementById('drumson').checked=S.drumsOn;
@@ -8020,10 +8122,11 @@ document.getElementById('tapbtn').addEventListener('click',e=>{
   const b=e.currentTarget;b.classList.add('hit');
   setTimeout(()=>b.classList.remove('hit'),120);
 });
-document.getElementById('ts').addEventListener('change',e=>{pushUndo();const o=S.ts;S.ts=+e.target.value;retimeSlots(o,S.ts);closeDurPop();renderSections();});
+document.getElementById('ts').addEventListener('change',e=>{pushUndo();const o=S.ts,v=+e.target.value;S.cmp=(v===6||v===12);S.ts=S.cmp?v/3:v;retimeSlots(o,S.ts);closeDurPop();renderSections();
+  if(DEMO){stopDemo();}});
 document.getElementById('metro').addEventListener('change',e=>{S.metro=e.target.checked;persist();});
 document.getElementById('drums').addEventListener('change',e=>{S.drums=drumStyle(e.target.value);if(DEMO){stopDemo();drumDemo();}persist();
-  if(S.drums==='vals'&&S.ts!==3)toast(TR('El vals está escrito en 3/4: cambia el compás a 3/4 para que encaje','The waltz is written in 3/4: switch the time signature to 3/4 so it fits'));});
+  if(S.drums==='vals'&&S.ts!==3&&!S.cmp)toast(TR('El vals está escrito en 3/4: cambia el compás a 3/4 para que encaje','The waltz is written in 3/4: switch the time signature to 3/4 so it fits'));});
 document.getElementById('drumdemo').addEventListener('click',drumDemo);
 document.getElementById('drumson').addEventListener('change',e=>{S.drumsOn=e.target.checked;persist();});
 document.getElementById('basson').addEventListener('change',e=>{S.bassOn=e.target.checked;if(!S.bassOn&&AC)bassCut(AC.currentTime+0.02);persist();});
@@ -8061,7 +8164,8 @@ document.getElementById('sustain').addEventListener('input',e=>{S.sustain=+e.tar
   const tempoEl=document.getElementById('tempo'),tsEl=document.getElementById('ts');
   window.tbarSync=function(){
     document.getElementById('tempolabel').textContent=tempoEl.value;
-    document.getElementById('tempometa').textContent='bpm · '+(String(tsEl.value)==='3'?'3/4':'4/4');
+    document.getElementById('tempometa').textContent='bpm · '+(({'3':'3/4','6':'6/8','12':'12/8'})[String(tsEl.value)]||'4/4');
+    const ch=document.getElementById('cmphint');if(ch)ch.hidden=!(tsEl.value==='6'||tsEl.value==='12');
     bar.querySelectorAll('.tseg button[data-ts]').forEach(b=>b.classList.toggle('on',b.dataset.ts===String(tsEl.value)));
   };
   bar.querySelectorAll('.tseg button[data-ts]').forEach(b=>b.addEventListener('click',()=>{
