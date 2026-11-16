@@ -165,6 +165,10 @@
   .lyhd{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:8px}
   .lyname{font-family:var(--font-d);font-weight:900;font-stretch:110%;font-size:14.5px;letter-spacing:.05em;text-transform:uppercase}
   .lyrepn{font-family:var(--font-n);font-weight:700;font-size:12.5px;padding:1px 6px;border-radius:2px;background:var(--accent);color:var(--on)}
+  .lypass{font-family:var(--font-n);font-weight:700;font-size:12.5px;color:var(--accent-t)}
+  .lycopy{font-family:var(--font-n);font-size:11px;padding:1px 7px;border:1.5px solid var(--line2);border-radius:999px;color:var(--mut)}
+  .lyrnd{font-family:var(--font-n);font-size:11.5px;color:var(--mut)}
+  .lyrnd.off{color:#151514;background:#f3e88a;padding:0 4px}
   .lypal{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;align-items:center}
   .lychip{height:36px;min-width:42px;padding:0 10px;border:1.5px solid var(--line2);border-radius:2px;background:var(--panel);color:var(--ink);
     font-family:var(--font-d);font-weight:900;font-size:15.5px;touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}
@@ -1975,7 +1979,7 @@
         </select>
       </div>
       <div class="tswrow">
-        <label class="tpill tsw"><input type="checkbox" id="countin"><span>cuenta de entrada</span></label>
+        <label class="tpill tsw" title="Cuenta de entrada del estudio. En el directo el ▶ cuenta siempre un compás (dos con doble toque)"><input type="checkbox" id="countin"><span>cuenta de entrada</span></label>
         <label class="tpill tsw"><input type="checkbox" id="loop" checked><span>bucle</span></label>
       </div>
     </div>
@@ -5346,8 +5350,10 @@ function liveBeat(t,b,left){
 /* ── directo sin sonido (2026-11-16, Rodney): «el modo live no debería reproducir sonido alguno por ahora».
    En el directo el ▶ hace todo lo visual (acordes, pantalla, letra, luces del ▶) y nada suena.
    «N s por sección» (Ajustes → reproducción en el directo): cada vuelta de sección dura N s, sea cual sea su largo. */
-function liveMute(){return document.body.classList.contains('live');}
-function playFixed(){if(!liveMute())return 0;const m=advMode();return (m&&m!=='tempo')?(+m||0):0;}
+/* 2026-11-17 (Rodney): «modo live ponle sonido también» → el directo vuelve a sonar. liveMute() se queda por si se
+   quiere volver a callar (devolver true en el directo). */
+function liveMute(){return false;}
+function playFixed(){if(!document.body.classList.contains('live'))return 0;const m=advMode();return (m&&m!=='tempo')?(+m||0):0;}
 function passSegs(evs){
   const out=[];let last=null;
   evs.forEach(ev=>{const k=ev.si+'|'+(ev.rp||0)+'|'+(ev.gp||0);
@@ -5376,9 +5382,11 @@ function startPlay(scopeSi,opt){
   play.evs=tl.evs;play.total=tl.total;
   if(!play.evs.length&&!S.metro&&!S.drumsOn){toast(TR('Añade acordes o activa el metrónomo 😉','Add chords or turn on the metronome 😉'));return;}
   try{ksWarm();}catch(e){}
-  play.countIn=S.countIn?countBeats():0;
+  /* cuenta de entrada: en el estudio, la de su ajuste; en el directo SIEMPRE un compás (un segundo toque rápido
+     del ▶ añade otro: ver el ▶ del directo) — 2026-11-17, Rodney */
+  play.countIn=document.body.classList.contains('live')?countBeats():(S.countIn?countBeats():0);play.t0=Date.now();
   play.auto=!!(opt&&opt.auto);play.fixed=playFixed();play.tq=[];play.psegs=null;
-  play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;play.nextT=AC.currentTime+0.15;
+  play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;play.curLyMark=null;play.nextT=AC.currentTime+0.15;
   play.timer=setInterval(tick,25);
   updatePlayUI();
   if(!play.evs.length)toast(TR('Sin acordes: suena solo el ritmo','No chords: only the rhythm plays'));
@@ -5460,6 +5468,8 @@ function scheduleBeat(g,t,spb){
   if(cur&&cur.si!==play.curSecMark){play.curSecMark=cur.si;flashSec(cur.si,t,cur.gp,rb);}
   /* vuelta del ×N de la sección: también cuando la MISMA sección vuelve a empezar */
   if(cur){const k=cur.si+'|'+(cur.rp||0);if(k!==play.curRepMark){play.curRepMark=k;flashRep(cur.si,cur.rp||0,cur.rn||1,t);}}
+  /* modo letra: se ilumina la caja de la PASADA que suena */
+  if(cur){const lp=lyEvPass(cur),k=cur.si+'.'+lp;play.curLyP=lp;if(k!==play.curLyMark){play.curLyMark=k;if(document.body.classList.contains('lyr'))setTimeout(()=>{if(play.on)lyFlashBox(cur.si,lp);},Math.max(0,(t-AC.currentTime)*1000));}}
   /* vuelta del ×N de la LÍNEA («1/2», «2/2») */
   if(cur){const k=cur.si+'|'+(cur.rp||0)+'|'+(cur.li||0)+'|'+(cur.lp||0);if(k!==play.curLineMark){play.curLineMark=k;flashLine(cur.si,cur.li||0,cur.lp||0,cur.ln||1,t);}}
   /* casillas: en la vuelta en curso se apaga la que no suena */
@@ -5503,8 +5513,7 @@ function flashSec(si,t,gp,rb){
     /* en el directo, una sección oculta con pareja ilumina la visible que repite, con su vuelta («2ª») */
     const mp=liveMap()[si],ti=mp?mp.t:si;
     const el=document.querySelector('.secrow[data-si="'+ti+'"]');
-    if(document.body.classList.contains('lyr')){const ly=document.querySelector('.lysec[data-si="'+si+'"]');
-      if(ly){ly.classList.add('playing');const r=ly.getBoundingClientRect();if(r.top<120||r.bottom>window.innerHeight-110)ly.scrollIntoView({block:'center',behavior:'smooth'});}}
+    if(document.body.classList.contains('lyr'))lyFlashBox(si,play.curLyP||0);
     if(el){el.classList.add('playing');liveFollow(ti);
       if(mp){
         const nm=el.querySelector('.secname');
@@ -5536,6 +5545,11 @@ function flashRep(si,rp,rn,t){
   },Math.max(0,(t-AC.currentTime)*1000));
 }
 /* quita las marcas de la reproducción: «2ª», nota de variación, «2/2» */
+function lyFlashBox(si,p){
+  document.querySelectorAll('.lysec.playing').forEach(el=>el.classList.remove('playing'));
+  const ly=document.querySelector('.lysec[data-si="'+si+'"][data-p="'+p+'"]')||document.querySelector('.lysec[data-si="'+si+'"]');
+  if(ly){ly.classList.add('playing');const r=ly.getBoundingClientRect();if(r.top<120||r.bottom>window.innerHeight-110)ly.scrollIntoView({block:'center',behavior:'smooth'});}
+}
 function clearPlayMarks(){
   document.querySelectorAll('.secrow.playing,.lysec.playing').forEach(el=>el.classList.remove('playing'));
   document.querySelectorAll('.passmark,.varnote').forEach(el=>el.remove());
@@ -5617,7 +5631,7 @@ document.getElementById('livestrip').addEventListener('click',e=>{
   const mp=liveMap()[sg.si];
   liveFollow(mp?mp.t:sg.si,true);
   if(play.on&&play.scope==null){if(play.beat<play.countIn)play.beat=play.countIn;playSeek(sg.start);return;}
-  llJump(sg.si);
+  llJump(sg.si,sg.p);
   if(advMode()&&document.body.classList.contains('live')){startPlay(null,{auto:true});play.beat=play.countIn;playSeek(sg.start);}
 });
 /* ── tira de progreso del directo ─────────────────── */
@@ -5628,7 +5642,7 @@ function renderStrip(){
   tl.evs.forEach(ev=>{
     const last=LSTRIP[LSTRIP.length-1];
     if(last&&last.si===ev.si&&Math.abs(last.end-ev.start)<1e-6)last.end=ev.start+ev.dur;
-    else LSTRIP.push({si:ev.si,start:ev.start,end:ev.start+ev.dur});
+    else LSTRIP.push({si:ev.si,p:lyEvPass(ev),start:ev.start,end:ev.start+ev.dur});
   });
   box.innerHTML=LSTRIP.length<2?'':LSTRIP.map((sg,i)=>{
     const sec=S.sections[sg.si]||{};
@@ -5820,7 +5834,7 @@ function transposeSong(d){
     sl.chord=nc;
   });
   S.sections.forEach(sec=>(sec.licks||[]).forEach(lk=>transposeLick(lk,d,flat)));
-  S.sections.forEach(sec=>(sec.lch||[]).forEach(m=>lyTranspose(m,d)));
+  S.sections.forEach(sec=>[sec].concat(Array.isArray(sec.lyrs)?sec.lyrs:[]).forEach(u=>{if(u)(u.lch||[]).forEach(m=>lyTranspose(m,d));}));
   if(typeof LK!=='undefined'&&LK.cur)transposeLick(LK.cur,d,flat);
   if(S.fbTonic!=null)S.fbTonic=modpc(S.fbTonic+d);
   S.selChord=currentChords()[0];
@@ -5892,6 +5906,72 @@ document.getElementById('prcapo').addEventListener('click',openTranspose);
    bajo —para transponer; faltan si el nombre no es un acorde reconocible}.
    Al escribir (✎) la letra se ve en formato de cancionero, con los acordes entre corchetes dentro del texto
    («[G]Hola [D]mundo»): así, al corregir la letra, cada acorde sigue pegado a su sílaba, y también se pueden teclear. */
+/* ── letra por PASADAS (2026-11-16, Rodney): «cuando tenemos verso-coro repetido dos veces, tenemos que tener esos
+   slots para texto tantas veces como se repita la parte musical, algo así como la barra de estructura» · «texto en cada
+   caja para poder retocarlo».
+   Cada vez que suena una sección es una PASADA: su ×N por el ×N del corchete en el que esté (Verso ×2 dentro de un
+   bloque ×2 = 4 pasadas). La pasada 1 es la letra de siempre (sec.lyr / sec.lch); las demás van en sec.lyrs[p-1] =
+   {lyr,lch}, o null = «la misma que la pasada anterior» (se ve y se toca como texto propio; al retocarla se copia y
+   pasa a ser suya). Bajar un ×3 a ×2 no borra la 3ª: se guarda y vuelve si se sube otra vez. */
+function lyReps(sec){return sec&&sec.slots&&sec.slots.length?(sec.repeat||1):1;} /* sin acordes suena una vez (como en buildTimeline) */
+function lyPasses(si){const sec=S.sections[si];if(!sec)return 1;const g=groupOf(si);return Math.max(1,lyReps(sec)*(g?g.repeat:1));}
+function lyOwn(si,p){const sec=S.sections[si];if(!sec)return null;if(!p)return sec;return (Array.isArray(sec.lyrs)&&sec.lyrs[p-1])||null;}
+function lyU(si,p){for(let k=p;k>0;k--){const o=lyOwn(si,k);if(o)return o;}return S.sections[si];}
+function lyW(si,p){
+  const sec=S.sections[si];if(!p)return sec;
+  if(!Array.isArray(sec.lyrs))sec.lyrs=[];
+  while(sec.lyrs.length<p)sec.lyrs.push(null);
+  if(!sec.lyrs[p-1]){const src=lyU(si,p-1);sec.lyrs[p-1]={lyr:src.lyr||'',lch:JSON.parse(JSON.stringify(src.lch||[]))};}
+  return sec.lyrs[p-1];
+}
+/* pasada de un evento del timeline: vuelta del corchete × vueltas de la sección + vuelta de la sección */
+function lyEvPass(ev){const sec=S.sections[ev.si];return ((ev.gp||1)-1)*lyReps(sec)+(ev.rp||0);}
+/* la canción desplegada en orden de tocar: [{si,p}] */
+function lyOrder(){
+  normGroups();const out=[];let i=0;
+  const one=(si,g)=>{const r=lyReps(S.sections[si]);for(let k=0;k<r;k++)out.push({si,p:g*r+k});};
+  while(i<S.sections.length){const g=S.groups.find(x=>x.a===i);
+    if(g){for(let r=0;r<g.repeat;r++)for(let k=g.a;k<=g.b;k++)one(k,r);i=g.b+1;}else{one(i,0);i++;}}
+  return out;
+}
+/* vueltas de acordes de una pasada (cuenta el ×N de cada línea y las casillas de 1ª/2ª): una línea de letra por vuelta */
+function lyRounds(si,p){
+  const sec=S.sections[si];if(!sec||!sec.slots||!sec.slots.length)return 0;
+  const reps=lyReps(sec),g=groupOf(si),gp=Math.floor(p/reps)+1,r=p%reps;
+  const vp=reps>1?r:(g?gp-1:0),vn=reps>1?reps:(g?g.repeat:1);
+  return secLines(sec).reduce((t,l)=>t+((l.v&&!voltaOn(l.v,vp,vn))?0:l.n),0);
+}
+function lyRows(u){const lines=String((u&&u.lyr)||'').split('\n');let r=0;lines.forEach((x,l)=>{if(x.trim()||((u.lch||[]).some(m=>m.l===l)))r++;});return r;}
+/* canciones de antes (toda la letra de un Verso ×2 en una sola caja): si trae líneas para dos pasadas o más,
+   se reparte por pasadas según sus vueltas. Si no (un estribillo que se repite igual), se queda y las demás lo heredan. */
+function lyMigrate(){
+  S.sections.forEach((sec,si)=>{
+    const P=lyPasses(si);
+    if(P<2||(Array.isArray(sec.lyrs)&&sec.lyrs.some(x=>x))||!sec.lyr)return;
+    const q=[];for(let p=0;p<P;p++)q.push(lyRounds(si,p));
+    if(!q[0])return;
+    const lines=String(sec.lyr).split('\n'),lch=sec.lch||[],rowOf=l=>!!(lines[l].trim()||lch.some(m=>m.l===l));
+    let rows=0;lines.forEach((x,l)=>{if(rowOf(l))rows++;});
+    if(rows<2)return;
+    const tot=q.reduce((a,b)=>a+b,0);
+    if(tot!==rows){ /* las vueltas no cuadran (acordes en una sola línea…): a partes iguales, o se deja como está */
+      if(rows%P)return;
+      for(let k=0;k<P;k++)q[k]=rows/P;
+    }
+    const parts=[];let p=0,cnt=0,cur=[];
+    lines.forEach((x,l)=>{
+      if(rowOf(l)&&cnt>=q[p]&&p<P-1){parts.push(cur);cur=[];p++;cnt=0;}
+      if(!rowOf(l)&&!cur.length)return; /* sin líneas en blanco al principio de una pasada */
+      cur.push(l);if(rowOf(l))cnt++;
+    });
+    parts.push(cur);
+    const mk=ls=>{const m={};ls.forEach((l,k)=>{m[l]=k;});
+      while(ls.length&&!lines[ls[ls.length-1]].trim()&&!lch.some(x=>x.l===ls[ls.length-1]))ls.pop();
+      return {lyr:ls.map(l=>lines[l]).join('\n'),lch:lch.filter(x=>m[x.l]!=null&&ls.indexOf(x.l)>=0).map(x=>Object.assign({},x,{l:m[x.l]}))};};
+    const u0=mk(parts[0]);sec.lyr=u0.lyr;sec.lch=u0.lch;
+    sec.lyrs=parts.slice(1).map(mk);
+  });
+}
 const LY={arm:null,sel:null,edit:null,chords:STORE.getItem('gc-lych')!=='0',fs:Math.max(13,Math.min(40,+STORE.getItem('gc-lyfs')||19))};
 function spellFlat(pc,flat){
   const nm=(S.minorView?NUM_MIN:NUM_MAJ)[modpc(pc-(S.minorView?relMinorPc():keyObj().pc))]||'';
@@ -5941,7 +6021,7 @@ function lyLineHTML(si,l,text,marks){
     if(!mk){if(s)h+='<span class="lys"><span class="lyt" data-o="'+a+'">'+esc(s)+'</span></span>';return;}
     const tight=s.replace(/\s+$/,'').length<chLen(mk.m.n)+1;
     h+='<span class="lys'+(tight?' tight':'')+'"'+(tight?' style="min-width:'+(chLen(mk.m.n)*0.66+0.7).toFixed(2)+'em"':'')+'>'+
-      '<span class="lyc'+(LY.sel&&LY.sel.si===si&&LY.sel.mi===mk.i?' sel':'')+'" data-m="'+si+':'+mk.i+'">'+esc(mk.m.n)+'</span>'+
+      '<span class="lyc'+(LY.sel&&(LY.sel.si+':'+LY.sel.p)===si&&LY.sel.mi===mk.i?' sel':'')+'" data-m="'+si+':'+mk.i+'">'+esc(mk.m.n)+'</span>'+
       '<span class="lyt" data-o="'+a+'">'+esc(s||' ')+'</span></span>';
   };
   ms.forEach((m,k)=>{
@@ -5963,24 +6043,32 @@ function renderLyrics(){
   body.classList.toggle('armed',!!LY.arm);
   body.style.setProperty('--lyfs',LY.fs+'px');
   let h='';
-  S.sections.forEach((sec,si)=>{
-    const rep=sec.repeat||1,pal=lyPalette(sec);
-    (sec.lch||[]).forEach((m,i)=>{Object.defineProperty(m,'_i',{value:i,enumerable:false,configurable:true,writable:true});});
-    h+='<div class="lysec" data-si="'+si+'"'+(sec.color?' style="--secc:var(--'+sec.color+')"':'')+'>'+
-      '<div class="lyhd"><span class="lyname">'+esc(sec.name)+'</span>'+(rep>1?'<span class="lyrepn">×'+rep+'</span>':'')+
-      (LY.edit===si?'':'<span class="lypal">'+pal.map(n=>'<button type="button" class="lychip'+(LY.arm&&LY.arm.n===n&&LY.arm.si===si?' arm':'')+'" data-lych="'+si+'" data-n="'+esc(n)+'">'+esc(n)+'</button>').join('')+
+  lyOrder().forEach(({si,p})=>{
+    const sec=S.sections[si],P=lyPasses(si),u=lyU(si,p),own=!p||!!lyOwn(si,p),k=si+'.'+p,pal=lyPalette(sec);
+    const has=x=>!!(x&&((x.lyr&&x.lyr.trim())||(x.lch&&x.lch.length)));
+    /* una parte sin letra en ninguna pasada (intro, solo…): una sola caja, la de la 1ª */
+    if(p>0&&!has(u)&&LY.edit!==k&&!(Array.isArray(sec.lyrs)&&sec.lyrs.some(has)))return;
+    const solo1=P>1&&!has(u)&&!(Array.isArray(sec.lyrs)&&sec.lyrs.some(has));
+    (u.lch||[]).forEach((m,i)=>{Object.defineProperty(m,'_i',{value:i,enumerable:false,configurable:true,writable:true});});
+    const rd=lyRounds(si,p),rw=has(u)?lyRows(u):0;
+    h+='<div class="lysec" data-si="'+si+'" data-p="'+p+'"'+(sec.color?' style="--secc:var(--'+sec.color+')"':'')+'>'+
+      '<div class="lyhd"><span class="lyname">'+esc(sec.name)+'</span>'+
+      (solo1?'<span class="lyrepn">×'+P+'</span>':P>1?'<span class="lypass">'+(p+1)+TR('ª de ','/')+P+'</span>':'')+
+      (p>0&&!own&&has(u)?'<span class="lycopy">'+TR('copiado de la ','copied from ')+p+TR('ª','')+'</span>':'')+
+      (rd&&has(u)?'<span class="lyrnd'+(rw<rd?' off':'')+'" title="'+TR('líneas de letra / vueltas de acordes de esta pasada','lyric lines / chord rounds in this pass')+'">'+rw+' / '+rd+'</span>':'')+
+      (LY.edit===k?'':'<span class="lypal">'+pal.map(n=>'<button type="button" class="lychip'+(LY.arm&&LY.arm.n===n&&LY.arm.si===si?' arm':'')+'" data-lych="'+si+'" data-n="'+esc(n)+'">'+esc(n)+'</button>').join('')+
         '<button type="button" class="lychip more" data-lymore="'+si+TR('" title="Otro acorde: escribe su nombre">+</button>','" title="Another chord: type its name">+</button>')+
-        '<button type="button" class="lyed" data-lyedit="'+si+TR('" title="Escribir o corregir la letra de esta sección">','" title="Write or fix the lyrics of this section">')+ICO('pencil')+'</button></span>')+'</div>';
-    if(LY.edit===si){
-      h+=TR('<textarea class="lyta" id="lyta" spellcheck="false" placeholder="Escribe o pega aquí la letra de «','<textarea class="lyta" id="lyta" spellcheck="false" placeholder="Type or paste here the lyrics of «')+esc(sec.name)+TR('», una frase por línea.">','», one phrase per line.">')+esc(lyCompose(sec))+'</textarea>'+
-        '<div class="lyedbtns"><button type="button" class="sbtn primary" data-lysave="'+si+TR('">Hecho</button><button type="button" class="sbtn" data-lycancel="1">Cancelar</button>','">Done</button><button type="button" class="sbtn" data-lycancel="1">Cancel</button>')+
+        '<button type="button" class="lyed" data-lyedit="'+k+TR('" title="Escribir o corregir la letra de esta pasada">','" title="Write or fix the lyrics of this pass">')+ICO('pencil')+'</button></span>')+'</div>';
+    if(LY.edit===k){
+      h+=TR('<textarea class="lyta" id="lyta" spellcheck="false" placeholder="Escribe o pega aquí la letra de «','<textarea class="lyta" id="lyta" spellcheck="false" placeholder="Type or paste here the lyrics of «')+esc(sec.name)+TR('», una frase por línea.">','», one phrase per line.">')+esc(lyCompose(u))+'</textarea>'+
+        '<div class="lyedbtns"><button type="button" class="sbtn primary" data-lysave="'+k+TR('">Hecho</button><button type="button" class="sbtn" data-lycancel="1">Cancelar</button>','">Done</button><button type="button" class="sbtn" data-lycancel="1">Cancel</button>')+
         TR('<small>Los acordes van entre corchetes dentro del texto —<b>[G]</b>Hola <b>[D]</b>mundo—: puedes teclearlos aquí o colocarlos después tocando.</small></div>','<small>Chords go in square brackets inside the text —<b>[G]</b>Hello <b>[D]</b>world—: you can type them here or place them afterwards by tapping.</small></div>');
-    }else if(!sec.lyr&&!(sec.lch&&sec.lch.length)){
-      h+='<button type="button" class="lyempty" data-lyedit="'+si+'">'+ICO('pencil')+TR(' escribir la letra de esta sección</button>',' write the lyrics of this section</button>');
+    }else if(!has(u)){
+      h+='<button type="button" class="lyempty" data-lyedit="'+k+'">'+ICO('pencil')+TR(' escribir la letra de esta sección</button>',' write the lyrics of this section</button>');
     }else{
-      const lines=String(sec.lyr||'').split('\n'),n=Math.max(lines.length,...(sec.lch||[]).map(m=>m.l+1));
-      h+='<div class="lytxt" data-si="'+si+'">';
-      for(let l=0;l<n;l++)h+=lyLineHTML(si,l,lines[l]||'',(sec.lch||[]).filter(m=>m.l===l));
+      const lines=String(u.lyr||'').split('\n'),n=Math.max(lines.length,...(u.lch||[]).map(m=>m.l+1));
+      h+='<div class="lytxt" data-si="'+si+'" data-p="'+p+'">';
+      for(let l=0;l<n;l++)h+=lyLineHTML(si+':'+p,l,lines[l]||'',(u.lch||[]).filter(m=>m.l===l));
       h+='</div>';
     }
     h+='</div>';
@@ -5993,7 +6081,7 @@ function renderLyrics(){
 }
 function lyPlaceNudge(){
   const nb=document.getElementById('lynudge');if(!nb)return;
-  const el=LY.sel?document.querySelector('.lyc[data-m="'+LY.sel.si+':'+LY.sel.mi+'"]'):null;
+  const el=LY.sel?document.querySelector('.lyc[data-m="'+LY.sel.si+':'+LY.sel.p+':'+LY.sel.mi+'"]'):null;
   if(!el){nb.hidden=true;return;}
   nb.hidden=false;
   const b=document.getElementById('lybody').getBoundingClientRect(),r=el.getBoundingClientRect();
@@ -6029,7 +6117,7 @@ function lyTarget(x,y,dy){
   if(!line||line.classList.contains('gap'))return null;
   const tx=line.closest('.lytxt');if(!tx)return null;
   const r=line.getBoundingClientRect(),yy=Math.max(r.top+3,Math.min(r.bottom-3,y+(dy||0)));
-  return {si:+tx.dataset.si,l:+line.dataset.l,c:lyCharAt(line,x,yy),line};
+  return {si:+tx.dataset.si,p:+tx.dataset.p||0,l:+line.dataset.l,c:lyCharAt(line,x,yy),line};
 }
 function lyCaretAt(t){
   let c=document.getElementById('lycaret');
@@ -6045,16 +6133,17 @@ function lyCaretAt(t){
   if(!rect||!rect.height){c.style.display='none';return;}
   c.style.display='';c.style.left=(rect.left-1)+'px';c.style.top=(rect.top-rect.height*0.9)+'px';c.style.height=(rect.height*1.9)+'px';
 }
-function lyPut(si,l,c,label,fromMark){
-  const sec=S.sections[si];if(!sec)return;
+function lyPut(si,p,l,c,label,fromMark){
+  if(!S.sections[si])return;
   pushUndo();
+  const sec=lyW(si,p);
   sec.lch=sec.lch||[];
   let m;
-  if(fromMark){const src=S.sections[fromMark.si];m=src.lch.splice(fromMark.mi,1)[0];m.l=l;m.c=c;}
+  if(fromMark){const src=lyW(fromMark.si,fromMark.p);m=src.lch.splice(fromMark.mi,1)[0];m.l=l;m.c=c;}
   else m=lyMark(label,l,c);
   const dup=sec.lch.findIndex(x=>x.l===l&&x.c===c);if(dup>=0)sec.lch.splice(dup,1); /* en el mismo sitio: lo sustituye */
   sec.lch.push(m);sec.lch.sort((a,b)=>a.l-b.l||a.c-b.c);
-  LY.sel={si,mi:sec.lch.indexOf(m)};
+  LY.sel={si,p,mi:sec.lch.indexOf(m)};
   renderLyrics();
 }
 function enterLyrics(){
@@ -6070,10 +6159,10 @@ function exitLyrics(){
   document.getElementById('lyrbtn').classList.remove('on');
   LY.arm=null;LY.sel=null;renderSections();
 }
-function lySave(si){
-  const ta=document.getElementById('lyta'),sec=S.sections[si];
-  if(ta&&sec){const p=lyParse(ta.value);
-    if(p.lyr!==(sec.lyr||'')||JSON.stringify(p.lch)!==JSON.stringify(sec.lch||[])){pushUndo();sec.lyr=p.lyr;sec.lch=p.lch;}}
+function lySave(key){
+  const ta=document.getElementById('lyta'),[si,pp]=String(key).split('.').map(Number),sec=S.sections[si],ps=pp||0;
+  if(ta&&sec){const p=lyParse(ta.value),u=lyU(si,ps);
+    if(p.lyr!==(u.lyr||'')||JSON.stringify(p.lch)!==JSON.stringify(u.lch||[])){pushUndo();const w=lyW(si,ps);w.lyr=p.lyr;w.lch=p.lch;}}
   LY.edit=null;LY.sel=null;
 }
 /* pegar la letra entera: las estrofas (separadas por una línea en blanco) se reparten por las secciones, en orden;
@@ -6082,25 +6171,30 @@ function lyDistribute(text){
   const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   const blocks=String(text||'').replace(/\r/g,'').split(/\n[ \t]*\n+/).map(b=>b.replace(/^\n+|\s+$/g,'')).filter(b=>b.trim());
   if(!blocks.length)return 0;
-  const used={},put=(si,txt)=>{const sec=S.sections[si],p=lyParse(txt);
-    if(used[si]){const off=(sec.lyr?sec.lyr.split('\n').length:0)+1;sec.lyr=(sec.lyr||'')+'\n\n'+p.lyr;p.lch.forEach(m=>{m.l+=off;sec.lch.push(m);});}
-    else{sec.lyr=p.lyr;sec.lch=p.lch;used[si]=true;}};
+  /* 2026-11-16: cada estrofa va a una PASADA, en el orden en que se toca la canción (un Verso ×2 recibe dos) */
+  const U=lyOrder(),used={},put=(i,txt)=>{const {si,p}=U[i],sec=lyW(si,p),x=lyParse(txt);
+    if(used[i]){const off=(sec.lyr?sec.lyr.split('\n').length:0)+1;sec.lyr=(sec.lyr||'')+'\n\n'+x.lyr;x.lch.forEach(m=>{m.l+=off;(sec.lch=sec.lch||[]).push(m);});}
+    else{sec.lyr=x.lyr;sec.lch=x.lch;used[i]=true;}};
   const instr=s=>!s.slots.length||/^(intro|solo|outro|instrumental|interludio|final)\b/.test(norm(s.name));
   let ptr=0,last=-1;
   pushUndo();
   blocks.forEach(b=>{
     const lines=b.split('\n'),head=norm(lines[0].replace(/^\[|\]$|:$/g,''));
-    let si=head?S.sections.findIndex((s,i)=>!used[i]&&norm(s.name)===head):-1;
-    if(si>=0)lines.shift();
-    else{while(ptr<S.sections.length&&(used[ptr]||instr(S.sections[ptr])))ptr++;si=ptr<S.sections.length?ptr:-1;}
-    if(si<0)si=last>=0?last:S.sections.length-1; /* sobran estrofas: se añaden a la última sección con letra */
-    put(si,lines.join('\n'));last=si;if(si>=ptr)ptr=si+1;
+    let i=head?U.findIndex((u,j)=>!used[j]&&j>=ptr&&norm(S.sections[u.si].name)===head):-1;
+    if(i<0&&head)i=U.findIndex((u,j)=>!used[j]&&norm(S.sections[u.si].name)===head);
+    if(i>=0)lines.shift();
+    else{while(ptr<U.length&&(used[ptr]||instr(S.sections[U[ptr].si])))ptr++;i=ptr<U.length?ptr:-1;}
+    if(i<0)i=last>=0?last:U.length-1; /* sobran estrofas: se añaden a la última pasada con letra */
+    put(i,lines.join('\n'));last=i;if(i>=ptr)ptr=i+1;
   });
+  /* en las secciones tocadas, las pasadas que no han recibido estrofa vuelven a ser «la misma que la anterior» */
+  const tocadas={};U.forEach((u,i)=>{if(used[i])tocadas[u.si]=1;});
+  U.forEach((u,i)=>{if(tocadas[u.si]&&!used[i]&&u.p>0&&Array.isArray(S.sections[u.si].lyrs))S.sections[u.si].lyrs[u.p-1]=null;});
   return blocks.length;
 }
 function openLyPaste(){
   openDlg('<h3>'+ICO('clipboard')+TR(' Pegar la letra entera</h3>',' Paste the whole lyrics</h3>')+
-    TR('<p class="acintro">Pega aquí toda la letra. Cada <b>estrofa</b> (separada por una línea en blanco) va a una sección, en orden; las secciones sin acordes y las intros o solos se saltan. Si una estrofa empieza con el nombre de una sección («Estribillo», «[Puente]»), va a esa. Los acordes entre corchetes —[G]— se conservan. <b>Sustituye</b> la letra que hubiera en esas secciones (↶ lo deshace).</p>','<p class="acintro">Paste all the lyrics here. Each <b>stanza</b> (separated by a blank line) goes to one section, in order; sections without chords and intros or solos are skipped. If a stanza starts with the name of a section (“Chorus”, “[Bridge]”), it goes to that one. Chords in square brackets —[G]— are kept. <b>Replaces</b> the lyrics already in those sections (↶ undoes it).</p>')+
+    TR('<p class="acintro">Pega aquí toda la letra. Cada <b>estrofa</b> (separada por una línea en blanco) va a una caja, en el orden en que se toca la canción: las repeticiones cuentan (un Verso ×2 recibe dos estrofas); las secciones sin acordes y las intros o solos se saltan. Si una estrofa empieza con el nombre de una sección («Estribillo», «[Puente]»), va a esa. Los acordes entre corchetes —[G]— se conservan. <b>Sustituye</b> la letra que hubiera en esas secciones (↶ lo deshace).</p>','<p class="acintro">Paste all the lyrics here. Each <b>stanza</b> (separated by a blank line) goes to one box, in playing order: repeats count (a Verse ×2 gets two stanzas); sections without chords and intros or solos are skipped. If a stanza starts with the name of a section (“Chorus”, “[Bridge]”), it goes to that one. Chords in square brackets —[G]— are kept. <b>Replaces</b> the lyrics already in those sections (↶ undoes it).</p>')+
     TR('<textarea id="lypasteta" spellcheck="false" autofocus placeholder="Verso 1&#10;primera frase…&#10;segunda frase…&#10;&#10;Estribillo&#10;…"></textarea>','<textarea id="lypasteta" spellcheck="false" autofocus placeholder="Verse 1&#10;first line…&#10;second line…&#10;&#10;Chorus&#10;…"></textarea>')+
     TR('<div class="modalbtns"><button class="sbtn" data-dlg="close">Cancelar</button><button class="sbtn primary" data-dlg="ok">Repartir por secciones</button></div>','<div class="modalbtns"><button class="sbtn" data-dlg="close">Cancel</button><button class="sbtn primary" data-dlg="ok">Spread over the sections</button></div>'),
     {ok:()=>{const v=document.getElementById('lypasteta').value;if(!v.trim())return;closeDlg();const n=lyDistribute(v);LY.edit=null;renderLyrics();persist();toast(n+TR(' estrofas repartidas por las secciones',' stanzas spread over the sections'));}});
@@ -6135,8 +6229,8 @@ function openLyPaste(){
     if(!d.moved||e.type==='pointercancel')return;
     skipClick=true;setTimeout(()=>{skipClick=false;},60);
     if(!d.t){renderLyrics();return;}
-    if(d.mark){const [si,mi]=d.el.dataset.m.split(':').map(Number);lyPut(d.t.si,d.t.l,d.t.c,null,{si,mi});}
-    else lyPut(d.t.si,d.t.l,d.t.c,d.n);
+    if(d.mark){const [si,p,mi]=d.el.dataset.m.split(':').map(Number);lyPut(d.t.si,d.t.p,d.t.l,d.t.c,null,{si,p,mi});}
+    else lyPut(d.t.si,d.t.p,d.t.l,d.t.c,d.n);
     persist();
   };
   body.addEventListener('pointerup',up);body.addEventListener('pointercancel',up);
@@ -6145,23 +6239,22 @@ function openLyPaste(){
     const q=s=>e.target.closest(s);
     let t;
     if((t=q('[data-lyn]'))){
-      if(!LY.sel)return;const sec=S.sections[LY.sel.si],m=sec&&sec.lch[LY.sel.mi];if(!m)return;
-      pushUndo();
+      if(!LY.sel||!S.sections[LY.sel.si])return;pushUndo();const sec=lyW(LY.sel.si,LY.sel.p),m=sec.lch&&sec.lch[LY.sel.mi];if(!m)return;
       if(t.dataset.lyn==='x'){sec.lch.splice(LY.sel.mi,1);LY.sel=null;}
       else{m.c=Math.max(0,m.c+(+t.dataset.lyn));sec.lch.sort((a,b)=>a.l-b.l||a.c-b.c);LY.sel.mi=sec.lch.indexOf(m);}
       renderLyrics();persist();return;
     }
-    if((t=q('[data-lyedit]'))){if(LY.edit!=null)lySave(LY.edit);LY.edit=+t.dataset.lyedit;LY.sel=null;LY.arm=null;renderLyrics();return;}
-    if((t=q('[data-lysave]'))){lySave(+t.dataset.lysave);renderLyrics();persist();return;}
+    if((t=q('[data-lyedit]'))){if(LY.edit!=null)lySave(LY.edit);LY.edit=t.dataset.lyedit;LY.sel=null;LY.arm=null;renderLyrics();return;}
+    if((t=q('[data-lysave]'))){lySave(t.dataset.lysave);renderLyrics();persist();return;}
     if(q('[data-lycancel]')){LY.edit=null;renderLyrics();return;}
     if((t=q('[data-lymore]'))){const si=+t.dataset.lymore;
       askName(TR('Otro acorde','Another chord'),TR('nombre (Am7, D/F♯, Csus4…)','name (Am7, D/F♯, Csus4…)'),'',v=>{LY.arm={si,n:v.slice(0,14)};LY.sel=null;renderLyrics();toast('«'+v+TR('» listo: toca la sílaba donde entra','» ready: tap the syllable where it comes in'));});return;}
     if((t=q('.lychip'))){const si=+t.dataset.lych,n=t.dataset.n;
       LY.arm=LY.arm&&LY.arm.si===si&&LY.arm.n===n?null:{si,n};LY.sel=null;renderLyrics();return;}
-    if((t=q('.lyc'))){const [si,mi]=t.dataset.m.split(':').map(Number);
-      LY.sel=LY.sel&&LY.sel.si===si&&LY.sel.mi===mi?null:{si,mi};LY.arm=null;renderLyrics();return;}
+    if((t=q('.lyc'))){const [si,p,mi]=t.dataset.m.split(':').map(Number);
+      LY.sel=LY.sel&&LY.sel.si===si&&LY.sel.p===p&&LY.sel.mi===mi?null:{si,p,mi};LY.arm=null;renderLyrics();return;}
     if((t=q('.lyl'))&&LY.arm){const tx=t.closest('.lytxt');if(!tx||t.classList.contains('gap'))return;
-      lyPut(+tx.dataset.si,+t.dataset.l,lyCharAt(t,e.clientX,e.clientY),LY.arm.n);persist();return;}
+      lyPut(+tx.dataset.si,+tx.dataset.p||0,+t.dataset.l,lyCharAt(t,e.clientX,e.clientY),LY.arm.n);persist();return;}
     if(LY.sel){LY.sel=null;renderLyrics();}
   });
   document.getElementById('lyrbtn').addEventListener('click',()=>{if(document.body.classList.contains('lyr'))exitLyrics();else enterLyrics();});
@@ -6190,13 +6283,15 @@ function mixFromDevice(){
   MIXKEYS.forEach(k=>{if(typeof m[k]===typeof S[k])S[k]=m[k];});
 }
 function mixSave(){const m={};MIXKEYS.forEach(k=>{m[k]=S[k];});try{STORE.setItem('gc-mix',JSON.stringify(m));}catch(e){}}
+/* letra de las pasadas 2ª, 3ª…: solo si alguna tiene texto propio (null = la misma que la anterior) */
+function lyrsOut(x){const a=Array.isArray(x.lyrs)?x.lyrs.map(u=>u?{lyr:u.lyr||'',lch:u.lch||[]}:null):[];while(a.length&&!a[a.length-1])a.pop();return a.length?a:undefined;}
 function snapshot(){return {v:5,lvA:S.lvA!==false,lvL:!!S.lvL,lvC:S.lvC!==false,key:S.key,minorView:S.minorView,tempo:S.tempo,ts:S.ts,cmp:!!S.cmp,
   metro:S.metro,drums:S.drums,drumsOn:S.drumsOn,loop:S.loop,vol:S.vol,countIn:S.countIn,
   attack:S.attack,sustain:S.sustain,compact:S.viewMode==='simple',viewMode:S.viewMode,
   volChords:S.volChords,volDrums:S.volDrums,volMetro:S.volMetro,
   bassOn:S.bassOn,bassPat:S.bassPat,volBass:S.volBass,capo:S.capo||0,
   sections:S.sections.map(x=>({name:x.name,slots:x.slots,note:x.note||'',repeat:x.repeat||1,dur:x.dur,color:x.color,
-    compact:isCompact(x),cs:x.cs!==false,cd:!!x.cd,lh:!!x.lh,licks:x.licks||[],lyr:x.lyr||'',lch:x.lch||[],
+    compact:isCompact(x),cs:x.cs!==false,cd:!!x.cd,lh:!!x.lh,licks:x.licks||[],lyr:x.lyr||'',lch:x.lch||[],lyrs:lyrsOut(x),
     lvl:typeof x.lvl==='number'?x.lvl:'auto',fill:typeof x.fill==='boolean'?x.fill:'auto'})),
   groups:(Array.isArray(S.groups)?S.groups:[]).map(g=>({a:g.a,b:g.b,repeat:g.repeat})),
   lgroups:(Array.isArray(S.lgroups)?S.lgroups:[]).map(g=>({a:g.a,b:g.b,repeat:g.repeat})),
@@ -6210,6 +6305,7 @@ function songJSON(){const s=snapshot();
       if(x.color)o.color=x.color; /* ídem: solo cuenta si la sección tiene color */
       if(x.lh)o.lh=true; /* oculta en el directo: solo si lo está */
       if(x.lyr||(x.lch&&x.lch.length)){o.lyr=x.lyr||'';if(x.lch&&x.lch.length)o.lch=x.lch;} /* letra y acordes sobre la letra: solo si hay */
+      if(x.lyrs)o.lyrs=x.lyrs; /* letra de las demás pasadas */
       if(typeof x.lvl==='number')o.lvl=x.lvl; /* energía y redoble a mano: solo si no son «auto» */
       if(typeof x.fill==='boolean')o.fill=x.fill;
       return o;
@@ -6263,6 +6359,7 @@ function applySnapshot(d){
     cd:(typeof x.cd==='boolean')?x.cd:(S.viewMode==='diag'?!!x.compact:false),
     lh:x.lh===true?true:undefined,
     lyr:typeof x.lyr==='string'?x.lyr:'',lch:Array.isArray(x.lch)?JSON.parse(JSON.stringify(x.lch)).filter(m=>m&&typeof m.l==='number'&&typeof m.c==='number'&&m.n):[],
+    lyrs:Array.isArray(x.lyrs)?x.lyrs.map(u=>u&&typeof u.lyr==='string'?{lyr:u.lyr,lch:Array.isArray(u.lch)?JSON.parse(JSON.stringify(u.lch)).filter(m=>m&&typeof m.l==='number'&&typeof m.c==='number'&&m.n):[]}:null):undefined,
     lvl:(typeof x.lvl==='number'&&x.lvl>=0&&x.lvl<=4)?Math.round(x.lvl):undefined, /* 'auto' o sin dato = automático */
     fill:typeof x.fill==='boolean'?x.fill:undefined,
     licks:Array.isArray(x.licks)?x.licks.map(l=>{if(!l.id)l.id=uid();return l;}):[]}));
@@ -6271,6 +6368,7 @@ function applySnapshot(d){
   normGroups();
   S.lgroups=Array.isArray(d.lgroups)?d.lgroups.map(g=>({a:g.a|0,b:g.b|0,repeat:g.repeat||2})):[];
   normLGroups();
+  lyMigrate();
   S.active=Math.min(d.active||0,S.sections.length-1);
   S.songName=d.name||d.songName||'';S.songId=d.songId??d.id??null;
 }
@@ -7373,7 +7471,7 @@ const MAN=[
   TR('El directo tiene dos módulos, con sus teclas en la barra de abajo: <b>acordes</b> (la rejilla) y <b>letra</b>. Se encienden por separado —solo acordes, acordes + letra o solo letra— y cada canción recuerda cómo la dejaste. Con los dos, abajo sale la letra de la sección que suena, tan grande como quepa sin cortar líneas, y en gris cómo empieza la siguiente. Solo letra enseña la canción entera y va bajando. La letra de toda la canción va en un carril que sube solo y sin saltos, al ritmo de la canción, como un karaoke: la línea que toca se resalta y debajo asoma la sección siguiente. Con acordes + letra, el tamaño se elige para que quepan 5 líneas de la sección. Para que acierte, escribe <b>una línea de letra por cada vuelta de acordes</b> (cada pasada de una línea de acordes, contando repeticiones y casillas); una línea en blanco separa secciones al pegar la letra entera. <b>Tocar la letra</b> pone o quita los acordes de encima. La letra se escribe en el modo letra del estudio.','Live mode has two modules, with their keys on the bottom bar: <b>chords</b> (the grid) and <b>lyrics</b>. Switch them on separately —chords only, chords + lyrics or lyrics only— and each song remembers how you left it. With both, the lyrics of the section that is sounding appear below, as large as fits without breaking lines, with the start of the next one in grey. Lyrics only shows the whole song and scrolls down. The lyrics of the whole song run on a lane that moves up smoothly, without jumps, in time with the song, like karaoke: the current line is highlighted and the next section shows below. With chords + lyrics, the size is chosen so 5 lines of the section fit. For that to match, write <b>one lyric line per chord pass</b> (each pass of a chord line, counting repeats and endings); a blank line separates sections when pasting whole lyrics. <b>Tap the lyrics</b> to show or hide the chords above them. Lyrics are written in the studio\'s lyrics mode.'),
   TR('Cambiar de canción: <b>','Change song: <b>')+ICO('skip-back')+' '+ICO('skip-forward')+TR('</b>, <b>deslizar el dedo</b> o un pasapáginas (Av Pág / Re Pág o ← →). La barra espaciadora toca y para.','</b>, <b>swipe</b> or a page-turner pedal (Page Down / Page Up or ← →). The space bar plays and stops.'),
   TR('<b>Toca el nombre de una sección</b> para abrirla con diagramas o plegarla; cada vista lo recuerda, canción por canción.','<b>Tap a section name</b> to open it with diagrams or fold it; each view remembers it, song by song.'),
-  TR('Al reproducir, la pantalla sigue a la sección que suena. En el directo la reproducción <b>no suena</b>: solo ilumina los acordes, baja la pantalla y sube la letra. Con <b>Ajustes → reproducción en el directo</b> empieza sola al salir cada canción (al tempo o N segundos por sección); si se desfasa, toca la sección que suena en la tira de abajo.','During playback the screen follows the section that is sounding. In live mode playback <b>makes no sound</b>: it only lights up the chords, scrolls the screen and moves the lyrics. With <b>Settings → playback in live mode</b> it starts by itself when each song appears (at tempo or N seconds per section); if it drifts, tap the section that is sounding on the strip below.'),
+  TR('Al reproducir, la pantalla sigue a la sección que suena. En el directo el ▶ suena como en el estudio y empieza siempre con un compás de cuenta (con doble toque, dos); ilumina los acordes, baja la pantalla y sube la letra. Con <b>Ajustes → reproducción en el directo</b> empieza sola al salir cada canción (al tempo o N segundos por sección); si se desfasa, toca la sección que suena en la tira de abajo.','During playback the screen follows the section that is sounding. In live mode ▶ sounds as in the studio and always starts with a one-bar count-in (double tap: two); it lights up the chords, scrolls the screen and moves the lyrics. With <b>Settings → playback in live mode</b> it starts by itself when each song appears (at tempo or N seconds per section); if it drifts, tap the section that is sounding on the strip below.'),
   TR('La <b>tira</b> de abajo tiene un tramo por sección, con su ×N y el contador de vueltas.','The <b>strip</b> at the bottom has one segment per section, with its ×N and the pass counter.'),
   TR('Al salir (<b>','When you leave (<b>')+ICO('x')+TR('</b> o Esc) vuelves al <b>estudio</b> <b>en la misma zona de la canción</b>.','</b> or Esc) you return to <b>studio</b> <b>at the same place in the song</b>.')]},
  {id:'ocultar',ic:'eye-off',t:TR('Ocultar y anotar en el directo','Hiding and annotating in live mode'),p:TR('Para que el directo no repita lo que vuelve casi igual.','So live mode doesn\'t repeat what comes back almost the same.'),li:[
@@ -8250,8 +8348,8 @@ document.getElementById('loop').addEventListener('change',e=>{
 });
 document.getElementById('autoadv').addEventListener('change',e=>{
   const v=e.target.value;try{STORE.setItem('gc-autoadv',v);}catch(er){}
-  toast(!v?TR('En el directo la canción empieza al pulsar ▶ (sin sonido)','In live mode the song starts when you press ▶ (no sound)')
-    :TR('En el directo la canción se reproducirá sola, sin sonido, ','In live mode the song will play by itself, without sound, ')+(v==='tempo'?TR('al tempo de cada canción','at each song\'s tempo'):v+TR(' s por sección',' s per section')));
+  toast(!v?TR('En el directo la canción empieza al pulsar ▶','In live mode the song starts when you press ▶')
+    :TR('En el directo la canción se reproducirá sola, ','In live mode the song will play by itself, ')+(v==='tempo'?TR('al tempo de cada canción','at each song\'s tempo'):v+TR(' s por sección',' s per section')));
 });
 try{const v=STORE.getItem('gc-autoadv');if(v!=null)document.getElementById('autoadv').value=v;}catch(e){}
 document.getElementById('hlmode').addEventListener('change',e=>{
@@ -8588,7 +8686,9 @@ function hideSwipeHint(){
    (se cambia tocando la letra). LL.cur = sección cuya letra se ve: la que suena, la del avance solo o la tocada en la tira.
    Con los dos: letra de esa sección al mayor tamaño que quepa sin cortar líneas + 1ª línea de la siguiente, en gris.
    Solo letra: toda la canción, cada sección a su tamaño, y la pantalla baja a la que suena. */
-const LL={cur:0,line:0,h:0,song:null,rows:{},y:null,goal:null,raf:0};
+const LL={cur:0,line:0,h:0,song:null,rows:{},y:null,goal:null,raf:0,blk:[]}; /* cur = caja (pasada) del carril: LL.blk[cur] = {si,p} */
+function llAny(sec){return llHasLyr(sec)||(Array.isArray(sec.lyrs)&&sec.lyrs.some(llHasLyr));}
+function llBlk(si,p){const i=LL.blk.findIndex(b=>b.si===si&&b.p===p);return i>=0?i:LL.blk.findIndex(b=>b.si===si);}
 function llMods(){let a=S.lvA!==false,l=!!S.lvL;if(!a&&!l)a=true;return {a,l};}
 function llLine(text,marks,ch){
   const ms=(ch?marks:[]).slice().sort((a,b)=>a.c-b.c),end=ms.length?Math.max(text.length,ms[ms.length-1].c):text.length,t=text.padEnd(end,' ');
@@ -8601,8 +8701,8 @@ function llLine(text,marks,ch){
   return '<div class="lll">'+h+'</div>';
 }
 function llHasLyr(sec){return !!(sec&&((sec.lyr&&sec.lyr.trim())||(sec.lch&&sec.lch.length)));}
-function llBody(sec,ch){
-  if(!llHasLyr(sec))return '<div class="llnote">'+esc((sec.note&&sec.note.trim())||TR('sin letra','no lyrics'))+'</div>';
+function llBody(sec,ch,nsec){
+  if(!llHasLyr(sec))return '<div class="llnote">'+esc(((nsec||sec).note&&(nsec||sec).note.trim())||TR('sin letra','no lyrics'))+'</div>';
   const lines=String(sec.lyr||'').split('\n'),n=Math.max(lines.length,...(sec.lch||[]).map(m=>m.l+1));
   let h='',r=0;
   for(let l=0;l<n;l++){const x=llLine(lines[l]||'',(sec.lch||[]).filter(m=>m.l===l),ch);
@@ -8646,13 +8746,13 @@ function llFitSec(el,p,both){
 function llPasses(evs){
   if(evs._ll)return evs._ll;
   const P={};let last=null;
-  evs.forEach(ev=>{const k=ev.si+'|'+(ev.gp||0)+'|'+(ev.rp||0)+'|'+(ev.li==null?'x':ev.li)+'|'+(ev.lp||0),a=P[ev.si]||(P[ev.si]=[]);
+  evs.forEach(ev=>{const k=ev.si+'|'+(ev.gp||0)+'|'+(ev.rp||0)+'|'+(ev.li==null?'x':ev.li)+'|'+(ev.lp||0),pk=ev.si+'#'+lyEvPass(ev),a=P[pk]||(P[pk]=[]);
     if(k!==last){a.push({start:ev.start,end:rnd(ev.start+ev.dur)});last=k;}else a[a.length-1].end=rnd(ev.start+ev.dur);});
   Object.defineProperty(evs,'_ll',{value:P,enumerable:false});
   return P;
 }
-function llAt(evs,si,beat){
-  const ps=llPasses(evs)[si]||[],N=ps.length,L=llCount(S.sections[si]);
+function llAt(evs,si,p,beat){
+  const ps=llPasses(evs)[si+'#'+p]||[],N=ps.length,L=llCount(lyU(si,p));
   if(!L||!N)return 0;
   let k=0;ps.forEach((x,i)=>{if(x.start<=beat+1e-6)k=i;});
   if(L<=N)return k%L;
@@ -8668,8 +8768,8 @@ function playPosNow(){
   return e.pos+Math.min(e.len-1e-4,(now-e.t)/e.spb);
 }
 /* línea (con decimales) de la sección si en el tiempo «beat» */
-function llAtF(evs,si,beat){
-  const ps=llPasses(evs)[si]||[],N=ps.length,L=llCount(S.sections[si]);
+function llAtF(evs,si,p,beat){
+  const ps=llPasses(evs)[si+'#'+p]||[],N=ps.length,L=llCount(lyU(si,p));
   if(!N)return 0;
   let k=0;ps.forEach((x,i)=>{if(x.start<=beat+1e-6)k=i;});
   const x=ps[k],fr=Math.max(0,Math.min(0.999,(beat-x.start)/Math.max(1e-6,x.end-x.start)));
@@ -8683,10 +8783,12 @@ function llRender(){
   llMarkGrid();
   if(!document.body.classList.contains('live')||!m.l){p.innerHTML='';llLoop(false);return;}
   const ch=S.lvC!==false;
-  if(LL.cur>=S.sections.length){LL.cur=0;LL.line=0;}
-  if(!S.sections.some(llHasLyr)){p.innerHTML='<div class="llempty">'+TR('Esta canción aún no tiene letra. Escríbela o pégala en el modo «letra» del estudio y aparecerá aquí.','This song has no lyrics yet. Type or paste them in the studio\'s “lyrics” mode and they will show up here.')+'</div>';llLoop(false);return;}
+  LL.blk=lyOrder();
+  if(LL.cur>=LL.blk.length){LL.cur=0;LL.line=0;}
+  if(!S.sections.some(llAny)){p.innerHTML='<div class="llempty">'+TR('Esta canción aún no tiene letra. Escríbela o pégala en el modo «letra» del estudio y aparecerá aquí.','This song has no lyrics yet. Type or paste them in the studio\'s “lyrics” mode and they will show up here.')+'</div>';llLoop(false);return;}
   p.style.removeProperty('--fs');
-  p.innerHTML='<div class="llrail">'+S.sections.map((sec,i)=>'<div class="llsec'+(i===LL.cur?' on':'')+'" data-i="'+i+'"><div class="llname">'+esc(sec.name)+((sec.repeat||1)>1?' ×'+sec.repeat:'')+'</div>'+llBody(sec,ch)+'</div>').join('')+'</div>';
+  p.innerHTML='<div class="llrail">'+LL.blk.map((b,i)=>{const sec=S.sections[b.si],P=lyPasses(b.si);
+    return '<div class="llsec'+(i===LL.cur?' on':'')+'" data-i="'+i+'"><div class="llname">'+esc(sec.name)+(P>1?' · '+(b.p+1)+TR('ª','')+'/'+P:'')+'</div>'+llBody(lyU(b.si,b.p),ch,sec)+'</div>';}).join('')+'</div>';
   p.querySelectorAll('.llsec').forEach(el=>llFitSec(el,p,m.a));
   llMeasure();
   LL.y=null;llLoop(true);
@@ -8704,7 +8806,7 @@ function llY(si,f){
   const R=LL.rows[si];if(!R)return 0;
   const i=Math.max(0,Math.min(R.length-1,Math.floor(f))),fr=Math.max(0,f-i);
   let nx=R[i+1];
-  if(nx==null){for(let j=si+1;j<S.sections.length;j++)if(LL.rows[j]){nx=LL.rows[j][0];break;}}
+  if(nx==null){for(let j=si+1;j<LL.blk.length;j++)if(LL.rows[j]){nx=LL.rows[j][0];break;}}
   if(nx==null)nx=R[i]+(R[i]-(R[i-1]!=null?R[i-1]:R[i]-40));
   return R[i]+Math.min(1,fr)*(nx-R[i]);
 }
@@ -8716,10 +8818,10 @@ function llSetCur(si,f){
   if(ln!==LL.line){LL.line=ln;p.querySelectorAll('.lll.cur').forEach(x=>x.classList.remove('cur'));
     const on=p.querySelector('.llsec.on');const r=on&&on.querySelector('.lll[data-r="'+ln+'"]');if(r)r.classList.add('cur');}
 }
-function llMarkGrid(){const mp=liveMap()[LL.cur],ti=mp?mp.t:LL.cur;document.querySelectorAll('#sections .secrow').forEach(r=>r.classList.toggle('llcur',+r.dataset.si===ti&&document.body.classList.contains('lv-l')));}
+function llMarkGrid(){const cs=LL.blk[LL.cur]?LL.blk[LL.cur].si:LL.cur,mp=liveMap()[cs],ti=mp?mp.t:cs;document.querySelectorAll('#sections .secrow').forEach(r=>r.classList.toggle('llcur',+r.dataset.si===ti&&document.body.classList.contains('lv-l')));}
 /* sin reproducir: tocar una sección en la tira lleva la letra a su principio, deslizando */
-function llJump(si){if(!S.sections[si])return;llSetCur(si,0);const p=document.getElementById('livelyr');if(p)LL.goal=Math.max(0,llY(si,0)-llAnchor(p));}
-function llSet(si){if(si!=null&&si!==LL.cur)llJump(si);}
+function llJump(si,pp){if(!S.sections[si])return;if(!LL.blk.length)LL.blk=lyOrder();const b=llBlk(si,pp||0);if(b<0)return;llSetCur(b,0);const p=document.getElementById('livelyr');if(p)LL.goal=Math.max(0,llY(b,0)-llAnchor(p));}
+function llSet(si){if(si!=null&&!(LL.blk[LL.cur]&&LL.blk[LL.cur].si===si))llJump(si);}
 function llLoop(on){
   if(!on){cancelAnimationFrame(LL.raf);LL.raf=0;return;}
   if(LL.raf)return;
@@ -8734,7 +8836,7 @@ function llLoop(on){
     const pos=playPosNow();
     if(pos!=null){
       const ev=play.evs.find(e=>pos>=e.start-1e-6&&pos<e.start+e.dur-1e-6);
-      if(ev){const f=llAtF(play.evs,ev.si,pos);llSetCur(ev.si,llCount(S.sections[ev.si])?f:null);goal=Math.max(0,llY(ev.si,f)-llAnchor(p));}
+      if(ev){const lp=lyEvPass(ev),b=llBlk(ev.si,lp),f=llAtF(play.evs,ev.si,lp,pos);if(b>=0){llSetCur(b,llCount(lyU(ev.si,lp))?f:null);goal=Math.max(0,llY(b,f)-llAnchor(p));}}
       LL.goal=null;
     }else if(LL.goal!=null){goal=LL.goal;if(Math.abs(p.scrollTop-goal)<0.6)LL.goal=null;}
     if(goal!=null){
@@ -8766,14 +8868,14 @@ function llToggle(w){
   if(w==='a'){m.a=!m.a;if(!m.a)m.l=true;}else{m.l=!m.l;if(!m.l)m.a=true;} /* nunca los dos apagados: al apagar uno se enciende el otro */
   S.lvA=m.a;S.lvL=m.l;persistView();persist();
   renderSections();
-  if(m.a){const mp=liveMap()[LL.cur];liveFollow(mp?mp.t:LL.cur,true);}
+  if(m.a){const cs=LL.blk[LL.cur]?LL.blk[LL.cur].si:0,mp=liveMap()[cs];liveFollow(mp?mp.t:cs,true);}
   toast(m.a&&m.l?TR('Directo: acordes + letra','Live: chords + lyrics'):m.l?TR('Directo: solo letra','Live: lyrics only'):TR('Directo: solo acordes','Live: chords only'));
 }
 document.getElementById('lmch').addEventListener('click',()=>llToggle('a'));
 document.getElementById('lmly').addEventListener('click',()=>llToggle('l'));
 /* tocar la letra = poner o quitar los acordes de encima (de cada canción) */
 document.getElementById('livelyr').addEventListener('click',()=>{
-  if(!S.sections.some(llHasLyr))return;
+  if(!S.sections.some(llAny))return;
   S.lvC=!(S.lvC!==false);persistView();persist();llRender();
   toast(S.lvC?TR('Letra con acordes','Lyrics with chords'):TR('Letra sin acordes','Lyrics without chords'));
 });
@@ -8891,7 +8993,15 @@ document.getElementById('livebtn').addEventListener('click',()=>guardChange(ente
 document.getElementById('lexit').addEventListener('click',exitLive);
 document.getElementById('lprev').addEventListener('click',()=>liveNav(-1));
 document.getElementById('lnext').addEventListener('click',()=>liveNav(1));
-document.getElementById('lplay').addEventListener('click',()=>{play.on?stopPlay():startPlay(null);});
+/* ▶ del directo (2026-11-17, Rodney): «1 tap = suena 1 compás de count in · doble tap, dos compases, por si necesito
+   más tiempo rápidamente». El primer toque arranca YA con un compás de cuenta (sin esperar a ver si hay otro); un
+   segundo toque rápido (≤ 450 ms) mientras aún cuenta añade un compás más. Después, tocar = parar, como siempre. */
+document.getElementById('lplay').addEventListener('click',()=>{
+  if(play.on&&play.beat<play.countIn&&Date.now()-(play.t0||0)<=450&&!play.extra){
+    play.extra=true;play.countIn+=countBeats();toast(TR('Cuenta de entrada: 2 compases','Count-in: 2 bars'));return;}
+  if(play.on){stopPlay();return;}
+  startPlay(null);play.extra=false;
+});
 document.getElementById('lhid').addEventListener('click',()=>{
   document.body.classList.toggle('showhid');renderSections();
 });
@@ -9463,7 +9573,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.16b';
+const APP_VER='2026.11.17';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
