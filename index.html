@@ -748,6 +748,10 @@
   .tones{display:flex;gap:6px;align-items:center}
   .tone{display:flex;flex-direction:column;align-items:center;min-width:38px;padding:3px 7px;border-radius:0;color:var(--on);font-family:var(--font-d)}
   .tone .n{font-size:15px;font-weight:800;line-height:1.1}
+  /* oído (2026-11-16): el nombre y las notas se tocan; la nota que suena se levanta y se recuadra */
+  #vhead .vbadge[data-earall],#vhead .tone[data-ear]{cursor:pointer;touch-action:manipulation;transition:transform .12s ease-out,box-shadow .12s ease-out}
+  #vhead .vbadge[data-earall]:active,#vhead .tone[data-ear]:active{transform:scale(.96)}
+  #vhead .tone.ping{transform:translateY(-4px);box-shadow:0 0 0 2.5px var(--ink)}
   .tone .r{font-family:var(--font-n);font-size:10px;font-weight:600}
   .vhint{font-size:12px;color:var(--mut);flex-basis:100%}
   /* panel de voicings agrupado por forma (2026-10-09) */
@@ -1628,6 +1632,7 @@
     .manbody{padding:14px 14px 16px}
   }
   details.help>:not(summary) .ic{color:var(--ink)}
+  details.help>:not(summary) .manch.on .ic{color:var(--panel)} /* 2026-11-16: el icono del capítulo marcado no desaparece */
   /* en la ayuda, los colores de función van como fichas (el texto de color sobre blanco se leía mal) */
   .hlchip{color:var(--on);padding:0 5px;white-space:nowrap}
 
@@ -2886,10 +2891,10 @@ function renderVoicings(){
   if(ch.fq!==undefined){renderGenVoicings(ch);renderFinder();return;}
   renderFinder();
   VOICINGS=getVoicings(ch);
-  const tones=chordTones(ch).map(t=>'<span class="tone" style="background:'+t.color+'"><span class="n">'+esc(t.name)+'</span><span class="r">'+esc(t.role)+'</span></span>').join('');
-  vh.innerHTML='<span class="vbadge '+txtOn(ch.degNum)+'" style="background:'+ch.color+'"><span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span></span>'+
+  const tones=chordTones(ch).map((t,i)=>'<span class="tone" role="button" tabindex="0" data-ear="'+TONE_INTS[ch.quality][i][0]+'" title="'+TR('Escuchar esta nota','Hear this note')+'" style="background:'+t.color+'"><span class="n">'+esc(t.name)+'</span><span class="r">'+esc(t.role)+'</span></span>').join('');
+  vh.innerHTML='<span class="vbadge '+txtOn(ch.degNum)+'" role="button" tabindex="0" data-earall="1" title="'+TR('Escuchar el acorde y luego sus notas, una a una','Hear the chord and then its notes, one by one')+'" style="background:'+ch.color+'"><span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span></span>'+
     '<div class="tones">'+tones+'</div>'+
-    '<span class="vhint">'+esc(ch.label)+' '+esc(QUAL_ES[ch.quality])+TR(' · grado ',' · degree ')+esc(ch.deg)+TR('. Haz clic en un diagrama para escucharlo; arrástralo o pulsa ','. Click a diagram to hear it; drag it or press ')+ICO('plus')+TR(' para añadirlo a la progresión.</span>',' to add it to the progression.</span>');
+    '<span class="vhint">'+esc(ch.label)+' '+esc(QUAL_ES[ch.quality])+TR(' · grado ',' · degree ')+esc(ch.deg)+TR('. Clic en el nombre o en un diagrama = el acorde y luego sus notas una a una · clic en una nota = esa nota. Arrastra un diagrama o pulsa ','. Click the name or a diagram = the chord and then its notes one by one · click a note = that note. Drag a diagram or press ')+ICO('plus')+TR(' para añadirlo a la progresión.</span>',' to add it to the progression.</span>');
   const q=ch.quality,sh=VSHAPE[q]||VSHAPE.maj;
   const G={};VOICINGS.forEach((v,i)=>{const k=vFam(v);(G[k]=G[k]||[]).push(i);});
   const fams=[
@@ -2998,13 +3003,13 @@ function renderGenVoicings(ch){
   const vh=document.getElementById('vhead'),vv=document.getElementById('voicings');
   VOICINGS=getVoicings(ch);
   const q=FQI[ch.fq]||FQI[''];
-  const tones=q.t.map(([sm,r])=>'<span class="tone'+((q.o||[]).includes(r)?' topt':'')+'" style="background:'+(ROLE_COLORS[r]||'var(--line)')+'" title="'+((q.o||[]).includes(r)?TR('puede faltar','may be omitted'):'')+'"><span class="n">'+esc(nName(ch.pc+sm,ch.flat))+'</span><span class="r">'+esc(r)+'</span></span>').join('');
+  const tones=q.t.map(([sm,r])=>'<span class="tone'+((q.o||[]).includes(r)?' topt':'')+'" role="button" tabindex="0" data-ear="'+sm+'" style="background:'+(ROLE_COLORS[r]||'var(--line)')+'" title="'+((q.o||[]).includes(r)?TR('puede faltar · ','may be omitted · '):'')+TR('Escuchar esta nota','Hear this note')+'"><span class="n">'+esc(nName(ch.pc+sm,ch.flat))+'</span><span class="r">'+esc(r)+'</span></span>').join('');
   const key=S.minorView?nName(relMinorPc(),keyObj().flat)+TR(' menor',' minor'):keyObj().label+TR(' mayor',' major');
-  vh.innerHTML='<span class="vbadge '+txtOn(ch.degNum)+'" style="background:'+ch.color+'"><span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span></span>'+
+  vh.innerHTML='<span class="vbadge '+txtOn(ch.degNum)+'" role="button" tabindex="0" data-earall="1" title="'+TR('Escuchar el acorde y luego sus notas, una a una','Hear the chord and then its notes, one by one')+'" style="background:'+ch.color+'"><span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span></span>'+
     '<div class="tones">'+tones+'</div>'+
     '<span class="vhint">'+esc(ch.label)+' · '+esc(q.n)+' · '+esc(ch.deg)+' en '+esc(key)+'. '+
     (VOICINGS.length?VOICINGS.total+TR(' formas en el mástil',' shapes on the neck')+(VOICINGS.hidden?TR(', aquí las ',', here are the ')+(VOICINGS.length)+TR(' más cómodas',' most comfortable'):'')+'. ':'')+
-    ((q.o||[]).length?TR('Las notas tenues pueden faltar. ','Faded notes may be omitted. '):'')+TR('Clic = escuchar · ','Click = listen · ')+ICO('plus')+TR(' o arrastrar = añadir a la sección activa.</span>',' or drag = add to the active section.</span>');
+    ((q.o||[]).length?TR('Las notas tenues pueden faltar. ','Faded notes may be omitted. '):'')+TR('Clic en el nombre o en un diagrama = el acorde y luego sus notas · clic en una nota = esa nota · ','Click the name or a diagram = the chord and then its notes · click a note = that note · ')+ICO('plus')+TR(' o arrastrar = añadir a la sección activa.</span>',' or drag = add to the active section.</span>');
   if(!VOICINGS.length){vv.innerHTML=TR('<p class="vhint">No hay ninguna forma cómoda de 4 dedos con esas notas','<p class="vhint">There is no comfortable 4-finger shape with those notes')+(ch.fbass!=null?TR(' y ese bajo',' and that bass'):'')+'.</p>';return;}
   const G={};VOICINGS.forEach((v,i)=>{(G[v._m.fam]=G[v._m.fam]||[]).push(i);});
   Object.keys(G).forEach(k=>G[k].sort((a,b)=>VOICINGS[a]._m.z-VOICINGS[b]._m.z||VOICINGS[b]._m.ns-VOICINGS[a]._m.ns));
@@ -5465,6 +5470,46 @@ function updateStrip(rb){
   box.querySelectorAll('.lss').forEach(el=>{const i=+el.dataset.i;
     el.classList.toggle('cur',i===idx);el.classList.toggle('done',idx>=0&&i<idx);});
 }
+/* ════════ oído (2026-11-16, Rodney) ════════
+   «Oír el acorde y luego cada una de sus notas» — en un diagrama de voicings: el rasgueo y luego cada cuerda que suena,
+   de grave a aguda; en el nombre del acorde (cabecera de voicings): el rasgueo y luego sus notas en posición cerrada desde
+   la fundamental; en una nota de la cabecera: esa nota sola. Cada nota que suena se marca en la cabecera.
+   Las notas van con temporizadores (no programadas en el audio) para que un clic nuevo corte lo anterior en el acto. */
+const EAR={t:[]};
+function earStop(){EAR.t.forEach(clearTimeout);EAR.t=[];document.querySelectorAll('#vhead .tone.ping').forEach(x=>x.classList.remove('ping'));}
+function earPing(pc){
+  document.querySelectorAll('#vhead .tone.ping').forEach(x=>x.classList.remove('ping'));
+  if(pc==null||!S.selChord)return;
+  const ch=S.selChord,el=[...document.querySelectorAll('#vhead .tone[data-ear]')].find(x=>((ch.pc+(+x.dataset.ear))%12+12)%12===pc);
+  if(el){void el.offsetWidth;el.classList.add('ping');}
+}
+function earNote(midi,str){ac();cutWhere(()=>true,AC.currentTime+0.02,0.05);playString(AC.currentTime+0.03,440*Math.pow(2,(midi-69)/12),str);earPing(((midi-(S.capo||0))%12+12)%12);}
+/* notas: [{midi, str}] ya con la cejilla; primero el rasgueo del voicing, luego una a una */
+function earPlay(voicing,notes){
+  earStop();ac();
+  if(voicing)strum(voicing,AC.currentTime+0.03);
+  const gap=520,start=voicing?1500:60;
+  notes.forEach((n,i)=>EAR.t.push(setTimeout(()=>earNote(n.midi,n.str),start+i*gap)));
+  EAR.t.push(setTimeout(()=>earPing(null),start+notes.length*gap+700));
+}
+function earVoicing(v){
+  if(!v)return;const N=[];
+  v.frets.forEach((f,i)=>{if(f>=0)N.push({midi:TUNING[i]+f+(S.capo||0),str:i});});
+  earPlay(v,N);
+}
+function earRoot(ch){return 48+((ch.pc%12)+12)%12+(S.capo||0);} /* fundamental entre Do3 y Si3 */
+function earChord(ch){
+  const ivs=[...document.querySelectorAll('#vhead .tone[data-ear]')].map(x=>+x.dataset.ear).sort((a,b)=>a-b);
+  const r=earRoot(ch);
+  earPlay((VOICINGS&&VOICINGS[0])||getVoicings(ch)[0],ivs.map(iv=>({midi:r+iv,str:null})));
+}
+document.getElementById('vhead').addEventListener('click',e=>{
+  const ch=S.selChord;if(!ch)return;
+  const tn=e.target.closest&&e.target.closest('.tone[data-ear]');
+  if(tn){earStop();earNote(earRoot(ch)+(+tn.dataset.ear),null);EAR.t.push(setTimeout(()=>earPing(null),900));return;}
+  if(e.target.closest&&e.target.closest('[data-earall]'))earChord(ch);
+});
+document.getElementById('vhead').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[data-ear],[data-earall]')){e.preventDefault();e.target.click();}});
 function previewChord(ch,voicing){
   ac();
   strum(voicing||getVoicings(ch)[0],AC.currentTime+0.03);
@@ -7034,7 +7079,7 @@ const MAN=[
   TR('Clic en una nota <b>gris</b> del círculo = nueva tonalidad: el anillo exterior la fija <b>mayor</b> y el del medio <b>menor</b>.','Click a note <b>grey</b> on the circle = new key: the outer ring sets it as <b>major</b> and the middle one as <b>minor</b>.'),
   TR('Clic en un acorde <b>coloreado</b> (círculo o paleta) = suena y abre sus voicings. Debajo de cada acorde de la paleta va su función: tónica, subdominante o dominante.','Click a chord <b>coloreado</b> (circle or palette) = it sounds and opens its voicings. Under each palette chord is its function: tonic, subdominant or dominant.'),
   TR('Voicings por forma: <b>abierto</b>, fundamental en 6ª (forma E), en 5ª (forma A) y en 4ª (forma D7, en los 7) y <b>tríadas</b> con inversiones (en tenue, la forma CAGED de la que salen). El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.','Voicings by shape: <b>open</b>, root on the 6th string (E shape), on the 5th (A shape) and on the 4th (D7 shape, for 7ths) and <b>triads</b> with inversions (faded, the CAGED shape they come from). The mini neck above shows where each shape falls: tap it to go there.'),
-  TR('Clic en un diagrama = escucharlo · <b>','Click a diagram = hear it · <b>')+ICO('plus')+TR('</b> o arrastrarlo = añadirlo a la <b>sección activa</b> (la del nombre enmarcado).','</b> or drag it = add it to the <b>active section</b> (the one with the framed name).'),
+  TR('Clic en un diagrama = el acorde y luego cada cuerda, de grave a aguda, para educar el oído · clic en el <b>nombre del acorde</b> = el acorde y luego sus notas desde la fundamental · clic en una <b>nota</b> = esa nota sola. La nota que suena se marca arriba · <b>','Click a diagram = the chord and then each string, low to high, for ear training · click the <b>chord name</b> = the chord and then its notes from the root · click a <b>note</b> = that note alone. The note sounding is marked above · <b>')+ICO('plus')+TR('</b> o arrastrarlo = añadirlo a la <b>sección activa</b> (la del nombre enmarcado).','</b> or drag it = add it to the <b>active section</b> (the one with the framed name).'),
   TR('La ficha <b>N.C.</b> del final de la paleta es un silencio: corta lo que suena (la batería sigue o para, se elige en la propia ficha).','The chip <b>N.C.</b> at the end of the palette is a rest: it cuts what is ringing (drums go on or stop, chosen on the chip itself).')]},
  {id:'buscador',ic:'search',t:TR('Buscador: cualquier acorde','Finder: any chord'),p:TR('Para los acordes que no están en la escala, o para ver TODAS las formas de uno que sí está.','For chords that aren\'t in the scale, or to see ALL the shapes of one that is.'),li:[
   TR('Escribe arriba de los voicings y pulsa Enter (o «ver»): <b>Cmaj7</b>, <b>B♭9</b>, <b>F♯m7♭5</b>, <b>Dsus4</b>, <b>D/F♯</b>… También vale <b>Do♯m7</b>, <b>CM7</b>, <b>C-7</b>, <b>Cø</b> o <b>C°7</b>.','Type above the voicings and press Enter (or “see”): <b>Cmaj7</b>, <b>B♭9</b>, <b>F♯m7♭5</b>, <b>Dsus4</b>, <b>D/F♯</b>… Also works: <b>C♯m7</b>, <b>CM7</b>, <b>C-7</b>, <b>Cø</b> or <b>C°7</b>.'),
@@ -7285,7 +7330,7 @@ document.addEventListener('click',e=>{
   const addb=e.target.closest&&e.target.closest('.addb');
   if(addb){const v=VOICINGS[+addb.dataset.vi];addSlot(S.selChord,v);toast((v.disp||S.selChord.label)+TR(' añadido a ',' added to ')+S.sections[S.active].name);return;}
   const vc=e.target.closest&&e.target.closest('.vcard');
-  if(vc){previewChord(S.selChord,VOICINGS[+vc.dataset.vi]);return;}
+  if(vc){earVoicing(VOICINGS[+vc.dataset.vi]);return;} /* 2026-11-16: el acorde y luego sus notas */
   const pb=e.target.closest&&e.target.closest('[data-preset]');
   if(pb){applyPreset(PRESETS[+pb.dataset.preset]);return;}
   const dup=e.target.closest&&e.target.closest('.sl-dup');
