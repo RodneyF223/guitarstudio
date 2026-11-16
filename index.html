@@ -263,6 +263,7 @@
     border:1.5px solid var(--line2);border-radius:2px;background:var(--panel);color:var(--ink);
     font-family:var(--font-b);font-size:13.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
   .tpill:hover{box-shadow:var(--hov)}
+  @media (hover:none){.tpill:hover:not(.tnum){box-shadow:none}} /* tableta: sin «hover» pegado tras tocar */
   .tgrp.open>.tpill{box-shadow:var(--hov)}
   /* deshacer / rehacer: solo icono; atenuados cuando no hay nada que deshacer o rehacer (se pueden pulsar igual) */
   .tpill.tundo{padding:0 13px;touch-action:manipulation}
@@ -1939,24 +1940,21 @@
 
   <label class="tpill tsw" title="Activa o desactiva el bajo: toca la fundamental de cada acorde (o su bajo, en acordes tipo D/F♯)"><input type="checkbox" id="basson" checked><i class="tico"><i data-ic="bass"></i></i><span class="tlab">bajo</span></label>
 
-  <label class="tpill tsw" title="Activa o desactiva la guitarra: apágala para tocar tú los acordes con la batería y el bajo (la canción sigue iluminándose y avanzando)"><input type="checkbox" id="gtron" checked><i class="tico"><i data-ic="guitar"></i></i><span class="tlab">guitarra</span></label>
-
-  <span class="tsep tsep-v" aria-hidden="true"></span>
-
-  <div class="tgrp">
-    <button class="tpill tvolbtn" id="volbtn" title="Volumen y mezcla de metrónomo, batería, bajo y guitarra"><i class="tico" id="volbtnico"><i data-ic="volume-2"></i></i><span class="tlab">volumen</span></button>
-    <div class="tpop tpop-l panel volpop" id="pop-vol" hidden>
-      <div class="tpophead"><span class="tpoptitle">volumen</span><button class="tpopx" data-popclose title="Cerrar"><i data-ic="x"></i></button></div>
-      <div class="setvol tvol" id="tvol" title="Volumen general"><button class="volico" id="volico" title="Silenciar / restablecer el volumen"><i data-ic="volume-2"></i></button><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen general"><span class="setval" id="volval">80%</span></div>
-      <div class="setsub">mezcla</div>
-      <label class="mixrow" title="Volumen del metrónomo"><b>metrónomo</b><input type="range" id="volmetro" min="0" max="1" step="0.01" value="0.5"></label>
-      <label class="mixrow" title="Volumen de la batería"><b>batería</b><input type="range" id="voldrums" min="0" max="1" step="0.01" value="0.85"></label>
-      <label class="mixrow" title="Volumen del bajo"><b>bajo</b><input type="range" id="volbass" min="0" max="1" step="0.01" value="0.8"></label>
-      <label class="mixrow" title="Volumen de la guitarra (acordes)"><b>guitarra</b><input type="range" id="volchords" min="0" max="1" step="0.01" value="0.9"></label>
-    </div>
-  </div>
+  <label class="tpill tsw" title="Activa o desactiva la guitarra: apágala para tocar tú los acordes con la batería y el bajo (la canción sigue iluminándose y avanzando)"><input type="checkbox" id="gtron" checked><i class="tico"><i data-ic="eguitar"></i></i><span class="tlab">guitarra</span></label>
 
   <div class="tright">
+    <div class="tgrp">
+      <button class="tpill tvolbtn" id="volbtn" title="Volumen y mezcla de metrónomo, batería, bajo y guitarra"><i class="tico" id="volbtnico"><i data-ic="volume-2"></i></i><span class="tlab">volumen</span></button>
+      <div class="tpop tpop-r panel volpop" id="pop-vol" hidden>
+        <div class="tpophead"><span class="tpoptitle">volumen</span><button class="tpopx" data-popclose title="Cerrar"><i data-ic="x"></i></button></div>
+        <div class="setvol tvol" id="tvol" title="Volumen general"><button class="volico" id="volico" title="Silenciar / restablecer el volumen"><i data-ic="volume-2"></i></button><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen general"><span class="setval" id="volval">80%</span></div>
+        <div class="setsub">mezcla</div>
+        <label class="mixrow" title="Volumen del metrónomo"><b>metrónomo</b><input type="range" id="volmetro" min="0" max="1" step="0.01" value="0.5"></label>
+        <label class="mixrow" title="Volumen de la batería"><b>batería</b><input type="range" id="voldrums" min="0" max="1" step="0.01" value="0.85"></label>
+        <label class="mixrow" title="Volumen del bajo"><b>bajo</b><input type="range" id="volbass" min="0" max="1" step="0.01" value="0.8"></label>
+        <label class="mixrow" title="Volumen de la guitarra (acordes)"><b>guitarra</b><input type="range" id="volchords" min="0" max="1" step="0.01" value="0.9"></label>
+      </div>
+    </div>
     <button class="tpill tundo" id="undobtn" title="Deshacer el último cambio (Ctrl+Z)"><i class="tico"><i data-ic="undo-2"></i></i></button>
     <button class="tpill tundo" id="redobtn" title="Rehacer lo deshecho (Ctrl+Y)"><i class="tico"><i data-ic="redo-2"></i></i></button>
   </div>
@@ -2085,7 +2083,8 @@ const ICONS={
   'clipboard':'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>',
   'pencil':'<path d="M21.2 6.8a2.8 2.8 0 0 0-4-4L3.8 16.2a2 2 0 0 0-.5.8L2 21.5l4.5-1.3a2 2 0 0 0 .8-.5z"/><path d="m15 5 4 4"/>',
   'heart':'<path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z"/>',
-  'bass':'<path d="M5 8.5a4 4 0 1 1 8 .5c0 5-3 8.5-8 10.5"/><circle cx="7.2" cy="9.2" r="1.1" fill="currentColor"/><path d="M17.5 7h.01"/><path d="M17.5 12h.01"/>',
+  'bass':'<path d="M12 14.2V6"/><rect x="10.7" y="1" width="2.6" height="5" rx=".6"/><path d="M10.7 2.6H9.2M10.7 4.6H9.2M13.3 2.6h1.5M13.3 4.6h1.5"/><path d="M10.4 14.4 8.6 11.2l-.4 4C6.8 16.2 6 17.5 6.2 19c.3 1.9 2.5 3 5.8 3s5.5-1.1 5.8-3c.2-1.5-.6-2.8-2-3.8l-.6-2.6-1.4 1.8c-1.1-.3-2.3-.3-3.4 0Z"/><path d="M10.2 18.4h3.6"/>', /* 2026-11-16: bajo eléctrico en vertical, para no confundirlo con la guitarra */
+  'eguitar':'<path d="M11.5 12.5 18.6 5.4"/><path d="M18 4.6 20.2 2.4 21.6 3.8 19.4 6Z"/><path d="M10.2 9.3 8.6 7.4 7.6 9.8C5.2 10 3.2 11.6 3 14c-.3 3.5 3.5 7.3 7 7 2.4-.2 4-2.2 4.2-4.6l2.4-1-1.9-1.6c-.6-1.8-2.7-3.9-4.5-4.5Z"/><path d="m7.4 15.2 1.4 1.4"/><path d="m9.2 13.4 1.4 1.4"/>', /* guitarra eléctrica en diagonal (botón de la barra) */
   'drum':'<path d="m2 2 8 8"/><path d="m22 2-8 8"/><ellipse cx="12" cy="9" rx="10" ry="5"/><path d="M7 13.4v7.9"/><path d="M12 14v8"/><path d="M17 13.4v7.9"/><path d="M2 9v8a10 5 0 0 0 20 0V9"/>',
   'metronome':'<path d="M9 3h6l4 18H5z"/><path d="M6 17h12"/><path d="m12 17 3.6-9"/><path d="M12.6 11.3l2.8 1.2"/>',
   'timer':'<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
@@ -2102,7 +2101,7 @@ const ICONS={
   'corner-left-up':'<path d="M14 9 9 4 4 9"/><path d="M20 20h-7a4 4 0 0 1-4-4V4"/>',
   'corner-right-down':'<polyline points="10 15 15 20 20 15"/><path d="M4 4h7a4 4 0 0 1 4 4v12"/>',
   'grip-vertical':'<circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>',
-  'settings-2':'<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
+  'settings-2':'<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>', /* 2026-11-16: engranaje (antes, deslizadores) */
   'book-open':'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
   'search':'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   'ellipsis':'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
@@ -7075,7 +7074,7 @@ const MAN=[
   TR('La guitarra da un rasgueo al empezar cada acorde y, en los tiempos siguientes, un golpe en palm mute.','The guitar strums at the start of each chord and, on the following beats, plays a palm-muted hit.'),
   TR('La batería elige su <b>energía</b> por el nombre de la sección (en inglés o en castellano): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3. Al cambiar de nivel hay redoble, al subir a 3–4 entra con crash, y la canción acaba con golpe final. A mano: <b>⋯ → batería</b>.','The drums pick their <b>energy</b> from the section name (in English or Spanish): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break no drums · Outro 3. When the level changes there is a fill, going up to 3–4 comes in with a crash, and the song ends with a final hit. By hand: <b>⋯ → drums</b>.')]},
  {id:'ajustes',ic:'settings-2',t:TR('Ajustes','Settings'),p:TR('El engranaje de la barra de arriba reúne lo que se toca poco: el sonido de la guitarra y la pantalla. El volumen está abajo.','The gear on the top bar gathers what you rarely touch: the guitar sound and the display. Volume is at the bottom.'),li:[
-  TR('<b>Volumen</b> (barra de abajo, tras la raya): volumen general, con ','<b>Volume</b> (bottom bar, after the divider): master volume, with ')+ICO('volume-2')+TR(' para silenciar y volver, y la <b>mezcla</b> de metrónomo, batería, bajo y guitarra. Si está en silencio, el botón se pone en rojo.',' to mute and restore, and the <b>mix</b> of metronome, drums, bass and guitar. When muted, the button turns red.'),
+  TR('<b>Volumen</b> (abajo a la derecha, junto a deshacer): volumen general, con ','<b>Volume</b> (bottom right, next to undo): master volume, with ')+ICO('volume-2')+TR(' para silenciar y volver, y la <b>mezcla</b> de metrónomo, batería, bajo y guitarra. Si está en silencio, el botón se pone en rojo.',' to mute and restore, and the <b>mix</b> of metronome, drums, bass and guitar. When muted, the button turns red.'),
   TR('<b>Metrónomo, batería, bajo y guitarra</b> se encienden con sus botones de abajo y, como el volumen, valen para todas las canciones de este aparato. Apaga la guitarra para tocar tú los acordes con la batería y el bajo.','<b>Metronome, drums, bass and guitar</b> are switched on with their buttons at the bottom and, like the volume, apply to every song on this device. Switch the guitar off to play the chords yourself over the drums and bass.'),
   TR('<b>Sonido de la guitarra:</b> ataque (izquierda = todas las cuerdas a la vez), sustain, sonido y sala.','<b>Guitar sound:</b> attack (left = all strings at once), sustain, sound (plucked string or classic) and room.'),
   TR('<b>Pantalla</b> (de este aparato, para todas las canciones): tema automático, claro u oscuro · <b>resaltar</b> cada acorde o solo la sección (en directo, si la banda no va clavada al clic, la sección es más fiable) · <b>avance en el directo</b>.','<b>Display</b> (for this device, all songs): automatic, light or dark theme · <b>highlight</b> each chord or just the section (live, if the band isn\'t locked to the click, the section is more reliable) · <b>auto-advance in live mode</b>.'),
