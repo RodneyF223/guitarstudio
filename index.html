@@ -752,6 +752,8 @@
   #vhead .vbadge[data-earall],#vhead .tone[data-ear]{cursor:pointer;touch-action:manipulation;transition:transform .12s ease-out,box-shadow .12s ease-out}
   #vhead .vbadge[data-earall]:active,#vhead .tone[data-ear]:active{transform:scale(.96)}
   #vhead .tone.ping{transform:translateY(-4px);box-shadow:0 0 0 2.5px var(--ink)}
+  .dgn{transform-box:fill-box;transform-origin:center;transition:transform .1s ease-out}
+  .dgn.ping{stroke:var(--ink);stroke-width:3.2px;transform:scale(1.28)}
   .tone .r{font-family:var(--font-n);font-size:10px;font-weight:600}
   .vhint{font-size:12px;color:var(--mut);flex-basis:100%}
   /* panel de voicings agrupado por forma (2026-10-09) */
@@ -2582,12 +2584,12 @@ function chordSVG(v,cls,ghost,nf){
     if(f<0){if(!(ghost&&ghost[i]>=0))s+='<text x="'+x+'" y="'+(T-8)+'" font-size="11" fill="var(--mut)" text-anchor="middle" font-weight="bold">×</text>';}
     else if(f===0){const role=R[i]||'';
       if(role){const col=ROLE_COLORS[role]||'var(--ink)';
-        s+='<circle cx="'+x+'" cy="'+(T-11)+'" r="7" fill="'+col+'" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>';
+        s+='<circle class="dgn" data-s="'+i+'" cx="'+x+'" cy="'+(T-11)+'" r="7" fill="'+col+'" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>';
         s+='<text x="'+x+'" y="'+(T-8)+'" font-size="'+(role.length>1?7:8.5)+'" font-weight="800" fill="#151514" text-anchor="middle" font-family="Archivo,Segoe UI,sans-serif">'+role+'</text>';
-      }else{s+='<circle cx="'+x+'" cy="'+(T-11)+'" r="4" fill="none" stroke="var(--ink)" stroke-width="1.4"/>';}}
+      }else{s+='<circle class="dgn" data-s="'+i+'" cx="'+x+'" cy="'+(T-11)+'" r="4" fill="none" stroke="var(--ink)" stroke-width="1.4"/>';}}
     else{let row=f-base+1;if(row<1)row=1;if(row>N)row=N;
       const y=T+(row-0.5)*rh, role=R[i]||'1', col=ROLE_COLORS[role]||'var(--ink)';
-      s+='<circle cx="'+x+'" cy="'+y+'" r="8.2" fill="'+col+'" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>';
+      s+='<circle class="dgn" data-s="'+i+'" cx="'+x+'" cy="'+y+'" r="8.2" fill="'+col+'" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>';
       s+='<text x="'+x+'" y="'+(y+3.2)+'" font-size="'+(role.length>1?8:9.5)+'" font-weight="800" fill="#151514" text-anchor="middle" font-family="Archivo,Segoe UI,sans-serif">'+role+'</text>';}
   });
   return s+'</svg>';
@@ -5475,27 +5477,28 @@ function updateStrip(rb){
    de grave a aguda; en el nombre del acorde (cabecera de voicings): el rasgueo y luego sus notas en posición cerrada desde
    la fundamental; en una nota de la cabecera: esa nota sola. Cada nota que suena se marca en la cabecera.
    Las notas van con temporizadores (no programadas en el audio) para que un clic nuevo corte lo anterior en el acto. */
-const EAR={t:[]};
-function earStop(){EAR.t.forEach(clearTimeout);EAR.t=[];document.querySelectorAll('#vhead .tone.ping').forEach(x=>x.classList.remove('ping'));}
-function earPing(pc){
-  document.querySelectorAll('#vhead .tone.ping').forEach(x=>x.classList.remove('ping'));
+const EAR={t:[],card:null};
+function earStop(){EAR.t.forEach(clearTimeout);EAR.t=[];EAR.card=null;document.querySelectorAll('#vhead .tone.ping,.dgn.ping').forEach(x=>x.classList.remove('ping'));}
+function earPing(pc,str){
+  document.querySelectorAll('#vhead .tone.ping,.dgn.ping').forEach(x=>x.classList.remove('ping'));
+  if(str!=null&&EAR.card){const d=EAR.card.querySelector('.dgn[data-s="'+str+'"]');if(d){void d.getBoundingClientRect();d.classList.add('ping');}}
   if(pc==null||!S.selChord)return;
   const ch=S.selChord,el=[...document.querySelectorAll('#vhead .tone[data-ear]')].find(x=>((ch.pc+(+x.dataset.ear))%12+12)%12===pc);
   if(el){void el.offsetWidth;el.classList.add('ping');}
 }
-function earNote(midi,str){ac();cutWhere(()=>true,AC.currentTime+0.02,0.05);playString(AC.currentTime+0.03,440*Math.pow(2,(midi-69)/12),str);earPing(((midi-(S.capo||0))%12+12)%12);}
+function earNote(midi,str){ac();cutWhere(()=>true,AC.currentTime+0.02,0.05);playString(AC.currentTime+0.03,440*Math.pow(2,(midi-69)/12),str);earPing(((midi-(S.capo||0))%12+12)%12,str);}
 /* notas: [{midi, str}] ya con la cejilla; primero el rasgueo del voicing, luego una a una */
-function earPlay(voicing,notes){
-  earStop();ac();
+function earPlay(voicing,notes,card){
+  earStop();ac();EAR.card=card||null;
   if(voicing)strum(voicing,AC.currentTime+0.03);
-  const gap=520,start=voicing?1500:60;
+  const gap=340,start=voicing?1000:60; /* 2026-11-16: arpegio a 1 s del rasgueo y más seguido */
   notes.forEach((n,i)=>EAR.t.push(setTimeout(()=>earNote(n.midi,n.str),start+i*gap)));
   EAR.t.push(setTimeout(()=>earPing(null),start+notes.length*gap+700));
 }
-function earVoicing(v){
+function earVoicing(v,card){
   if(!v)return;const N=[];
   v.frets.forEach((f,i)=>{if(f>=0)N.push({midi:TUNING[i]+f+(S.capo||0),str:i});});
-  earPlay(v,N);
+  earPlay(v,N,card);
 }
 function earRoot(ch){return 48+((ch.pc%12)+12)%12+(S.capo||0);} /* fundamental entre Do3 y Si3 */
 function earChord(ch){
@@ -7079,7 +7082,7 @@ const MAN=[
   TR('Clic en una nota <b>gris</b> del círculo = nueva tonalidad: el anillo exterior la fija <b>mayor</b> y el del medio <b>menor</b>.','Click a note <b>grey</b> on the circle = new key: the outer ring sets it as <b>major</b> and the middle one as <b>minor</b>.'),
   TR('Clic en un acorde <b>coloreado</b> (círculo o paleta) = suena y abre sus voicings. Debajo de cada acorde de la paleta va su función: tónica, subdominante o dominante.','Click a chord <b>coloreado</b> (circle or palette) = it sounds and opens its voicings. Under each palette chord is its function: tonic, subdominant or dominant.'),
   TR('Voicings por forma: <b>abierto</b>, fundamental en 6ª (forma E), en 5ª (forma A) y en 4ª (forma D7, en los 7) y <b>tríadas</b> con inversiones (en tenue, la forma CAGED de la que salen). El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.','Voicings by shape: <b>open</b>, root on the 6th string (E shape), on the 5th (A shape) and on the 4th (D7 shape, for 7ths) and <b>triads</b> with inversions (faded, the CAGED shape they come from). The mini neck above shows where each shape falls: tap it to go there.'),
-  TR('Clic en un diagrama = el acorde y luego cada cuerda, de grave a aguda, para educar el oído · clic en el <b>nombre del acorde</b> = el acorde y luego sus notas desde la fundamental · clic en una <b>nota</b> = esa nota sola. La nota que suena se marca arriba · <b>','Click a diagram = the chord and then each string, low to high, for ear training · click the <b>chord name</b> = the chord and then its notes from the root · click a <b>note</b> = that note alone. The note sounding is marked above · <b>')+ICO('plus')+TR('</b> o arrastrarlo = añadirlo a la <b>sección activa</b> (la del nombre enmarcado).','</b> or drag it = add it to the <b>active section</b> (the one with the framed name).'),
+  TR('Clic en un diagrama = el acorde y luego cada cuerda, de grave a aguda, para educar el oído (cada nota se marca en el diagrama) · clic en el <b>nombre del acorde</b> = el acorde y luego sus notas desde la fundamental · clic en una <b>nota</b> = esa nota sola. La nota que suena se marca arriba · <b>','Click a diagram = the chord and then each string, low to high, for ear training (each note is marked on the diagram) · click the <b>chord name</b> = the chord and then its notes from the root · click a <b>note</b> = that note alone. The note sounding is marked above · <b>')+ICO('plus')+TR('</b> o arrastrarlo = añadirlo a la <b>sección activa</b> (la del nombre enmarcado).','</b> or drag it = add it to the <b>active section</b> (the one with the framed name).'),
   TR('La ficha <b>N.C.</b> del final de la paleta es un silencio: corta lo que suena (la batería sigue o para, se elige en la propia ficha).','The chip <b>N.C.</b> at the end of the palette is a rest: it cuts what is ringing (drums go on or stop, chosen on the chip itself).')]},
  {id:'buscador',ic:'search',t:TR('Buscador: cualquier acorde','Finder: any chord'),p:TR('Para los acordes que no están en la escala, o para ver TODAS las formas de uno que sí está.','For chords that aren\'t in the scale, or to see ALL the shapes of one that is.'),li:[
   TR('Escribe arriba de los voicings y pulsa Enter (o «ver»): <b>Cmaj7</b>, <b>B♭9</b>, <b>F♯m7♭5</b>, <b>Dsus4</b>, <b>D/F♯</b>… También vale <b>Do♯m7</b>, <b>CM7</b>, <b>C-7</b>, <b>Cø</b> o <b>C°7</b>.','Type above the voicings and press Enter (or “see”): <b>Cmaj7</b>, <b>B♭9</b>, <b>F♯m7♭5</b>, <b>Dsus4</b>, <b>D/F♯</b>… Also works: <b>C♯m7</b>, <b>CM7</b>, <b>C-7</b>, <b>Cø</b> or <b>C°7</b>.'),
@@ -7330,7 +7333,7 @@ document.addEventListener('click',e=>{
   const addb=e.target.closest&&e.target.closest('.addb');
   if(addb){const v=VOICINGS[+addb.dataset.vi];addSlot(S.selChord,v);toast((v.disp||S.selChord.label)+TR(' añadido a ',' added to ')+S.sections[S.active].name);return;}
   const vc=e.target.closest&&e.target.closest('.vcard');
-  if(vc){earVoicing(VOICINGS[+vc.dataset.vi]);return;} /* 2026-11-16: el acorde y luego sus notas */
+  if(vc){earVoicing(VOICINGS[+vc.dataset.vi],vc);return;} /* 2026-11-16: el acorde y luego sus notas */
   const pb=e.target.closest&&e.target.closest('[data-preset]');
   if(pb){applyPreset(PRESETS[+pb.dataset.preset]);return;}
   const dup=e.target.closest&&e.target.closest('.sl-dup');
