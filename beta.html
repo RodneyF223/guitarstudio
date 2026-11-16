@@ -1979,7 +1979,7 @@
         </select>
       </div>
       <div class="tswrow">
-        <label class="tpill tsw"><input type="checkbox" id="countin"><span>cuenta de entrada</span></label>
+        <label class="tpill tsw" title="Cuenta de entrada del estudio. En el directo el ▶ cuenta siempre un compás (dos con doble toque)"><input type="checkbox" id="countin"><span>cuenta de entrada</span></label>
         <label class="tpill tsw"><input type="checkbox" id="loop" checked><span>bucle</span></label>
       </div>
     </div>
@@ -5350,8 +5350,10 @@ function liveBeat(t,b,left){
 /* ── directo sin sonido (2026-11-16, Rodney): «el modo live no debería reproducir sonido alguno por ahora».
    En el directo el ▶ hace todo lo visual (acordes, pantalla, letra, luces del ▶) y nada suena.
    «N s por sección» (Ajustes → reproducción en el directo): cada vuelta de sección dura N s, sea cual sea su largo. */
-function liveMute(){return document.body.classList.contains('live');}
-function playFixed(){if(!liveMute())return 0;const m=advMode();return (m&&m!=='tempo')?(+m||0):0;}
+/* 2026-11-17 (Rodney): «modo live ponle sonido también» → el directo vuelve a sonar. liveMute() se queda por si se
+   quiere volver a callar (devolver true en el directo). */
+function liveMute(){return false;}
+function playFixed(){if(!document.body.classList.contains('live'))return 0;const m=advMode();return (m&&m!=='tempo')?(+m||0):0;}
 function passSegs(evs){
   const out=[];let last=null;
   evs.forEach(ev=>{const k=ev.si+'|'+(ev.rp||0)+'|'+(ev.gp||0);
@@ -5380,7 +5382,9 @@ function startPlay(scopeSi,opt){
   play.evs=tl.evs;play.total=tl.total;
   if(!play.evs.length&&!S.metro&&!S.drumsOn){toast(TR('Añade acordes o activa el metrónomo 😉','Add chords or turn on the metronome 😉'));return;}
   try{ksWarm();}catch(e){}
-  play.countIn=S.countIn?countBeats():0;
+  /* cuenta de entrada: en el estudio, la de su ajuste; en el directo SIEMPRE un compás (un segundo toque rápido
+     del ▶ añade otro: ver el ▶ del directo) — 2026-11-17, Rodney */
+  play.countIn=document.body.classList.contains('live')?countBeats():(S.countIn?countBeats():0);play.t0=Date.now();
   play.auto=!!(opt&&opt.auto);play.fixed=playFixed();play.tq=[];play.psegs=null;
   play.on=true;play.beat=0;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;play.curLyMark=null;play.nextT=AC.currentTime+0.15;
   play.timer=setInterval(tick,25);
@@ -7467,7 +7471,7 @@ const MAN=[
   TR('El directo tiene dos módulos, con sus teclas en la barra de abajo: <b>acordes</b> (la rejilla) y <b>letra</b>. Se encienden por separado —solo acordes, acordes + letra o solo letra— y cada canción recuerda cómo la dejaste. Con los dos, abajo sale la letra de la sección que suena, tan grande como quepa sin cortar líneas, y en gris cómo empieza la siguiente. Solo letra enseña la canción entera y va bajando. La letra de toda la canción va en un carril que sube solo y sin saltos, al ritmo de la canción, como un karaoke: la línea que toca se resalta y debajo asoma la sección siguiente. Con acordes + letra, el tamaño se elige para que quepan 5 líneas de la sección. Para que acierte, escribe <b>una línea de letra por cada vuelta de acordes</b> (cada pasada de una línea de acordes, contando repeticiones y casillas); una línea en blanco separa secciones al pegar la letra entera. <b>Tocar la letra</b> pone o quita los acordes de encima. La letra se escribe en el modo letra del estudio.','Live mode has two modules, with their keys on the bottom bar: <b>chords</b> (the grid) and <b>lyrics</b>. Switch them on separately —chords only, chords + lyrics or lyrics only— and each song remembers how you left it. With both, the lyrics of the section that is sounding appear below, as large as fits without breaking lines, with the start of the next one in grey. Lyrics only shows the whole song and scrolls down. The lyrics of the whole song run on a lane that moves up smoothly, without jumps, in time with the song, like karaoke: the current line is highlighted and the next section shows below. With chords + lyrics, the size is chosen so 5 lines of the section fit. For that to match, write <b>one lyric line per chord pass</b> (each pass of a chord line, counting repeats and endings); a blank line separates sections when pasting whole lyrics. <b>Tap the lyrics</b> to show or hide the chords above them. Lyrics are written in the studio\'s lyrics mode.'),
   TR('Cambiar de canción: <b>','Change song: <b>')+ICO('skip-back')+' '+ICO('skip-forward')+TR('</b>, <b>deslizar el dedo</b> o un pasapáginas (Av Pág / Re Pág o ← →). La barra espaciadora toca y para.','</b>, <b>swipe</b> or a page-turner pedal (Page Down / Page Up or ← →). The space bar plays and stops.'),
   TR('<b>Toca el nombre de una sección</b> para abrirla con diagramas o plegarla; cada vista lo recuerda, canción por canción.','<b>Tap a section name</b> to open it with diagrams or fold it; each view remembers it, song by song.'),
-  TR('Al reproducir, la pantalla sigue a la sección que suena. En el directo la reproducción <b>no suena</b>: solo ilumina los acordes, baja la pantalla y sube la letra. Con <b>Ajustes → reproducción en el directo</b> empieza sola al salir cada canción (al tempo o N segundos por sección); si se desfasa, toca la sección que suena en la tira de abajo.','During playback the screen follows the section that is sounding. In live mode playback <b>makes no sound</b>: it only lights up the chords, scrolls the screen and moves the lyrics. With <b>Settings → playback in live mode</b> it starts by itself when each song appears (at tempo or N seconds per section); if it drifts, tap the section that is sounding on the strip below.'),
+  TR('Al reproducir, la pantalla sigue a la sección que suena. En el directo el ▶ suena como en el estudio y empieza siempre con un compás de cuenta (con doble toque, dos); ilumina los acordes, baja la pantalla y sube la letra. Con <b>Ajustes → reproducción en el directo</b> empieza sola al salir cada canción (al tempo o N segundos por sección); si se desfasa, toca la sección que suena en la tira de abajo.','During playback the screen follows the section that is sounding. In live mode ▶ sounds as in the studio and always starts with a one-bar count-in (double tap: two); it lights up the chords, scrolls the screen and moves the lyrics. With <b>Settings → playback in live mode</b> it starts by itself when each song appears (at tempo or N seconds per section); if it drifts, tap the section that is sounding on the strip below.'),
   TR('La <b>tira</b> de abajo tiene un tramo por sección, con su ×N y el contador de vueltas.','The <b>strip</b> at the bottom has one segment per section, with its ×N and the pass counter.'),
   TR('Al salir (<b>','When you leave (<b>')+ICO('x')+TR('</b> o Esc) vuelves al <b>estudio</b> <b>en la misma zona de la canción</b>.','</b> or Esc) you return to <b>studio</b> <b>at the same place in the song</b>.')]},
  {id:'ocultar',ic:'eye-off',t:TR('Ocultar y anotar en el directo','Hiding and annotating in live mode'),p:TR('Para que el directo no repita lo que vuelve casi igual.','So live mode doesn\'t repeat what comes back almost the same.'),li:[
@@ -8344,8 +8348,8 @@ document.getElementById('loop').addEventListener('change',e=>{
 });
 document.getElementById('autoadv').addEventListener('change',e=>{
   const v=e.target.value;try{STORE.setItem('gc-autoadv',v);}catch(er){}
-  toast(!v?TR('En el directo la canción empieza al pulsar ▶ (sin sonido)','In live mode the song starts when you press ▶ (no sound)')
-    :TR('En el directo la canción se reproducirá sola, sin sonido, ','In live mode the song will play by itself, without sound, ')+(v==='tempo'?TR('al tempo de cada canción','at each song\'s tempo'):v+TR(' s por sección',' s per section')));
+  toast(!v?TR('En el directo la canción empieza al pulsar ▶','In live mode the song starts when you press ▶')
+    :TR('En el directo la canción se reproducirá sola, ','In live mode the song will play by itself, ')+(v==='tempo'?TR('al tempo de cada canción','at each song\'s tempo'):v+TR(' s por sección',' s per section')));
 });
 try{const v=STORE.getItem('gc-autoadv');if(v!=null)document.getElementById('autoadv').value=v;}catch(e){}
 document.getElementById('hlmode').addEventListener('change',e=>{
@@ -8989,7 +8993,15 @@ document.getElementById('livebtn').addEventListener('click',()=>guardChange(ente
 document.getElementById('lexit').addEventListener('click',exitLive);
 document.getElementById('lprev').addEventListener('click',()=>liveNav(-1));
 document.getElementById('lnext').addEventListener('click',()=>liveNav(1));
-document.getElementById('lplay').addEventListener('click',()=>{play.on?stopPlay():startPlay(null);});
+/* ▶ del directo (2026-11-17, Rodney): «1 tap = suena 1 compás de count in · doble tap, dos compases, por si necesito
+   más tiempo rápidamente». El primer toque arranca YA con un compás de cuenta (sin esperar a ver si hay otro); un
+   segundo toque rápido (≤ 450 ms) mientras aún cuenta añade un compás más. Después, tocar = parar, como siempre. */
+document.getElementById('lplay').addEventListener('click',()=>{
+  if(play.on&&play.beat<play.countIn&&Date.now()-(play.t0||0)<=450&&!play.extra){
+    play.extra=true;play.countIn+=countBeats();toast(TR('Cuenta de entrada: 2 compases','Count-in: 2 bars'));return;}
+  if(play.on){stopPlay();return;}
+  startPlay(null);play.extra=false;
+});
 document.getElementById('lhid').addEventListener('click',()=>{
   document.body.classList.toggle('showhid');renderSections();
 });
