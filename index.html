@@ -4739,6 +4739,68 @@ const DSTY={
     fill:{s:'----x-x-----',t1:'--------xx--',t2:'----------x-',t3:'-----------x'},
     fin:{c:'X-----------',k:'X-----------'}}
 };
+/* ── 2026-11-16 (Rodney): versión en 3/4 de cada estilo, escrita para 3 tiempos (no recortada del 4/4).
+   La app la elige sola cuando la canción va en 3/4; el usuario solo ve un estilo. 12 pasos = 1 e & a 2 e & a 3 e & a.
+   Regla general: el «1» manda (bombo), el 2 y el 3 más ligeros; la caja fuerte suele ir al 3, que es lo que hace
+   girar el compás de 3. Redoble: desde el 2º tiempo (pasos 4–11). */
+const DSTY3={
+  rock:{lv:[
+    {h:'o-o-o-o-o-o-',k:'x-----------',r:'--------x---'},
+    {h:'x-o-x-o-x-o-',k:'x-----x-----',s:'--------x---'},
+    {o:'x-o-x-o-x-o-',k:'x-----x-x---',s:'--------X---',cr:4},
+    {y:'x-o-x-o-x-o-',k:'x-x---x---x-',s:'----g---X---',cr:4}],
+    fill:{s:'----xxxx----',t1:'--------xx--',t2:'----------x-',t3:'-----------x',k:'----x-------'},
+    fin:{c:'X-----------',k:'X-----------',s:'o-----------'}},
+  pop80:{lv:[
+    {h:'o-o-o-o-o-o-',k:'x-----------',r:'--------o---'},
+    {h:'xgogxgogxgog',k:'x-----x-----',s:'--------X---'},
+    {h:'x---x---x---',o:'--x---x---x-',k:'x---x-------',s:'--------X---',cr:4},
+    {y:'x-x-x-x-x-x-',k:'x---x-------',s:'--------X--x',cr:4}],
+    fill:{t1:'----xxx-----',t2:'-------xx---',t3:'---------xxx',k:'----x-------'},
+    fin:{c:'X-----------',k:'X-----------',s:'o-----------'}},
+  movida:{lv:[
+    {h:'o-o-o-o-o-o-',k:'x-----------',r:'----x---x---'},
+    {h:'x-x-x-x-x-x-',k:'x-----------',s:'----x---x---'},
+    {o:'x---x---x---',k:'x-----x-----',s:'----x---x---',cr:4},
+    {y:'x-x-x-x-x-x-',k:'x-x---x---x-',s:'----X---X---',cr:2}],
+    fill:{s:'----xxxxxxxx',k:'----x---x---'},
+    fin:{c:'X-----------',k:'X-----------'}},
+  medio:{lv:[
+    {h:'o---o---o---',k:'x-----------',r:'--------x---'},
+    {h:'x-o-x-o-x-o-',k:'x-----x-----',s:'--------x---'},
+    {o:'x-x-x-x-x-x-',k:'x-----x-----',s:'--------X---',cr:4},
+    {y:'x-o-x-o-x-o-',k:'x-x---x-----',s:'--------X-g-',cr:4}],
+    fill:{t1:'----x-x-----',t2:'--------x---',t3:'----------x-',s:'-----------x'},
+    fin:{c:'X-----------',k:'X-----------'}},
+  balada:{lv:[
+    {h:'g---g---g---',k:'x-----------',r:'--------o---'},
+    {h:'o---o---o---',k:'x-----x-----',s:'--------o---'},
+    {h:'o-o-o-o-o-o-',k:'x-----x-----',s:'--------x---',cr:4},
+    {y:'x-o-x-o-x-o-',k:'x---x-x-----',s:'--------X---',cr:4}],
+    fill:{t1:'----x-x-----',t2:'--------x-x-',t3:'-----------x'},
+    fin:{c:'x-----------',k:'x-----------'}},
+  rumba:{lv:[
+    {h:'o-o-o-o-o-o-',k:'x-----x-----',r:'----x-----x-'},
+    {h:'g-o-g-o-g-o-',k:'x-----x---x-',r:'----x-x-----'},
+    {o:'--o---o---o-',k:'x-----x---x-',s:'--------x---',t1:'------x-----',t2:'---x--------',cr:4},
+    {y:'x-x-x-x-x-x-',k:'x-x---x---x-',s:'----X---X---',r:'------x-----',cr:4}],
+    fill:{t1:'----x-x-----',t2:'-------x-x--',t3:'----------xx'},
+    fin:{c:'X-----------',k:'X-----------'}},
+  ska:{lv:[
+    {h:'--o---o---o-',k:'x-----------',r:'--------x---'},
+    {h:'g-x-g-x-g-x-',k:'x-----------',s:'--------x---'},
+    {h:'x---x---x---',o:'--x---x---x-',k:'x-----------',s:'----X---X---',cr:4},
+    {h:'x---x---x---',y:'--x---x---x-',k:'x---x---x---',s:'----X---X---',cr:2}],
+    fill:{s:'----x-x-x-xx',k:'----x-------'},
+    fin:{c:'X-----------',k:'X-----------',s:'o-----------'}},
+  funk:{lv:[
+    {h:'ogogogogogog',k:'x-----x-----',r:'--------o---'},
+    {h:'xgogxgogxgog',k:'x--x--x-----',s:'-g------X--g'},
+    {h:'xgogxgogxg--',o:'----------x-',k:'x--x--x-x---',s:'-g------X--g',cr:4},
+    {y:'x-x-x-x-x-x-',k:'x-x--x--x---',s:'-g--g---X-gg',cr:4}],
+    fill:{s:'----xgxg----',t1:'--------x---',t2:'---------x--',t3:'----------xx'},
+    fin:{c:'X-----------',k:'X-----------'}}
+};
 const DSTY_ORDER=['rock','pop80','movida','medio','balada','rumba','ska','funk','vals'];
 /* estilos guardados con el nombre antiguo */
 function drumStyle(k){k=({pop:'pop80'})[k]||k;return DSTY[k]?k:'rock';}
@@ -4755,7 +4817,9 @@ function fitSteps(str,n,tail){
 }
 /* el patrón de un estilo para este compás: kind = 1…4 (nivel) · 'fill' · 'fin' */
 function drumPat(style,kind,ts){
-  const st=DSTY[style]||DSTY.rock,n=ts*4,src=typeof kind==='number'?st.lv[Math.max(1,Math.min(4,kind))-1]:st[kind];
+  const st0=DSTY[style]||DSTY.rock,n=ts*4;
+  const st=(ts===3&&st0.m!==3&&DSTY3[style])||st0; /* en 3/4, su versión escrita para 3 tiempos */
+  const src=typeof kind==='number'?st.lv[Math.max(1,Math.min(4,kind))-1]:st[kind];
   const out={cr:src&&src.cr||0};
   for(const k in DSOUND)if(src&&src[k])out[k]=fitSteps(src[k],n,kind==='fill');
   return out;
@@ -7119,6 +7183,7 @@ const MAN=[
  {id:'sonido',ic:'audio-lines',t:TR('Escuchar y batería','Listening and drums'),p:TR('Todos los controles de reproducción viven en la barra de abajo.','All the playback controls live on the bottom bar.'),li:[
   '<b>'+ICO('play')+TR(' Reproducir</b> (o la barra espaciadora) toca la canción entera; la tarjeta que suena se ilumina.',' Play</b> (or the space bar) plays the whole song; the card that is sounding lights up.'),
   TR('La píldora del <b>tempo</b> abre el ritmo: bpm, <b>TAP</b>, compás 4/4 o 3/4, estilo de batería (rock, pop 80, movida, medio tiempo, balada, rumba, ska, funk, vals), <b>oír el estilo</b>, cuenta de entrada y bucle. Metrónomo, batería, bajo y guitarra se encienden con sus botones.','The <b>tempo</b> pill opens the rhythm: bpm, <b>TAP</b>, 4/4 or 3/4 time, drum style (rock, 80s pop, fast rock, mid-tempo, ballad, rumba, ska, funk, waltz), <b>hear the style</b>, count-in and loop. Metronome, drums, bass and guitar are switched on with their buttons.'),
+  TR('Cada estilo tiene su versión en <b>3/4</b>, escrita para tres tiempos: al cambiar el compás a 3/4 la batería la usa sola (el vals es de 3/4 de por sí).','Every style has its own <b>3/4</b> version, written for three beats: switch the time to 3/4 and the drums use it automatically (the waltz is 3/4 by nature).'),
   TR('La guitarra da un rasgueo al empezar cada acorde y, en los tiempos siguientes, un golpe en palm mute.','The guitar strums at the start of each chord and, on the following beats, plays a palm-muted hit.'),
   TR('La batería elige su <b>energía</b> por el nombre de la sección (en inglés o en castellano): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break sin batería · Outro 3. Al cambiar de nivel hay redoble, al subir a 3–4 entra con crash, y la canción acaba con golpe final. A mano: <b>⋯ → batería</b>.','The drums pick their <b>energy</b> from the section name (in English or Spanish): Intro 1 · Verse 2 · Pre-Chorus 2 · Chorus 3 · Bridge 1 · Solo 3 · Interlude 2 · Break no drums · Outro 3. When the level changes there is a fill, going up to 3–4 comes in with a crash, and the song ends with a final hit. By hand: <b>⋯ → drums</b>.')]},
  {id:'ajustes',ic:'settings-2',t:TR('Ajustes','Settings'),p:TR('El engranaje de la barra de arriba reúne lo que se toca poco: el sonido de la guitarra y la pantalla. El volumen está abajo.','The gear on the top bar gathers what you rarely touch: the guitar sound and the display. Volume is at the bottom.'),li:[
