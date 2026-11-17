@@ -1219,6 +1219,12 @@
   body.live .lvolta.ghost,.xport .lvolta.ghost{display:none}
   body.live .lvolta{cursor:default;pointer-events:none}
   .slot.vdim{opacity:.3}
+  /* 2026-11-17, Rodney: en el directo el acorde que suena no se resalta; lo que queda detrás se atenúa,
+     salvo lo que aún va a volver a sonar (×N de línea, de sección o de bloque) */
+  body.live .slot.playing,body.live .secrow.compact .slot.playing{border-color:var(--line);box-shadow:none;background:var(--panel);animation:none}
+  body.live .secrow.compact .slot.playing{background:transparent}
+  body.live .slot{transition:opacity .35s}
+  body.live .slot.pdim{opacity:.28}
   .lnrep.rqb.ghost{background:transparent;color:var(--mut);box-shadow:inset 0 0 0 1.5px var(--line);opacity:.55}
   .secrow:hover .lnrep.ghost,.secrow.on .lnrep.ghost{opacity:1}
   /* el ×1 tenue de cada línea solo en la sección activa (o con el ratón encima): sin llenar de ×1 toda la canción */
@@ -1387,8 +1393,7 @@
   #livelyr::-webkit-scrollbar{display:none}
   .llrail{padding:4px 0 70vh}
   body.live:not(.lv-a) #lview{display:none}
-  #livelyr.follow .llsec.on .lll[data-r]{opacity:.45;transition:opacity .3s}
-  #livelyr.follow .llsec.on .lll.cur{opacity:1}
+  /* 2026-11-17, Rodney: la letra no lleva marca de tiempo fiable → no se marca la línea, solo la sección entera */
   .llsec{font-size:var(--fs,32px)}
   body.live.lv-l .llsec{padding:.3em 0 .3em 14px;border-left:6px solid transparent;opacity:.42;transition:opacity .4s}
   body.live.lv-l .llsec.on{opacity:1;border-left-color:var(--play)}
@@ -5397,6 +5402,7 @@ function startPlay(scopeSi,opt){
 function stopPlay(){
   play.on=false;play.scope=null;play.solo=false;play.from=null;play.curSecMark=null;play.curRepMark=null;play.curLineMark=null;clearInterval(play.timer);
   document.querySelectorAll('.slot.playing').forEach(el=>el.classList.remove('playing'));
+  document.querySelectorAll('.slot.pdim').forEach(el=>el.classList.remove('pdim'));
   clearPlayMarks();updateStrip(null);
   updatePlayUI();
   {const lp=document.getElementById('livelyr');if(lp)lp.classList.remove('follow');}
@@ -5460,7 +5466,7 @@ function scheduleBeat(g,t,spb){
       const tt=t+Math.max(0,ev.start-rb)*spb;
       if(mute){}else if(ev.sl.nc)cutAll(tt);else if(S.gtrOn)strum(ev.sl.voicing,tt);
       fbPlayChord(ev.sl.nc?null:ev.sl.chord,tt); /* «acorde: el que suena» en el diapasón */
-      if(HLMODE!=='sec')flash(ev.si,ev.ei,tt); /* en modo «solo la sección» no parpadea cada acorde */
+      if(HLMODE!=='sec')flash(ev.si,ev.ei,tt,ev); /* en modo «solo la sección» no parpadea cada acorde */
     }
   });
   /* sección en curso: se ilumina la fila entera (también las partes sin acordes) */
@@ -5496,12 +5502,13 @@ function flashLine(si,li,lp,ln,t){
     if(x&&+x.dataset.n===ln){x.classList.add('now');x.innerHTML=repNowHTML(lp+1,ln);}
   },Math.max(0,(t-AC.currentTime)*1000));
 }
-function flash(si,ei,t){
+function flash(si,ei,t,ev){
   setTimeout(()=>{
     if(!play.on)return;
     document.querySelectorAll('.slot.playing').forEach(el=>el.classList.remove('playing'));
     const mp=liveMap()[si]; /* sección oculta con pareja: se ilumina el acorde equivalente de la visible */
     const el=document.querySelector('.slot[data-si="'+(mp?mp.t:si)+'"][data-ei="'+ei+'"]');
+    if(document.body.classList.contains('live'))pastDim(ev,mp?mp.t:si);
     if(el){el.classList.add('playing');
       if(document.body.classList.contains('live'))el.scrollIntoView({block:'nearest',behavior:'smooth'});}
   },Math.max(0,(t-AC.currentTime)*1000));
@@ -5543,6 +5550,21 @@ function flashRep(si,rp,rn,t){
     if(x&&+x.dataset.n===rn){x.classList.add('now');x.innerHTML=repNowHTML(rp+1,rn);}
     const st=document.querySelector('#livestrip .lss.rpass.cur');if(st&&+st.dataset.n===rn)stripSetPass(st,rp,rn);
   },Math.max(0,(t-AC.currentTime)*1000));
+}
+/* ── directo: atenuar lo ya tocado (2026-11-17, Rodney) ──
+   En la sección que suena se atenúa todo acorde que no vaya a sonar otra vez antes de salir de su bloque
+   (la sección; o el corchete real / de anotación que la contiene). El que suena y lo que falta, enteros:
+   en la 1ª vuelta de un ×2 no se apaga nada; en la última se va apagando lo que queda detrás. */
+function pastDim(ev,ti){
+  const E=play.evs,j=ev?E.indexOf(ev):-1;
+  document.querySelectorAll('.slot.pdim').forEach(x=>{if(+x.dataset.si!==ti)x.classList.remove('pdim');});
+  if(j<0)return;
+  const lm=liveMap(),vis=s=>{const m=lm[s];return m?m.t:s;};
+  const g=(S.groups||[]).find(x=>ev.si>=x.a&&ev.si<=x.b),lg=g?null:(S.lgroups||[]).find(x=>ti>=x.a&&ti<=x.b);
+  const inBlk=e=>g?(e.si>=g.a&&e.si<=g.b):lg?(vis(e.si)>=lg.a&&vis(e.si)<=lg.b):vis(e.si)===ti;
+  const keep=new Set();
+  for(let k=j;k<E.length&&inBlk(E[k]);k++)if(E[k].ei!=null&&vis(E[k].si)===ti)keep.add(E[k].ei);
+  document.querySelectorAll('.slot[data-si="'+ti+'"]').forEach(x=>x.classList.toggle('pdim',!keep.has(+x.dataset.ei)));
 }
 /* quita las marcas de la reproducción: «2ª», nota de variación, «2/2» */
 function lyFlashBox(si,p){
