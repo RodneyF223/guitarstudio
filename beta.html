@@ -7716,7 +7716,7 @@ const MAN=[
  {id:'cancion',ic:'list-music',t:TR('Escribir la canción','Writing the song'),p:TR('Cada sección es una fila: su nombre en vertical, sus botones y sus acordes.','Each section is a row: its name written vertically, its buttons and its chords.'),li:[
   TR('<b>Agregar sección</b> (en la cabecera de la canción): se crea justo detrás de la activa. Clic en el nombre = activarla · doble clic = renombrar · arrastrar el nombre = reordenar.','<b>Add section</b> (in the song header): it is created right after the active one. Click the name = make it active · double-click = rename · drag the name = reorder.'),
   TR('En cada acorde: <b>','On each chord: <b>')+ICO('copy')+TR('</b> duplica (mantenlo y arrastra = soltar una copia donde quieras), <b>','</b> duplicates (hold and drag = drop a copy wherever you like), <b>')+ICO('x')+TR('</b> lo quita y <b>','</b> removes it and <b>')+ICO('corner-down-left')+TR('</b> salta de línea, para ordenar los acordes como frases.','</b> breaks the line, to arrange the chords as phrases.'),
-  TR('Con el dedo: <b>mantén ⧉</b> hasta que se llene el aro azul y la copia se levanta; <b>mantén el acorde</b> (aro negro) para moverlo. Mientras lo llevas, un hueco punteado marca dónde caerá y los demás acordes se apartan en vivo; cerca del borde de arriba o de abajo la pantalla se desplaza sola. Soltar fuera de la canción no cambia nada.','With your finger: <b>hold ⧉</b> until the blue ring fills and the copy lifts; <b>hold the chord</b> (black ring) to move it. While you carry it, a dotted gap shows where it will land and the other chords move aside live; near the top or bottom edge the screen scrolls by itself. Dropping outside the song changes nothing.'),
+  TR('Con el dedo: <b>mantén ⧉</b> hasta que se llene el aro azul y la copia se levanta; <b>mantén el acorde</b> (aro negro) para moverlo. Mientras lo llevas, un hueco punteado marca dónde caerá y los demás acordes se apartan en vivo; cerca del borde de arriba o de abajo la pantalla se desplaza sola. Soltar fuera de la canción, o con el aro a medias, no cambia nada.','With your finger: <b>hold ⧉</b> until the blue ring fills and the copy lifts; <b>hold the chord</b> (black ring) to move it. While you carry it, a dotted gap shows where it will land and the other chords move aside live; near the top or bottom edge the screen scrolls by itself. Dropping outside the song, or letting go with the ring half-filled, changes nothing.'),
   TR('<b>×N</b> abre la duración: compases (1·2·3·4·6·8) o tiempos (½·1·2·3); con <b>+</b> se suman (1 compás + 2 tiempos = 1½). Si un acorde cruza una barra, una <b>raya discontinua</b> marca dónde cae; si la sección no cierra en compases enteros, avisa del <b>compás corto</b>.','<b>×N</b> opens the duration: bars (1·2·3·4·6·8) or beats (½·1·2·3); with <b>+</b> they add up (1 bar + 2 beats = 1½). If a chord crosses a barline, a <b>dashed line</b> marks where it falls; if the section doesn\'t end on whole bars, it warns about the <b>short bar</b>.'),
   TR('Cada acorde que empieza compás lleva <b>su barra delante</b>, también cuando una línea larga salta sola por falta de ancho: la rejilla queda alineada.','Every chord that starts a bar has <b>its barline in front</b>, also when a long line wraps by itself for lack of width: the grid stays aligned.'),
   TR('Dos vistas: <b>simple</b> (chuleta) y <b>diagramas</b>, con el botón de la cabecera. El <b>','Two views: <b>simple</b> (cheat sheet) and <b>diagrams</b>, with the header button. The <b>')+ICO('rectangle-horizontal')+'/'+ICO('grid-3x3')+TR('</b> de cada sección pliega o abre solo esa, y cada vista lo recuerda.','</b> of each section folds or opens just that one, and each view remembers it.'),
@@ -7728,7 +7728,7 @@ const MAN=[
   TR('Un <b style="color:var(--focus)">punto azul</b> en ⋯ = esa sección tiene la batería puesta a mano.','Un <b style="color:var(--focus)">blue dot</b> on ⋯ = that section has its drums set by hand.'),
   TR('<b>Fusionar</b> «Verso ×2» con «Verso 2» los deja en una sola sección, con la primera línea ×2: suena igual.','<b>Merge</b> “Verse ×2” with “Verse 2” leaves them as one section, with the first line ×2: it sounds the same.')]},
  {id:'repes',ic:'redo-2',t:TR('Repeticiones','Repeats'),p:TR('Todas van en la columna de la derecha, con la misma pastilla roja ×N.','They all go in the right-hand column, with the same red ×N pill.'),li:[
-  TR('<b>Mantener pulsada</b> cualquier pastilla ×N la quita: un aro rojo se llena alrededor del dedo y, al completarse, la repetición desaparece (Ctrl+Z la recupera). Soltar antes = un toque normal.','<b>Holding</b> any ×N pill removes it: a red ring fills around your finger and, when it completes, the repeat is gone (Ctrl+Z brings it back). Letting go earlier = a normal tap.'),
+  TR('<b>Mantener pulsada</b> cualquier pastilla ×N la quita: un aro rojo se llena alrededor del dedo y, al completarse, la repetición desaparece (Ctrl+Z la recupera). Si sueltas con el aro a medias, no pasa nada; solo un toque rápido, antes de que salga el aro, cuenta como toque.','<b>Holding</b> any ×N pill removes it: a red ring fills around your finger and, when it completes, the repeat is gone (Ctrl+Z brings it back). Letting go with the ring half-filled does nothing; only a quick tap, before the ring appears, counts as a tap.'),
   TR('<b>Sección:</b> la pastilla pegada a sus acordes. Clic sube (hasta ×12) y Mayús+clic baja; el ×1 tenue sirve para empezar.','<b>Section:</b> the pill next to its chords. Click raises it (up to ×12) and Shift+click lowers it; the faded ×1 is there to get started.'),
   TR('<b>Bloque de secciones:</b> arrastra por la columna, de arriba abajo, para dibujar un <b>corchete rojo</b> (p. ej. Intro-Verso-Coro ×2). Clic sube; Mayús+clic baja y, en ×2, quita el corchete.','<b>Block of sections:</b> drag down the column, top to bottom, to draw a <b>red bracket</b> (e.g. Intro-Verse-Chorus ×2). Click raises it; Shift+click lowers it and, at ×2, removes the bracket.'),
   TR('<b>Línea:</b> en una sección con varias líneas (salto ','<b>Line:</b> in a section with several lines (break ')+ICO('corner-down-left')+TR('), cada línea lleva su ×N al final: esa línea suena N veces antes de pasar a la siguiente.','), each line has its ×N at the end: that line plays N times before moving to the next.'),
@@ -8541,6 +8541,9 @@ document.addEventListener('dragend',()=>{
    El dedo tapa lo que pulsa, así que la respuesta va ALREDEDOR: un aro que se llena (y un rótulo encima) mientras se
    mantiene pulsado. Al completarse vibra (si el aparato puede) y hace la acción. Soltar antes = un toque normal. */
 const HOLD_MS=550;
+/* 2026-11-26: el aro no sale hasta HOLD_SHOW ms. Antes de eso, soltar = toque normal; con el aro ya a la vista,
+   soltar antes de que se complete = pulsación larga incompleta = no pasa nada (ni siquiera el toque). */
+const HOLD_SHOW=200;
 function holdRing(x,y,label,col){
   const el=document.createElement('div');el.className='holdring';el.style.left=x+'px';el.style.top=y+'px';
   if(col)el.style.setProperty('--hc',col);el.style.setProperty('--hd',HOLD_MS+'ms');
@@ -8569,21 +8572,23 @@ document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPr
     if(b.matches('.lnrep'))return {t:TR('quitar ×','remove ×')+b.dataset.n,run:()=>{const [si,li]=b.dataset.lnrep.split(':').map(Number),sec=S.sections[si],l=sec&&secLines(sec)[li];if(!l||!sec.slots[l.b].lr)return false;delete sec.slots[l.b].lr;return TR('Repetición de la línea quitada','Line repeat removed');}};
     return null;
   };
-  const stop=()=>{if(!H)return;clearTimeout(H.t);H.b.classList.remove('holding');if(!H.fired)H.ring.cancel();H=null;};
+  const stop=()=>{if(!H)return;clearTimeout(H.t0);clearTimeout(H.t);H.b.classList.remove('holding');
+    if(H.ring&&!H.fired){H.ring.cancel();EATCLICK=Date.now()+700;} /* el aro ya salía: soltar antes = nada */
+    H=null;};
   document.addEventListener('pointerdown',e=>{
     const b=e.target.closest&&e.target.closest('.rqb[data-grep],.rqb[data-lrep],.rqb[data-rep],.rqb[data-lnrep]');if(!b)return;
     const w=what(b);if(!w)return;
     stop();
     const r=b.getBoundingClientRect();
-    H={b,x:e.clientX,y:e.clientY,fired:false,ring:holdRing(r.left+r.width/2,r.top+r.height/2,esc(w.t),'var(--danger)')};
-    b.classList.add('holding');
+    H={b,x:e.clientX,y:e.clientY,fired:false,ring:null};
+    H.t0=setTimeout(()=>{if(!H)return;H.ring=holdRing(r.left+r.width/2,r.top+r.height/2,esc(w.t),'var(--danger)');b.classList.add('holding');
     H.t=setTimeout(()=>{
       if(!H)return;H.fired=true;const h=H;
       pushUndo();const msg=w.run();
       if(msg===false){UNDO.pop();updUndoBtns();h.ring.cancel();}
       else{h.ring.done();buzz(18);renderSections();toast(msg+TR(' · Ctrl+Z para deshacer',' · Ctrl+Z to undo'));}
       EATCLICK=Date.now()+700;stop();
-    },HOLD_MS);
+    },HOLD_MS);},HOLD_SHOW);
   },true);
   document.addEventListener('pointermove',e=>{if(H&&Math.hypot(e.clientX-H.x,e.clientY-H.y)>12)stop();},true);
   ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,stop,true));
@@ -8599,6 +8604,7 @@ document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPr
   const touchOf=e=>e.changedTouches&&e.changedTouches[0];
   function cancelAll(){
     if(!T)return;clearTimeout(T.timer);cancelAnimationFrame(T.raf);
+    clearTimeout(T.t0);
     if(T.ring&&T.phase==='hold')T.ring.cancel();
     if(T.ghost)T.ghost.remove();if(T.ph)T.ph.remove();
     if(T.slot){T.slot.classList.remove('tdpress','tdhide','copysrc');}
@@ -8687,10 +8693,11 @@ document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPr
     if(!dup&&tg.closest(BTN))return;
     const kind=dup?'copy':'move';
     const r=(dup||slot).getBoundingClientRect();
-    T={phase:'hold',kind,slot,si:+slot.dataset.si,ei:+slot.dataset.ei,x0:t.clientX,y0:t.clientY,lx:t.clientX,ly:t.clientY,
-      ring:holdRing(dup?r.left+r.width/2:t.clientX,dup?r.top+r.height/2:t.clientY,kind==='copy'?TR('copiar','copy'):TR('mover','move'),kind==='copy'?'var(--focus)':'var(--ink)')};
-    slot.classList.add('tdpress');
-    T.timer=setTimeout(()=>{if(T&&T.phase==='hold'){lift();autoScroll();}},HOLD_MS);
+    T={phase:'hold',kind,slot,si:+slot.dataset.si,ei:+slot.dataset.ei,x0:t.clientX,y0:t.clientY,lx:t.clientX,ly:t.clientY,ring:null};
+    T.t0=setTimeout(()=>{if(!T||T.phase!=='hold')return;
+      T.ring=holdRing(dup?r.left+r.width/2:t.clientX,dup?r.top+r.height/2:t.clientY,kind==='copy'?TR('copiar','copy'):TR('mover','move'),kind==='copy'?'var(--focus)':'var(--ink)');
+      slot.classList.add('tdpress');
+      T.timer=setTimeout(()=>{if(T&&T.phase==='hold'){lift();autoScroll();}},HOLD_MS);},HOLD_SHOW);
   },{passive:true});
   document.addEventListener('touchmove',e=>{
     if(!T)return;const t=e.touches[0];
@@ -8700,7 +8707,9 @@ document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPr
   },{passive:false});
   document.addEventListener('touchend',e=>{
     if(!T)return;
-    if(T.phase==='hold'){cancelAll();return;} /* toque corto: lo de siempre (⧉ duplica, el acorde suena…) */
+    if(T.phase==='hold'){
+      if(T.ring){e.preventDefault();EATCLICK=Date.now()+600;} /* el aro ya salía: pulsación larga incompleta = nada */
+      cancelAll();return;} /* toque corto (sin aro): lo de siempre (⧉ duplica, el acorde suena…) */
     e.preventDefault();EATCLICK=Date.now()+500;drop();
   },{passive:false});
   document.addEventListener('touchcancel',()=>cancelAll());
