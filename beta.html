@@ -9819,12 +9819,11 @@ async function gdRead(id){return await (await gdFetch(GD+'/'+id+'?alt=media',{ca
 async function gdWrite(id,doc){
   doc.savedAt=Date.now();
   const body=JSON.stringify(doc);
-  if(id){await gdFetch(GDU+'/'+id+'?uploadType=media',{method:'PATCH',headers:{'Content-Type':'application/json'},body});return id;}
+  if(id){const j=await (await gdFetch(GDU+'/'+id+'?uploadType=media&fields=id,version',{method:'PATCH',headers:{'Content-Type':'application/json'},body})).json();return j;}
   const b='gs'+Math.random().toString(36).slice(2);
   const mp='--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify({name:GD_FILE,parents:['appDataFolder']})+
     '\r\n--'+b+'\r\nContent-Type: application/json\r\n\r\n'+body+'\r\n--'+b+'--';
-  const j=await (await gdFetch(GDU+'?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:mp})).json();
-  return j.id;
+  return await (await gdFetch(GDU+'?uploadType=multipart&fields=id,version',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:mp})).json();
 }
 async function gdEmail(){try{const j=await (await gdFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)')).json();return j.user&&j.user.emailAddress||'';}catch(e){return '';}}
 
@@ -9866,6 +9865,7 @@ async function sync(o){
   o=o||{};
   if(!syOn())return;
   clearTimeout(SY.t);SY.t=0;
+  if(play.on&&!o.force){sySchedule(15000);return;} /* sonando: se espera a que pare (Sincronizar ahora sí fuerza) */
   if(SY.busy){SY.again=true;return;}
   if(!syTok()){SY.state='auth';syPaint();return;}
   if(!navigator.onLine){SY.state='off';syPaint();return;}
@@ -9883,13 +9883,13 @@ async function sync(o){
       }
       const r=syncMerge(L,R,m.base||null,SY.res,syCopyName,uid);
       if(first&&L.songs.length&&R&&(R.songs||[]).length)syBackup();
-      let id=f&&f.id;
+      let id=f&&f.id,ver=f&&f.version;
       if(r.remoteChanged){
         if(f&&String(await gdVersion(f.id))!==String(f.version))continue; /* otro dispositivo escribió mientras tanto: otra vuelta */
-        id=await gdWrite(id,r.remote);
+        const w=await gdWrite(id,r.remote);id=w.id||id;ver=w.version;
       }
       syApply(r);
-      m.fileId=id;m.base=r.base;m.last=Date.now();sySaveMeta();
+      m.fileId=id;m.ver=ver!=null?String(ver):null;m.base=r.base;m.last=Date.now();sySaveMeta();
       SY.res={};
       SY.conf=r.conflicts;
       SY.state=r.conflicts.length?'conf':'ok';SY.err='';
@@ -9993,8 +9993,8 @@ function syPaint(){
 }
 function syIndTap(){
   if(SY.state==='conf'&&SY.conf.length){syConfDlg();return;}
-  if(!syTok()){syAuth(()=>sync());return;}
-  sync();
+  if(!syTok()){syAuth(()=>sync({force:true}));return;}
+  sync({force:true});
 }
 function syAgo(t){
   if(!t)return TR('nunca','never');
@@ -10050,7 +10050,7 @@ function renderSyncSec(onlyIfOpen){
     d.addEventListener('click',e=>{
       const t=e.target.closest('button');if(!t)return;
       if(t.id==='sylink')syLink();
-      else if(t.id==='synow'){if(!syTok())syAuth(()=>sync());else sync();}
+      else if(t.id==='synow'){if(!syTok())syAuth(()=>sync({force:true}));else sync({force:true});}
       else if(t.id==='syunlink')syUnlink();
     });}
   const sb=document.getElementById('setbtn');
@@ -10062,6 +10062,15 @@ function renderSyncSec(onlyIfOpen){
   window.addEventListener('online',()=>{if(syOn())sync();});
   window.addEventListener('offline',()=>{if(syOn()&&!SY.busy){SY.state='off';syPaint();}});
   if(syOn()){if(GDRIVE_CLIENT_ID)syLoadGIS().catch(()=>{});SY.state='';syPaint();setTimeout(()=>sync(),1500);}
+  /* vigilancia ligera (2026-11-26, Rodney): con la app a la vista, cada 45 s pregunta al Drive solo la versión del
+     archivo; si otro dispositivo guardó algo, sincroniza. Nunca mientras suena una canción (ni en el Directo ni en el
+     Estudio: no se cambia nada en pleno bolo), ni con un diálogo abierto, ni si la sesión de Google caducó (no abre
+     ventanas solo). La canción abierta solo se recarga si no tiene cambios sin guardar. */
+  setInterval(async()=>{
+    if(!syOn()||SY.busy||document.hidden||!navigator.onLine||!syTok()||play.on||dlgOpen()||SY.state==='conf'||SY.state==='link')return;
+    const m=syMeta();if(!m.base)return;
+    try{const f=await gdFind();if(f&&String(f.version)!==String(m.ver)&&!play.on)sync();}catch(e){}
+  },45000);
 })();
 </script>
 </body>
