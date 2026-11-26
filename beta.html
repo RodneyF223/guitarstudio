@@ -2502,6 +2502,31 @@ function getVoicings(ch){
   }
   SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++)add(vtag(triadVoicing(ch,si,inv),{fam:'tri',set:si,inv}));});
   extVoicings(ch).forEach(add);
+  moreVoicings(ch).forEach(add);
+  return out;
+}
+/* ── más allá del traste 12 (2026-11-26, Rodney: «no está G/C, G en traste 12») ─────────────────────────────────
+   Se añaden al FINAL (getVoicings(ch)[0] sigue siendo el de siempre) y hasta el traste 15, lo que muestra el mini-mástil:
+   · las tres formas CAGED que faltaban (C, G y D; la E y la A ya son las cejillas), en su sitio y una octava más arriba
+     si cabe — así sale el G con forma de G en el traste 12 o el G con forma de C en el 7;
+   · las cejillas E y A una octava más arriba cuando caben (F en el 13, B♭ en el 13…);
+   · cualquier acorde abierto repetido en el traste 12 (las cuerdas al aire pasan al 12). */
+const VMAX=15;
+const CAGED_ROOT={C:TR('fundamental en 5ª','root on the 5th string'),G:TR('fundamental en 6ª','root on the 6th string'),D:TR('fundamental en 4ª','root on the 4th string')};
+function moreVoicings(ch){
+  const out=[],q=ch.quality,ok=fr=>fr.some(f=>f>=0)&&Math.max(...fr)<=VMAX&&fr.every(f=>f<0||f>=1);
+  const T=CAGED[q],iv=TONE_INTS[q]||[];
+  const roleOf=(s,f)=>{const d=(((TUNING[s]+f)-ch.pc)%12+12)%12,t=iv.find(x=>x[0]===d);return t?t[1]:'';};
+  if(T)['C','G','D'].forEach(L=>{const [rs,off]=T[L],r0=((ch.pc-TUNING[rs])%12+12)%12;
+    [r0,r0+12].forEach(r=>{const fr=off.map(o=>o===null?-1:o+r);if(!ok(fr))return;
+      out.push(vtag({vname:TR('Forma ','Shape ')+L+' (CAGED) · '+CAGED_ROOT[L],frets:fr,roles:fr.map((f,s)=>f<0?'':roleOf(s,f))},
+        {fam:'c'+L,kind:'base',short:TR('Forma ','Shape ')+L,z:r}));});});
+  const B=BARRES[q]||{};
+  [['r6',4],['r5',9]].forEach(([k,o])=>{const b=B[k];if(!b)return;let f=(ch.pc-o+12)%12;if(f===0)f=12;
+    const fr=b.f.map(x=>x<0?-1:x+f+12);if(f+12>VMAX||!ok(fr))return;
+    out.push(vtag({vname:TR('Cejilla · forma ','Barre · shape ')+b.shape+TR(' · una octava más arriba',' · one octave up'),frets:fr,roles:b.r.slice()},{fam:k,kind:'base',short:TR('Cejilla','Barre'),z:f+12}));});
+  const op=OPEN[ch.pc+':'+q];
+  if(op){const fr=op.f.map(x=>x<0?-1:x+12);if(ok(fr))out.push(vtag({vname:TR('Acorde abierto en el traste 12','Open chord at fret 12'),frets:fr,roles:op.r.slice()},{fam:'open',kind:'base',short:TR('Abierto · traste 12','Open · fret 12'),z:12}));}
   return out;
 }
 
@@ -3166,6 +3191,9 @@ function renderVoicings(){
     {k:'open',t:TR('Abierto','Open'),bar:TR('abierto','open')},
     {k:'r6',t:TR('Fundamental en 6ª · forma ','Root on the 6th string · shape '),sh:sh[0],bar:TR('forma ','shape ')+sh[0]},
     {k:'r5',t:TR('Fundamental en 5ª · forma ','Root on the 5th string · shape '),sh:sh[1],bar:TR('forma ','shape ')+sh[1]},
+    {k:'cC',t:TR('Fundamental en 5ª · forma ','Root on the 5th string · shape '),sh:'C',bar:TR('forma ','shape ')+'C'},
+    {k:'cG',t:TR('Fundamental en 6ª · forma ','Root on the 6th string · shape '),sh:'G',bar:TR('forma ','shape ')+'G'},
+    {k:'cD',t:TR('Fundamental en 4ª · forma ','Root on the 4th string · shape '),sh:'D',bar:TR('forma ','shape ')+'D'},
     {k:'r4',t:TR('Fundamental en 4ª · forma ','Root on the 4th string · shape '),sh:'D7',bar:TR('forma D7','D7 shape')},
     {k:'tri',t:TR('Tríadas · inversiones','Triads · inversions')+(q==='dom7'?TR(' (sin 7ª)',' (no 7th)'):'')},
     {k:'x',t:TR('Otras','Other')}
