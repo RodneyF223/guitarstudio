@@ -686,12 +686,16 @@
   #palstrip{position:fixed;z-index:39;padding:8px 16px;border-top:none;box-shadow:0 6px 12px rgba(0,0,0,.10);
     visibility:hidden;pointer-events:none}
   #palstrip.on{visibility:visible;pointer-events:auto}
-  #palstrip .psrow{display:flex;flex-wrap:wrap;gap:9px}
-  #palstrip .palcol{gap:3px}
+  #palette.stuck{visibility:hidden}
+  /* una sola fila: si no caben las 8 fichas (tableta en vertical), encogen un poco en vez de saltar de línea */
+  #palstrip .psrow{display:flex;flex-wrap:nowrap;gap:9px}
+  #palstrip .palcol{gap:3px;flex:0 1 86px;min-width:0}
   #palstrip .pchip{cursor:pointer;touch-action:manipulation;transition:min-height .22s ease,padding .22s ease}
   #palstrip .pchip .nts{display:block;max-height:14px;overflow:hidden;transition:max-height .22s ease,opacity .15s}
-  #palstrip.comp .pchip{min-height:44px;padding:4px 4px 3px}
-  #palstrip.comp .pchip .nts{max-height:0;opacity:0}
+  #palstrip.comp .pchip{padding:4px 4px 3px}
+  #palstrip .pchip .deg{display:block;max-height:16px;overflow:hidden;transition:max-height .22s ease,opacity .15s}
+  #palstrip.comp .pchip .nts,#palstrip.comp .pchip .deg{max-height:0;opacity:0}
+  #palstrip.comp .pchip{min-height:36px}
   #palstrip .fnlab{transition:font-size .22s ease,padding .22s ease}
   #palstrip.comp .fnlab{font-size:8.5px;padding-top:1px;padding-bottom:1px}
   @media (prefers-reduced-motion: reduce){#palstrip .pchip,#palstrip .pchip .nts,#palstrip .fnlab{transition:none}}
@@ -2827,10 +2831,13 @@ function palStrip(){
     let raf=0;const upd=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;palStripPos();});};
     window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);
   }
-  /* las mismas fichas y etiquetas de función que la paleta (sin la del silencio, que no tiene voicings) */
+  /* las mismas fichas y etiquetas de función que la paleta, con el silencio al final (2026-11-26: sin grados al engancharse) */
   PSTRIP.innerHTML='<div class="psrow">'+PALETTE.map((c,i)=>{const f=FUNCS[chordFunc(c)];
     return '<div class="palcol">'+chipHTML(c,i,'','pal').replace(' draggable="true" data-reg="pal" data-idx="'+i+'"',' data-si="'+i+'"')+
-      '<span class="fnlab" style="background:'+f.col+'">'+esc(f.name)+'</span></div>';}).join('')+'</div>';
+      '<span class="fnlab" style="background:'+f.col+'">'+esc(f.name)+'</span></div>';}).join('')+
+    '<div class="palcol"><button class="pchip ncchip" data-nc="1" title="'+esc(TR('Silencio: haz clic para añadirlo a la sección activa','Rest: click to add it to the active section'))+'">'+
+      '<span class="deg">'+TR('corte','cut')+'</span><span class="nm">'+RESTICO()+'</span><span class="nts">'+TR('silencio','rest')+'</span></button>'+
+      '<span class="fnlab ncfn">—</span></div></div>';
   palStripPos();
 }
 function palStripTop(){const t=document.querySelector('.topbar');return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
@@ -2845,6 +2852,7 @@ function palStripPos(){
   const on=first.getBoundingClientRect().top<top+8&&vo.getBoundingClientRect().bottom>top+PSTRIP.offsetHeight+40;
   if(on&&!PSTRIP.classList.contains('on')){PSTRIP.classList.add('on');requestAnimationFrame(()=>PSTRIP.classList.add('comp'));}
   else if(!on&&PSTRIP.classList.contains('on'))PSTRIP.classList.remove('on','comp');
+  pal.classList.toggle('stuck',on); /* la original se oculta mientras está enganchada: que no se vea doble */
 }
 function palStripPick(i){
   const ch=PALETTE[i];if(!ch)return;
