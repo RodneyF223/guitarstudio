@@ -679,6 +679,24 @@
     border-radius:0;font-family:var(--font-d);font-weight:800;font-size:12.5px;color:var(--on)}
   .lgnote{font-size:12px;color:var(--mut);margin-left:2px}
 
+  /* ── tira de acordes de la escala pegada arriba (2026-11-26, Rodney: que la barra de acordes acompañe a los voicings
+     para cambiar de fundamental sin salir del apartado de voicings) ── */
+  #palstrip{position:fixed;left:0;right:0;z-index:39;display:flex;gap:6px;align-items:center;padding:6px 18px;
+    padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));
+    background:var(--panel);border-bottom:1.5px solid var(--ink);box-shadow:0 4px 10px rgba(0,0,0,.08);
+    transform:translateY(-8px);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s}
+  #palstrip.on{opacity:1;transform:none;pointer-events:auto}
+  #palstrip .psl{font-family:var(--font-n);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);
+    margin-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+  #palstrip .psc{flex:1 1 0;min-width:0;max-width:96px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    line-height:1;border:1px solid rgba(0,0,0,.16);color:var(--on);padding:0 2px;border-radius:0;touch-action:manipulation}
+  #palstrip .psc i{font-family:var(--font-d);font-weight:800;font-size:11px}
+  #palstrip .psc b{font-family:var(--font-d);font-weight:900;font-size:19px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  #palstrip .psc.sel{outline:3px solid var(--ink);outline-offset:-3px;box-shadow:3px 3px 0 var(--ink)}
+  #palstrip .psc:active{transform:translate(1px,1px)}
+  @media (max-width:760px){#palstrip .psl{display:none}#palstrip{padding-left:12px;padding-right:12px}}
+  body.live #palstrip,body.lyr #palstrip,body.imgmode-on #palstrip{display:none}
+
   /* ── palette ─────────────────────────────── */
   #palette{display:flex;flex-wrap:wrap;gap:9px}
   .pchip{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
@@ -2796,6 +2814,45 @@ function renderPalette(){
   TR('<div class="palcol"><button class="pchip ncchip" draggable="true" data-nc="1" title="Silencio / corte (N.C.): sin acorde, corta todo lo que esté sonando. Arrástralo a la progresión o haz clic para añadirlo a la sección activa">','<div class="palcol"><button class="pchip ncchip" draggable="true" data-nc="1" title="Rest / cut (N.C.): no chord, cuts whatever is ringing. Drag it into the progression or click to add it to the active section">')+
     TR('<span class="deg">corte</span><span class="nm">'+RESTICO()+'</span><span class="nts">silencio</span></button>','<span class="deg">corte</span><span class="nm">'+RESTICO()+'</span><span class="nts">rest</span></button>')+
     '<span class="fnlab ncfn">—</span></div>';
+  palStrip();
+}
+/* ── tira pegada: los acordes de la escala acompañan a los voicings al bajar ────────────────────────────────────
+   Aparece cuando la paleta ya ha salido por arriba y los voicings siguen en pantalla. Al tocar otro acorde la
+   pantalla se queda en el mismo apartado de voicings (forma E, forma A…), aunque los de encima midan distinto. */
+let PSTRIP=null;
+function palStrip(){
+  if(!PSTRIP){
+    PSTRIP=document.createElement('div');PSTRIP.id='palstrip';PSTRIP.setAttribute('role','toolbar');document.body.appendChild(PSTRIP);
+    PSTRIP.addEventListener('click',e=>{const b=e.target.closest('.psc');if(!b)return;e.stopPropagation();palStripPick(+b.dataset.si);});
+    let raf=0;const upd=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;palStripPos();});};
+    window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);
+  }
+  PSTRIP.innerHTML='<span class="psl">'+esc(document.getElementById('palettetitle').textContent)+'</span>'+
+    PALETTE.map((c,i)=>'<button type="button" class="psc '+txtOn(c.degNum)+(isSel(c)?' sel':'')+'" data-si="'+i+'" style="background:'+c.color+'" title="'+
+      esc(c.label+' — '+QUAL_ES[c.quality])+'"><i>'+esc(c.deg)+'</i><b>'+esc(c.label)+'</b></button>').join('');
+  palStripPos();
+}
+function palStripTop(){const t=document.querySelector('.topbar');return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
+function palStripPos(){
+  if(!PSTRIP)return;
+  const pal=document.getElementById('palette'),vo=document.getElementById('voicings');
+  const top=palStripTop();PSTRIP.style.top=top+'px';
+  const on=!!(pal&&vo&&vo.offsetWidth&&pal.getBoundingClientRect().bottom<top&&vo.getBoundingClientRect().bottom>top+PSTRIP.offsetHeight+40);
+  PSTRIP.classList.toggle('on',on);
+}
+function palStripPick(i){
+  const ch=PALETTE[i];if(!ch)return;
+  /* ancla: el apartado de voicings que se está mirando (el que cruza una línea a un tercio de la zona visible bajo la
+     tira; no uno del que solo asoma el borde) */
+  const line=palStripTop()+PSTRIP.offsetHeight,ref=line+(window.innerHeight-line)*0.3;
+  let anc=null;
+  for(const v of document.querySelectorAll('#voicings .vsec')){const r=v.getBoundingClientRect();if(r.bottom>ref){anc={id:v.id,top:r.top};break;}}
+  const vo=document.getElementById('voicings'),voTop=vo.getBoundingClientRect().top;
+  S.selChord=ch;previewChord(ch);renderCircle();renderPalette();renderTricks();renderVoicings();if(S.fbArp==='sel')renderLickEd();
+  const el=anc&&document.getElementById(anc.id);
+  if(el)window.scrollBy(0,el.getBoundingClientRect().top-anc.top);
+  else window.scrollBy(0,vo.getBoundingClientRect().top-voTop);
+  palStripPos();
 }
 /* ── trucos de composición (ampliados 2026-10-28) ──────────────────────────────────────────────────────────────
    Cuatro pestañas: color (menor relativa, préstamos, sabores modales) · tensión (dominantes secundarias, sustitutos y
