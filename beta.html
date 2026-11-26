@@ -681,20 +681,20 @@
 
   /* ── tira de acordes de la escala pegada arriba (2026-11-26, Rodney: que la barra de acordes acompañe a los voicings
      para cambiar de fundamental sin salir del apartado de voicings) ── */
-  #palstrip{position:fixed;left:0;right:0;z-index:39;display:flex;gap:6px;align-items:center;padding:6px 18px;
-    padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));
-    background:var(--panel);border-bottom:1.5px solid var(--ink);box-shadow:0 4px 10px rgba(0,0,0,.08);
-    transform:translateY(-8px);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s}
-  #palstrip.on{opacity:1;transform:none;pointer-events:auto}
-  #palstrip .psl{font-family:var(--font-n);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);
-    margin-right:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
-  #palstrip .psc{flex:1 1 0;min-width:0;max-width:96px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    line-height:1;border:1px solid rgba(0,0,0,.16);color:var(--on);padding:0 2px;border-radius:0;touch-action:manipulation}
-  #palstrip .psc i{font-family:var(--font-d);font-weight:800;font-size:11px}
-  #palstrip .psc b{font-family:var(--font-d);font-weight:900;font-size:19px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-  #palstrip .psc.sel{outline:3px solid var(--ink);outline-offset:-3px;box-shadow:3px 3px 0 var(--ink)}
-  #palstrip .psc:active{transform:translate(1px,1px)}
-  @media (max-width:760px){#palstrip .psl{display:none}#palstrip{padding-left:12px;padding-right:12px}}
+  /* es la misma caja de la paleta que «se engancha» bajo la barra de arriba: mismo ancho y las fichas en el mismo
+     sitio; al engancharse se achata (fuera el título y las notas) para no estorbar. Rodney, 2026-11-26 */
+  #palstrip{position:fixed;z-index:39;padding:8px 16px;border-top:none;box-shadow:0 6px 12px rgba(0,0,0,.10);
+    visibility:hidden;pointer-events:none}
+  #palstrip.on{visibility:visible;pointer-events:auto}
+  #palstrip .psrow{display:flex;flex-wrap:wrap;gap:9px}
+  #palstrip .palcol{gap:3px}
+  #palstrip .pchip{cursor:pointer;touch-action:manipulation;transition:min-height .22s ease,padding .22s ease}
+  #palstrip .pchip .nts{display:block;max-height:14px;overflow:hidden;transition:max-height .22s ease,opacity .15s}
+  #palstrip.comp .pchip{min-height:44px;padding:4px 4px 3px}
+  #palstrip.comp .pchip .nts{max-height:0;opacity:0}
+  #palstrip .fnlab{transition:font-size .22s ease,padding .22s ease}
+  #palstrip.comp .fnlab{font-size:8.5px;padding-top:1px;padding-bottom:1px}
+  @media (prefers-reduced-motion: reduce){#palstrip .pchip,#palstrip .pchip .nts,#palstrip .fnlab{transition:none}}
   body.live #palstrip,body.lyr #palstrip,body.imgmode-on #palstrip{display:none}
 
   /* ── palette ─────────────────────────────── */
@@ -2822,23 +2822,29 @@ function renderPalette(){
 let PSTRIP=null;
 function palStrip(){
   if(!PSTRIP){
-    PSTRIP=document.createElement('div');PSTRIP.id='palstrip';PSTRIP.setAttribute('role','toolbar');document.body.appendChild(PSTRIP);
-    PSTRIP.addEventListener('click',e=>{const b=e.target.closest('.psc');if(!b)return;e.stopPropagation();palStripPick(+b.dataset.si);});
+    PSTRIP=document.createElement('div');PSTRIP.id='palstrip';PSTRIP.className='panel';PSTRIP.setAttribute('role','toolbar');document.body.appendChild(PSTRIP);
+    PSTRIP.addEventListener('click',e=>{const b=e.target.closest('[data-si]');if(!b)return;e.stopPropagation();palStripPick(+b.dataset.si);});
     let raf=0;const upd=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;palStripPos();});};
     window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);
   }
-  PSTRIP.innerHTML='<span class="psl">'+esc(document.getElementById('palettetitle').textContent)+'</span>'+
-    PALETTE.map((c,i)=>'<button type="button" class="psc '+txtOn(c.degNum)+(isSel(c)?' sel':'')+'" data-si="'+i+'" style="background:'+c.color+'" title="'+
-      esc(c.label+' — '+QUAL_ES[c.quality])+'"><i>'+esc(c.deg)+'</i><b>'+esc(c.label)+'</b></button>').join('');
+  /* las mismas fichas y etiquetas de función que la paleta (sin la del silencio, que no tiene voicings) */
+  PSTRIP.innerHTML='<div class="psrow">'+PALETTE.map((c,i)=>{const f=FUNCS[chordFunc(c)];
+    return '<div class="palcol">'+chipHTML(c,i,'','pal').replace(' draggable="true" data-reg="pal" data-idx="'+i+'"',' data-si="'+i+'"')+
+      '<span class="fnlab" style="background:'+f.col+'">'+esc(f.name)+'</span></div>';}).join('')+'</div>';
   palStripPos();
 }
 function palStripTop(){const t=document.querySelector('.topbar');return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
 function palStripPos(){
   if(!PSTRIP)return;
-  const pal=document.getElementById('palette'),vo=document.getElementById('voicings');
-  const top=palStripTop();PSTRIP.style.top=top+'px';
-  const on=!!(pal&&vo&&vo.offsetWidth&&pal.getBoundingClientRect().bottom<top&&vo.getBoundingClientRect().bottom>top+PSTRIP.offsetHeight+40);
-  PSTRIP.classList.toggle('on',on);
+  const pal=document.getElementById('palette'),vo=document.getElementById('voicings'),box=pal&&pal.closest('.panel');
+  const first=pal&&pal.querySelector('.pchip');
+  if(!box||!first||!vo||!vo.offsetWidth){PSTRIP.classList.remove('on','comp');return;}
+  const top=palStripTop(),r=box.getBoundingClientRect();
+  PSTRIP.style.top=top+'px';PSTRIP.style.left=r.left+'px';PSTRIP.style.width=r.width+'px';
+  /* se engancha justo cuando la fila de acordes llega a la barra de arriba, y se suelta al llegar al final de los voicings */
+  const on=first.getBoundingClientRect().top<top+8&&vo.getBoundingClientRect().bottom>top+PSTRIP.offsetHeight+40;
+  if(on&&!PSTRIP.classList.contains('on')){PSTRIP.classList.add('on');requestAnimationFrame(()=>PSTRIP.classList.add('comp'));}
+  else if(!on&&PSTRIP.classList.contains('on'))PSTRIP.classList.remove('on','comp');
 }
 function palStripPick(i){
   const ch=PALETTE[i];if(!ch)return;
