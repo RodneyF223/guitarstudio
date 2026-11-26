@@ -992,6 +992,8 @@
   /* diálogo «transponer · cejilla» */
   .tpdlg .dlab{width:auto;white-space:nowrap}
   .tpdlg .tpnow{margin:2px 0 12px;font-size:15px;color:var(--mut)}
+  .tpdlg .tpfrom{font-size:14px;color:var(--mut)}
+  .tpdlg .tpfrom b{color:var(--ink);font-size:15px}
   .tpdlg .tpnow b{color:var(--ink);font-family:var(--font-d);font-weight:900;font-size:19px}
   .tpstep{display:flex;align-items:center;gap:10px;margin:6px 0 4px}
   .tpstep button{width:54px;height:48px;border:1.5px solid var(--line2);border-radius:2px;background:var(--panel);color:var(--ink);font-family:var(--font-d);font-weight:900;font-size:22px}
@@ -6128,7 +6130,7 @@ let TPKEEP=true;
 function tpHTML(){
   const k=keyObj(),shape=S.minorView?nName(relMinorPc(),k.flat)+'m':k.label,cp=S.capo||0,sug=capoSuggest();
   return '<h3>'+ICO('arrow-down-up')+TR(' Transponer · cejilla</h3>',' Transpose · capo</h3>')+
-    '<div class="tpnow">'+(cp?TR('formas en <b>','shapes in <b>')+esc(shape)+TR('</b> · cejilla en el <b>','</b> · capo on fret <b>')+cp+TR('</b> · suena en <b>','</b> · sounds in <b>')+esc(soundKeyLabel())+'</b>':TR('la canción está en <b>','the song is in <b>')+esc(shape)+TR('</b>, sin cejilla','</b>, no capo'))+'</div>'+
+    '<div class="tpnow">'+(cp?TR('formas en <b>','shapes in <b>')+esc(shape)+TR('</b> · cejilla en el <b>','</b> · capo on fret <b>')+cp+TR('</b> · suena en <b>','</b> · sounds in <b>')+esc(soundKeyLabel())+'</b>':TR('la canción está en <b>','the song is in <b>')+esc(shape)+TR('</b>, sin cejilla','</b>, no capo'))+(TPSNAP&&tpChanged()?'<span class="tpfrom"> · '+TR('antes: ','before: ')+TPFROM+'</span>':'')+'</div>'+
     TR('<div class="dsec"><div class="dlab">tono de toda la canción</div>','<div class="dsec"><div class="dlab">key of the whole song</div>')+
       TR('<div class="tpstep"><button type="button" data-tp="-1" title="Bajar un semitono">−</button>','<div class="tpstep"><button type="button" data-tp="-1" title="Down a semitone">−</button>')+
       '<span class="tpval">'+esc(soundKeyLabel())+TR('<small>cada toque = un semitono · acordes, voicings y licks</small></span>','<small>each tap = one semitone · chords, voicings and licks</small></span>')+
@@ -6141,11 +6143,25 @@ function tpHTML(){
       (sug.length?TR('<div class="dlab" style="margin-top:10px">posturas más fáciles sin cambiar el tono</div><div class="tpsug">','<div class="dlab" style="margin-top:10px">easier shapes without changing the key</div><div class="tpsug">')+
         sug.map(o=>'<button type="button" data-tpgo="'+o.cp+'"><b>'+(o.cp?TR('cejilla ','capo ')+o.cp:TR('sin cejilla','no capo'))+'</b><span>'+esc(o.names.slice(0,8).join(' · '))+'</span></button>').join('')+'</div>':'')+
     '</div>'+
-    TR('<p class="tphint">Ctrl+Z (↶) deshace cada paso. La cejilla se guarda con la canción y se ve junto a la tonalidad, también en el directo.</p>','<p class="tphint">Ctrl+Z (↶) undoes each step. The capo is saved with the song and shown next to the key, in live mode too.</p>')+
-    TR('<div class="modalbtns"><button class="sbtn primary" data-dlg="close">Hecho</button></div>','<div class="modalbtns"><button class="sbtn primary" data-dlg="close">Done</button></div>');
+    TR('<p class="tphint">Lo ves y lo oyes mientras pruebas, pero no se fija hasta «Aceptar»: entonces Ctrl+Z (↶) lo deshace todo de una vez. «Cancelar» (o Esc) lo deja como estaba. La cejilla se guarda con la canción y se ve junto a la tonalidad, también en el directo.</p>','<p class="tphint">You see and hear it while you try, but nothing is fixed until “Accept”: then Ctrl+Z (↶) undoes it all in one go. “Cancel” (or Esc) leaves it as it was. The capo is saved with the song and shown next to the key, in live mode too.</p>')+
+    TR('<div class="modalbtns"><button class="sbtn" data-dlg="close">Cancelar</button><button class="sbtn primary" data-dlg="tpok">Aceptar</button></div>','<div class="modalbtns"><button class="sbtn" data-dlg="close">Cancel</button><button class="sbtn primary" data-dlg="tpok">Accept</button></div>');
 }
-function openTranspose(){openDlg(tpHTML());document.getElementById('dlgbox').classList.add('tpdlg');}
-function tpDo(fn){pushUndo();fn();renderAll();syncControls();persist();
+/* 2026-11-26 (Rodney): transponer y mover la cejilla se prueban en vivo, pero solo se fijan al «Aceptar», como UN paso
+   de deshacer. TPSNAP = la canción tal como estaba al abrir; cancelar (botón, Esc, tocar fuera) la deja así. */
+let TPSNAP=null,TPFROM='';
+function tpChanged(){return !!TPSNAP&&JSON.stringify(snapshot())!==TPSNAP;}
+function tpFromLabel(){const k=keyObj(),shape=S.minorView?nName(relMinorPc(),k.flat)+'m':k.label;
+  return '<b>'+esc(shape)+'</b>'+((S.capo||0)?TR(' con cejilla en el ',' with capo on fret ')+S.capo:'');}
+function openTranspose(){
+  TPSNAP=JSON.stringify(snapshot());TPFROM=tpFromLabel();
+  openDlg(tpHTML(),{tpok:()=>{
+    const was=TPSNAP;TPSNAP=null;
+    if(JSON.stringify(snapshot())!==was){UNDO.push(was);if(UNDO.length>60)UNDO.shift();REDO.length=0;pushUndo._t=Date.now();updUndoBtns();persist();
+      toast(TR('Transposición aplicada · Ctrl+Z la deshace','Transposition applied · Ctrl+Z undoes it'));}
+    closeDlg();}});
+  document.getElementById('dlgbox').classList.add('tpdlg');
+}
+function tpDo(fn){fn();renderAll();syncControls();
   const b=document.getElementById('dlgbox');if(b.classList.contains('tpdlg')){b.innerHTML=tpHTML();}}
 document.getElementById('dlgbox').addEventListener('click',e=>{
   const b=document.getElementById('dlgbox');if(!b.classList.contains('tpdlg'))return;
@@ -7062,7 +7078,9 @@ function openDlg(html,acts){
   b.classList.remove('acdlg','tpdlg','lyrdlg');b.innerHTML=html;DLGACT=acts||{};w.hidden=false;
   const f=b.querySelector('[autofocus]');if(f){f.focus();if(f.select)f.select();}
 }
-function closeDlg(){document.getElementById('dlg').hidden=true;document.getElementById('dlgbox').innerHTML='';DLGACT={};}
+function closeDlg(){
+  if(TPSNAP){const was=TPSNAP;TPSNAP=null;if(JSON.stringify(snapshot())!==was)applyFull(JSON.parse(was));} /* transponer sin aceptar: como estaba */
+  document.getElementById('dlg').hidden=true;document.getElementById('dlgbox').innerHTML='';DLGACT={};}
 function dlgOpen(){return !document.getElementById('dlg').hidden;}
 function askName(title,label,value,ok){
   openDlg('<h3>'+esc(title)+'</h3><div class="drow"><span class="dlab">'+esc(label)+'</span><input type="text" id="dlgname" value="'+esc(value)+'" autofocus></div>'+
@@ -7722,6 +7740,7 @@ const MAN=[
   TR('A− y A+ cambian el tamaño de la letra; «acordes» los esconde para leer solo el texto. Al reproducir se marca la sección que suena.','A− and A+ change the text size; “chords” hides them to read just the words. During playback the section that is sounding is marked.')]},
  {id:'transponer',ic:'arrow-down-up',t:TR('Transponer y cejilla','Transpose and capo'),p:TR('Cambiar el tono de toda la canción, o tocarla con otras posturas.','Change the key of the whole song, or play it with different shapes.'),li:[
   TR('El botón «transponer» (arriba a la derecha del círculo de quintas; en el modo letra, en su barra) sube o baja de semitono en semitono toda la canción: tonalidad, acordes, voicings, licks y los acordes de la letra.','The “transpose” button (top right of the circle of fifths; in lyrics mode, on its bar) moves the whole song up or down a semitone at a time: key, chords, voicings, licks and the chords over the lyrics.'),
+  TR('Mientras pruebas en el cuadro de transponer, la canción cambia en pantalla y suena ya transpuesta, pero nada se fija hasta <b>Aceptar</b>; entonces <b>Ctrl+Z</b> deshace toda la transposición de una vez. <b>Cancelar</b>, Esc o tocar fuera la dejan como estaba.','While you try things in the transpose box the song changes on screen and plays transposed, but nothing is fixed until <b>Accept</b>; then <b>Ctrl+Z</b> undoes the whole transposition in one go. <b>Cancel</b>, Esc or tapping outside leave it as it was.'),
   TR('Los acordes abiertos siguen abiertos cuando existen en el tono nuevo; las cejillas conservan su forma.','Open chords stay open when they exist in the new key; barre chords keep their shape.'),
   TR('Cejilla: los acordes y los diagramas se escriben como formas contadas desde la cejilla, y el sonido sube lo que marque. Se ve junto a la tonalidad, también en el directo.','Capo: chords and diagrams are written as shapes counted from the capo, and the sound goes up by that many frets. It is shown next to the key, in live mode too.'),
   TR('Con «mantener el tono» marcado, mover la cejilla cambia las posturas pero no cómo suena: sirve para buscar acordes más fáciles. El panel propone las cejillas con más acordes abiertos.','With “keep the key” checked, moving the capo changes the shapes but not how it sounds: useful for finding easier chords. The panel suggests the capo positions with the most open chords.'),
