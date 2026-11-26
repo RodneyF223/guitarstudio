@@ -10,6 +10,8 @@ self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.a
 self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
   const url=new URL(e.request.url);
+  // Google (inicio de sesión y Drive de la sincronización) va siempre directo a la red: nunca se guarda en la copia
+  if(/(^|\.)(google\.com|googleapis\.com|gstatic\.com|googleusercontent\.com)$/.test(url.hostname))return;
   // version.txt va siempre directo a la red: es con lo que la app comprueba si hay una versión nueva
   if(url.origin===self.location.origin&&url.pathname.endsWith('/version.txt'))return;
   const copia=()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||caches.match('index.html'));
