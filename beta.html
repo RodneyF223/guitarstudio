@@ -147,7 +147,7 @@
      acorde (.lyc) en position:absolute justo encima; las líneas con acordes tienen el interlineado doble para hacerle sitio. */
   .lyrview{display:none;padding:0;margin-bottom:0}
   body.lyr .lyrview{display:block}
-  body.lyr .main,body.lyr details.diap,body.lyr section.progress,body.lyr #manual{display:none!important}
+  body.lyr .main,body.lyr details.diap,body.lyr section.progress{display:none!important}
   body.live .lyrview{display:none!important}
   .lyhead{position:sticky;top:var(--tbh,62px);z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:11px 16px 9px;
     background:var(--panel);border-bottom:1.5px solid var(--line2)}
@@ -639,6 +639,19 @@
   #circle path.wedge:hover{filter:brightness(1.06)}
   #circle text{pointer-events:none;user-select:none}
   .circlefoot{text-align:center;font-size:12.5px;color:var(--mut);margin-top:8px}
+  /* esquinas del círculo (2026-11-26): arriba a la izquierda mayor/menor relativa (+ / −), arriba a la derecha transponer */
+  .circwrap{position:relative}
+  /* cuadrados de 48 px: así caben en la esquina sin tocar el anillo exterior aunque el círculo llene el panel */
+  .circbtn{position:absolute;top:2px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    width:48px;height:48px;padding:0;border:1.5px solid var(--line2);border-radius:2px;background:var(--panel);color:var(--ink);
+    font-family:var(--font-b);font-weight:700;font-size:8.5px;letter-spacing:0;line-height:1;touch-action:manipulation;
+    transition:box-shadow .12s,transform .06s}
+  .circbtn:hover{box-shadow:var(--hov)}
+  .circbtn:active{transform:translate(1px,1px);box-shadow:none}
+  .circbtn .ic{font-size:18px}
+  .circbtn.cbl{left:2px}.circbtn.cbr{right:2px}
+  .circbtn .mmsym{font-family:var(--font-d);font-weight:900;font-size:22px;line-height:.8}
+  .circbtn.minor{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 
   /* ── legend ──────────────────────────────── */
   .legendrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:7px}
@@ -688,7 +701,7 @@
   #palstrip.on{visibility:visible;pointer-events:auto}
   #palette.stuck{visibility:hidden}
   /* una sola fila: si no caben las 8 fichas (tableta en vertical), encogen un poco en vez de saltar de línea */
-  #palstrip .psrow{display:flex;flex-wrap:nowrap;gap:9px}
+  #palstrip .psrow{display:flex;flex-wrap:nowrap;gap:9px;justify-content:center}
   #palstrip .palcol{gap:3px;flex:0 1 86px;min-width:0}
   #palstrip .pchip{cursor:pointer;touch-action:manipulation;transition:min-height .22s ease,padding .22s ease}
   #palstrip .pchip .nts{display:block;max-height:14px;overflow:hidden;transition:max-height .22s ease,opacity .15s}
@@ -1326,17 +1339,29 @@
   .secctl .scx,.secctl .sclab{display:none}
   .scbtn{position:relative}
   .scmore.lvman::after{content:'';position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--focus)}
-  .secctl.xopen{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;align-content:start;width:300px;padding:8px}
-  .secctl.xopen .scx{display:flex}
-  .secctl.xopen .scbtn,.secrow.compact .secctl.xopen .scbtn{display:flex;align-items:center;gap:7px;justify-content:flex-start;text-align:left;
-    font-size:14px;padding:5px 8px;min-height:34px;min-width:0}
-  .secctl.xopen .sclab{display:inline;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.15;min-width:0}
-  .secctl.xopen .scbtn.del .sclab{color:var(--danger)}
-  .secctl.xopen .scmore{order:99;grid-column:1/-1;justify-content:center;background:var(--ink);color:var(--panel);border-color:var(--ink)}
-  .secctl.xopen .scmore .sclab{color:inherit}
+  /* ⋯ abierto: la columna estrecha no cambia; la sección se aparta a la derecha y deja ver el cajón de detrás */
+  .secctl.xopen .scmore{background:var(--ink);color:var(--panel);border-color:var(--ink)}
   .secctl.xopen .scmore.lvman::after{display:none}
-  .secctl.xopen .lvbtn{font-family:var(--font-b)}
-  .secctl.xopen .lvbtn.lvman .sclab{color:var(--focus)}
+  .secleft{position:relative}
+  .secdrawer{position:absolute;top:0;left:100%;z-index:0;width:300px;height:100%;min-height:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;align-content:start;padding:8px;background:color-mix(in srgb, var(--wedge) 70%, var(--panel));visibility:hidden;box-sizing:border-box}
+  .secrow.xclip{position:relative;overflow:hidden}
+  .secrow.xclip .secdrawer{visibility:visible}
+  .secrow>.secbody,.secrow>.secgut{position:relative;z-index:1;background:var(--panel);transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s}
+  .secrow.xo>.secbody,.secrow.xo>.secgut{transform:translateX(300px)}
+  .secrow.xdrag>.secbody,.secrow.xdrag>.secgut{transform:translateX(var(--xdx,0px));transition:none}
+  .secrow.xo>.secbody,.secrow.xdrag>.secbody{box-shadow:-10px 0 14px -8px rgba(0,0,0,.35)}
+  .secrow:not(.xo):not(.xdrag)>.secbody{will-change:auto}
+  #sections .secrow{touch-action:pan-y}
+  .secdrawer .scbtn{display:flex;align-items:center;gap:7px;justify-content:flex-start;text-align:left;font-size:14px;padding:5px 8px;min-height:34px;min-width:0}
+  .secdrawer .sclab{display:inline;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.15;min-width:0}
+  .secdrawer .scbtn.del .sclab{color:var(--danger)}
+  .secdrawer .scclose{grid-column:1/-1;justify-content:center;background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  .secdrawer .scclose .sclab{color:inherit}
+  .secdrawer .lvbtn{font-family:var(--font-b)}
+  .secdrawer .lvbtn.lvman .sclab{color:var(--focus)}
+  body.live .secdrawer{display:none}
+  @media (prefers-reduced-motion: reduce){.secrow>.secbody,.secrow>.secgut{transition:none}}
   body.live .scbtn.lvbtn{display:none}
   .lvpop{position:fixed;z-index:90;padding:10px 12px;display:flex;flex-direction:column;gap:7px;border:1.5px solid var(--line2);box-shadow:var(--pop)}
   .lvpop .dplab{width:84px}
@@ -1692,6 +1717,19 @@
   details.help{color:var(--ink)}
   details.help summary{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid var(--line);background:var(--panel)}
   .mansum{display:inline-flex;align-items:center;gap:9px;font-family:var(--font-d);font-size:16px;font-weight:900;font-stretch:115%}
+  /* el manual se abre como panel lateral, igual que SET · BIBLIOTECA (2026-11-26) */
+  .spanel.manpanel{width:min(860px,100vw)}
+  .manbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+  .manbar .tpopx{flex:none;padding:0;border:1.5px solid var(--line);background:var(--panel);color:var(--ink)}
+  .manpanel .man{flex:1;min-height:0;border:none;overflow:hidden}
+  .manpanel .mannav{overflow:auto}
+  .manpanel .manbody{overflow:auto}
+  .manpanel .ic{color:var(--ink)}
+  .manpanel .manch.on .ic{color:var(--panel)}
+  .lgman{margin-left:auto;margin-right:10px;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border:1.5px solid var(--line2);
+    border-radius:2px;background:var(--panel);color:var(--ink);font-family:var(--font-n);font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+  .lgman:hover{box-shadow:var(--hov)}
+  .lgman .ic{font-size:15px}
   .man{display:grid;grid-template-columns:250px minmax(0,1fr);border:1px solid var(--line);border-top:none;background:var(--panel)}
   .mannav{border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--surf1)}
   .manq{display:flex;align-items:center;gap:6px;height:36px;padding:0 9px;border:1.5px solid var(--line);background:var(--panel);color:var(--mut)}
@@ -1895,11 +1933,15 @@
   <section class="left">
     <div class="panel boxpad">
       <div class="boxtitle">círculo de quintas · tonalidad</div>
-      <div id="circle"></div>
+      <div class="circwrap">
+        <div id="circle"></div>
+        <button type="button" class="circbtn cbl" id="mmbtn"></button>
+        <button type="button" class="circbtn cbr" id="tpbtn" title="Transponer toda la canción (acordes, voicings y licks) y poner cejilla"><i data-ic="arrow-down-up"></i><span>transponer</span></button>
+      </div>
       <div class="circlefoot">Clic en un acorde coloreado = ver sus voicings · clic fuera de la escala = cambiar de tonalidad (anillo exterior = mayor · anillo medio = menor)</div>
     </div>
     <details class="panel boxpad fold" data-fold="leyenda" open>
-      <summary><span class="boxtitle">leyenda</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
+      <summary><span class="boxtitle">leyenda</span><button type="button" class="lgman" id="lgmanbtn" title="Abrir el manual de GuitarStudio"><i data-ic="book-open"></i> manual</button><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
       <div class="lgd" id="legend"></div>
     </details>
     <details class="panel boxpad fold" data-fold="trucos" open>
@@ -1971,7 +2013,6 @@
     <span class="prmeta" id="prtempo"></span>
     <span class="tschip" id="tslabel">4/4</span>
     <button class="sbtn" id="compactbtn" title="Ocultar o mostrar los diagramas de acordes (vista compacta: solo nombre y grado)"><i data-ic="rectangle-horizontal"></i> compacto</button>
-    <button class="sbtn" id="tpbtn" title="Transponer toda la canción (acordes, voicings y licks) y poner cejilla"><i data-ic="arrow-down-up"></i><span class="blab"> transponer</span></button>
     <span class="addsec"><span class="aslab">agregar sección:</span>
       <input type="text" id="newsec" placeholder="Coro, Verso, Solo…">
       <button id="addsecbtn" title="Agregar sección"><i data-ic="plus"></i></button>
@@ -1998,13 +2039,14 @@
   <div id="lybody"></div>
 </section>
 
-<details class="help fold" id="manual" data-fold="manual">
-  <summary><span class="mansum"><i data-ic="book-open"></i> Manual de GuitarStudio</span><span class="fchev"><i data-ic="chevron-down"></i></span></summary>
+<aside class="spanel manpanel help" id="manual" hidden aria-label="Manual de GuitarStudio">
+  <div class="manbar"><span class="mansum"><i data-ic="book-open"></i> Manual de GuitarStudio</span>
+    <button class="tpopx" id="manclose" title="Cerrar (Esc)"><i data-ic="x"></i></button></div>
   <div class="man">
     <nav class="mannav" id="mannav" aria-label="Capítulos del manual"></nav>
     <article class="manbody" id="manbody"></article>
   </div>
-</details>
+</aside>
 
 <div class="transport">
   <button id="playbtn"><i data-ic="play"></i> Reproducir</button>
@@ -2159,7 +2201,7 @@ const STORE=(()=>{
 const LANG=(()=>{let v=null;try{v=STORE.getItem('gc-lang');}catch(e){}
   if(v!=='es'&&v!=='en')v=/^(es|ca|gl|eu)\b/i.test(navigator.language||'es')?'es':'en';return v;})();
 function TR(es,en){return LANG==='en'?en:es;}
-const I18N_HTML={"reproducción en el directo": "playback in live mode", "al pulsar ▶": "when you press ▶", "reproducción automática · al tempo": "automatic playback · at tempo", "reproducción automática · 10 s por sección": "automatic playback · 10 s per section", "reproducción automática · 15 s por sección": "automatic playback · 15 s per section", "reproducción automática · 20 s por sección": "automatic playback · 20 s per section", "reproducción automática · 30 s por sección": "automatic playback · 30 s per section", "reproducción automática · 45 s por sección": "automatic playback · 45 s per section", "reproducción automática · 60 s por sección": "automatic playback · 60 s per section", "En el modo directo la canción se reproduce SIN SONIDO: se iluminan los acordes, la pantalla baja y la letra sube al ritmo de la canción. «Al pulsar ▶»: empieza cuando lo tocas. «Reproducción automática»: empieza sola en cuanto la canción sale en pantalla (con la cuenta de entrada, si está puesta); «al tempo» usa el tempo de la canción y «N s por sección» da ese tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca en la tira de abajo la sección que suena y sigue desde ahí.": "In live mode the song plays WITHOUT SOUND: chords light up, the screen scrolls and the lyrics move up in time with the song. “When you press ▶”: it starts when you tap it. “Automatic playback”: it starts by itself as soon as the song appears (with the count-in, if it is on); “at tempo” uses the song's tempo and “N s per section” gives that time to each pass of each section. If it runs ahead or behind, tap the section that is sounding on the strip below and it carries on from there.","Canción anterior del set":"Previous song in the set","Canción anterior":"Previous song","Mis canciones: sets, carpetas, archivo":"My songs: sets, folders, file","Canción siguiente del set":"Next song in the set","Canción siguiente":"Next song","Guardar la canción actual (Ctrl+S)":"Save the current song (Ctrl+S)","Modo letra: la letra de la canción por secciones, con los acordes encima":"Lyrics mode: the song's lyrics by section, with the chords above","Modo directo: pantalla de escenario con botones grandes (también responde a pasapáginas Bluetooth y al teclado)":"Live mode: stage screen with big buttons (also responds to Bluetooth page-turners and the keyboard)","Canciones":"Songs","Cerrar (Esc)":"Close (Esc)","Nueva canción, set o carpeta":"New song, set or folder","Importar y exportar (.json) · imágenes del set":"Import and export (.json) · set images","Marcar canciones para moverlas, añadirlas a un set, duplicarlas, exportarlas o borrarlas · doble clic en un nombre = renombrar":"Check songs to move them, add them to a set, duplicate, export or delete them · double-click a name = rename","Salir (Esc)":"Exit (Esc)","La última nota que tocaste en el mástil":"The last note you played on the neck","Muestra solo las notas de una escala desde la tónica":"Shows only the notes of a scale from the tonic","modos":"modes","Resalta las notas de un acorde (su arpegio) y apaga las demás. «el que suena» lo sigue mientras reproduces la canción":"Highlights the notes of a chord (its arpeggio) and dims the rest. “the one sounding” follows it while the song plays","Cejilla: los acordes y los diagramas se cuentan desde ella. Toca para transponer o moverla":"Capo: chords and diagrams count from it. Tap to transpose or move it","Ocultar o mostrar los diagramas de acordes (vista compacta: solo nombre y grado)":"Hide or show the chord diagrams (compact view: just name and degree)","Transponer toda la canción (acordes, voicings y licks) y poner cejilla":"Transpose the whole song (chords, voicings and licks) and set a capo","Coro, Verso, Solo…":"Chorus, Verse, Solo…","Agregar sección":"Add section","Ver u ocultar los acordes sobre la letra":"Show or hide the chords above the lyrics","Letra más pequeña":"Smaller text","Letra más grande":"Larger text","Transponer toda la canción y poner cejilla":"Transpose the whole song and set a capo","Pegar la letra entera y repartirla por las secciones de la canción":"Paste the whole lyrics and spread them over the song's sections","Capítulos del manual":"Manual chapters","Tempo, compás, batería y opciones de reproducción":"Tempo, time signature, drums and playback options","Cerrar":"Close","5 bpm menos":"5 bpm less","5 bpm más":"5 bpm more","Haz clic al ritmo para fijar el tempo":"Click in time to set the tempo","Estilo de batería de esta canción (se guarda con ella)":"Drum style of this song (saved with it)","Escucha el estilo elegido: un compás de cada nivel — 1 suave · 2 verso · 3 estribillo · 4 clímax — y luego el redoble y el final":"Hear the chosen style: one bar of each level — 1 soft · 2 verse · 3 chorus · 4 climax — and then the fill and the ending","Qué toca el bajo de esta canción (se guarda con ella). Siempre ataca al entrar cada acorde":"What the bass plays in this song (saved with it). It always hits when each chord comes in","Metrónomo":"Metronome","6/8: dos pulsos por compás, cada uno dividido en tres":"6/8: two pulses per bar, each split in three","12/8: cuatro pulsos por compás, cada uno dividido en tres (blues lento, shuffle)":"12/8: four pulses per bar, each split in three (slow blues, shuffle)","En 6/8 y 12/8 el tempo cuenta los pulsos (2 o 4 por compás), no cada corchea":"In 6/8 and 12/8 the tempo counts the pulses (2 or 4 per bar), not each eighth note","Activa o desactiva la batería":"Turn the drums on or off","Activa o desactiva la guitarra: apágala para tocar tú los acordes con la batería y el bajo (la canción sigue iluminándose y avanzando)":"Turn the guitar on or off: switch it off to play the chords yourself over the drums and bass (the song keeps lighting up and moving on)","Volumen y mezcla de metrónomo, batería, bajo y guitarra":"Volume and mix of metronome, drums, bass and guitar","Ajustes: sonido de la guitarra, tema, resaltado, avance del directo e idioma":"Settings: guitar sound, theme, highlighting, live auto-advance and language","Ajustes":"Settings","sonido de la guitarra":"guitar sound","Activa o desactiva el bajo: toca la fundamental de cada acorde (o su bajo, en acordes tipo D/F♯)":"Turn the bass on or off: it plays the root of each chord (or its bass note, in chords like D/F♯)","Deshacer el último cambio (Ctrl+Z)":"Undo the last change (Ctrl+Z)","Rehacer lo deshecho (Ctrl+Y)":"Redo (Ctrl+Y)","Ajustes: volumen, mezcla, sonido de la guitarra, tema, resaltado y avance del directo":"Settings: volume, mix, guitar sound, theme, highlighting and live auto-advance","Silenciado":"Muted","Volumen general":"Master volume","Silenciar / restablecer el volumen":"Mute / restore the volume","Volumen de la guitarra (acordes)":"Guitar volume (chords)","Volumen de la batería":"Drum volume","Volumen del bajo":"Bass volume","Volumen del metrónomo":"Metronome volume","Velocidad del rasgueo: izquierda = todas las cuerdas a la vez (plaqué), derecha = rasgueo lento":"Strum speed: left = all strings at once, right = slow strum","Caída máxima del rasgueo inicial de cada acorde: izquierda = corto y seco, derecha = largo. Los tiempos siguientes del acorde van en palm mute":"Maximum decay of each chord's first strum: left = short and dry, right = long. The following beats of the chord are palm-muted","Sonido de la guitarra — «cuerda»: cada nota se calcula como una cuerda pulsada, más real · «clásico»: el sonido de siempre (dos osciladores). De este aparato":"Guitar sound — “string”: each note is computed as a plucked string, more realistic · “classic”: the original sound (two oscillators). For this device","Sonido de la guitarra":"Guitar sound","Ambiente: un poco de reverberación de sala para la guitarra y la batería. A la izquierda del todo, apagado. De este aparato":"Room: a little room reverb for guitar and drums. All the way left, off. For this device","Tema":"Theme","Según el sistema":"Follow the system","Tema claro":"Light theme","Tema oscuro":"Dark theme","Qué se ilumina mientras suena: cada acorde, o solo la sección entera — en directo, si la banda no va clavada al clic, la sección es más fiable que el acorde exacto":"What lights up during playback: each chord, or just the whole section — live, if the band isn't locked to the click, the section is more reliable than the exact chord","Resaltar al reproducir":"Highlight during playback","En el modo directo, aunque NO le des a reproducir, la pantalla va bajando sola, sección a sección, desde que la canción sale en pantalla. «Al tempo» usa los compases y las repeticiones de cada sección con el tempo de la canción; «cada N s» da el mismo tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca la sección que suena en la tira de abajo y sigue desde ahí.":"In live mode, even if you DON'T press play, the screen scrolls down by itself, section by section, from the moment the song appears. “At tempo” uses each section's bars and repeats with the song's tempo; “every N s” gives the same time to each pass of each section. If it runs ahead or behind, tap the section that is sounding on the strip below and it continues from there.","Reglas palabra → color para pintar de golpe las secciones de tus canciones":"Word → colour rules to paint the sections of your songs in one go","Abrir el manual de GuitarStudio":"Open the GuitarStudio manual","Volver al estudio":"Back to the studio","Acordes: la rejilla de la canción. Se guarda con cada canción":"Chords: the song grid. Saved with each song","Letra: la letra de la sección que suena. Se guarda con cada canción":"Lyrics: the lyrics of the section that is sounding. Saved with each song","Letra":"Lyrics","Reproducir / parar":"Play / stop","Vista simple / diagramas":"Simple view / diagrams","Ver también las secciones ocultas":"Also show the hidden sections","compón · ensaya · toca":"compose · rehearse · play","Sin título":"Untitled","Guardar":"Save","letra":"lyrics","directo":"live","BIBLIOTECA":"LIBRARY","Nueva":"New","Archivo":"File","Editar":"Edit","Imágenes":"Images","salir":"exit","todas":"all","vista":"view","simple (chuleta)":"simple (cheat sheet)","con diagramas":"with diagrams","tema":"theme","blanco":"white","negro":"black","ancho":"width","nitidez":"sharpness","destino":"destination","ZIP (descargas)":"ZIP (downloads)","Exportar":"Export","nombre de cada imagen:":"name of each image:","Nº-Canción-Tono.png":"No-Song-Key.png","· el número sigue el orden del set":"· the number follows the set order","círculo de quintas · tonalidad":"circle of fifths · key","Clic en un acorde coloreado = ver sus voicings · clic fuera de la escala = cambiar de tonalidad (anillo exterior = mayor · anillo medio = menor)":"Click a coloured chord = see its voicings · click outside the scale = change key (outer ring = major · middle ring = minor)","leyenda":"legend","trucos de composición":"songwriting tricks","acordes de la escala":"chords of the scale","voicings del acorde":"chord voicings","diapasón · intervalos desde la tónica":"fretboard · intervals from the tonic","toca una nota del mástil":"tap a note on the neck","escala":"scale","— todas las notas":"— all notes","la de la canción":"the song's","mayor (jónico)":"major (Ionian)","menor natural (eólico)":"natural minor (Aeolian)","menor armónica":"harmonic minor","pentatónica mayor":"major pentatonic","pentatónica menor":"minor pentatonic","blues (con blue note)":"blues (with blue note)","dórico":"Dorian","frigio":"Phrygian","lidio":"Lydian","mixolidio":"Mixolydian","locrio":"Locrian","acorde":"chord","clic":"click","= escuchar ·":"= listen ·","doble clic":"double-click","= esa nota pasa a ser la tónica (modular) · la caja lisa es la nota, la de color su grado":"= that note becomes the tonic (modulate) · the plain box is the note, the coloured one its degree","dibujar un lick · solo (diagrama para la canción)":"draw a lick · solo (diagram for the song)","toca la rejilla para poner o quitar notas ·":"tap the grid to add or remove notes ·","arrastra":"drag","una nota para moverla ·":"a note to move it ·","en una nota, flecha, slide, bend o grupo = borrarlo (con":"on a note, arrow, slide, bend or group = delete it (with",", los toques seguidos sobre la nota cambian el bend; para quitarlo, doble clic en su etiqueta) · flecha,":", repeated taps on the note change the bend; to remove it, double-click its label) · arrow,",": toca dos notas ·":": tap two notes ·",": toca una nota (½ → 1 → 1½ tono → sin bend) ·":": tap a note (½ → 1 → 1½ step → no bend) ·","agrupar":"group",": toca las notas y pulsa «cerrar grupo» · fuera de la rejilla = nota desplazada; con «pos» 1, encima de la cejuela = al aire ·":": tap the notes and press “close group” · outside the grid = shifted note; with “pos” 1, above the nut = open string ·","deshace el dibujo":"undoes the drawing","compacto":"compact","transponer":"transpose","agregar sección:":"add section:","clic en «×N» = duración del acorde (compases o tiempos) ·":"click “×N” = chord duration (bars or beats) ·","= silencio ·":"= rest ·","salta de línea · arrastra para reordenar":"breaks the line · drag to reorder","acordes":"chords","pegar letra…":"paste lyrics…","Toca un acorde de la sección y luego la sílaba donde entra · arrástralo para moverlo · tócalo para afinar su sitio (◀ ▶) o quitarlo ·":"Tap a chord of the section and then the syllable where it comes in · drag it to move it · tap it to fine-tune its place (◀ ▶) or remove it ·","escribe la letra":"writes the lyrics","Manual de GuitarStudio":"GuitarStudio manual","Reproducir":"Play","ritmo":"rhythm","compás":"time","batería":"drums","pop 80":"80s pop","rock rápido (movida)":"fast rock (movida)","medio tiempo":"mid-tempo","balada":"ballad","vals (3/4)":"waltz (3/4)","oír el estilo":"hear the style","bajo":"bass","con el bombo":"with the kick drum","una nota por acorde":"one note per chord","negras":"quarter notes","corcheas":"eighth notes","fundamental y quinta":"root and fifth","cuenta de entrada":"count-in","bucle":"loop","metrónomo":"metronome","ajustes":"settings","volumen":"volume","mezcla":"mix","guitarra":"guitar","ataque":"attack","sonido":"sound","cuerda":"string","clásico":"classic","sala":"room","pantalla":"display","· de este aparato":"· for this device","claro":"light","oscuro":"dark","resaltar":"highlight","cada acorde":"each chord","la sección":"the section","solo la sección":"just the section","avance en el directo":"auto-advance in live mode","solo al reproducir":"only during playback","sin reproducir · al tempo":"without playing · at tempo","sin reproducir · cada 10 s":"without playing · every 10 s","sin reproducir · cada 15 s":"without playing · every 15 s","sin reproducir · cada 20 s":"without playing · every 20 s","sin reproducir · cada 30 s":"without playing · every 30 s","sin reproducir · cada 45 s":"without playing · every 45 s","sin reproducir · cada 60 s":"without playing · every 60 s","secciones":"sections","colores automáticos…":"automatic colours…","desliza para cambiar de canción":"swipe to change song","Cambios sin guardar":"Unsaved changes","Cancelar":"Cancel","Descartar":"Discard","Guardar y seguir":"Save and continue","Idioma":"Language","idioma":"language","Si GuitarStudio te sirve, puedes apoyarlo con una donación":"If GuitarStudio is useful to you, you can support it with a donation","apoyar GuitarStudio":"support GuitarStudio","y":"and"};/*@I18N_HTML@*/
+const I18N_HTML={"reproducción en el directo": "playback in live mode", "al pulsar ▶": "when you press ▶", "reproducción automática · al tempo": "automatic playback · at tempo", "reproducción automática · 10 s por sección": "automatic playback · 10 s per section", "reproducción automática · 15 s por sección": "automatic playback · 15 s per section", "reproducción automática · 20 s por sección": "automatic playback · 20 s per section", "reproducción automática · 30 s por sección": "automatic playback · 30 s per section", "reproducción automática · 45 s por sección": "automatic playback · 45 s per section", "reproducción automática · 60 s por sección": "automatic playback · 60 s per section", "En el modo directo la canción se reproduce SIN SONIDO: se iluminan los acordes, la pantalla baja y la letra sube al ritmo de la canción. «Al pulsar ▶»: empieza cuando lo tocas. «Reproducción automática»: empieza sola en cuanto la canción sale en pantalla (con la cuenta de entrada, si está puesta); «al tempo» usa el tempo de la canción y «N s por sección» da ese tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca en la tira de abajo la sección que suena y sigue desde ahí.": "In live mode the song plays WITHOUT SOUND: chords light up, the screen scrolls and the lyrics move up in time with the song. “When you press ▶”: it starts when you tap it. “Automatic playback”: it starts by itself as soon as the song appears (with the count-in, if it is on); “at tempo” uses the song's tempo and “N s per section” gives that time to each pass of each section. If it runs ahead or behind, tap the section that is sounding on the strip below and it carries on from there.","Canción anterior del set":"Previous song in the set","Canción anterior":"Previous song","Mis canciones: sets, carpetas, archivo":"My songs: sets, folders, file","Canción siguiente del set":"Next song in the set","Canción siguiente":"Next song","Guardar la canción actual (Ctrl+S)":"Save the current song (Ctrl+S)","Modo letra: la letra de la canción por secciones, con los acordes encima":"Lyrics mode: the song's lyrics by section, with the chords above","Modo directo: pantalla de escenario con botones grandes (también responde a pasapáginas Bluetooth y al teclado)":"Live mode: stage screen with big buttons (also responds to Bluetooth page-turners and the keyboard)","Canciones":"Songs","Cerrar (Esc)":"Close (Esc)","Nueva canción, set o carpeta":"New song, set or folder","Importar y exportar (.json) · imágenes del set":"Import and export (.json) · set images","Marcar canciones para moverlas, añadirlas a un set, duplicarlas, exportarlas o borrarlas · doble clic en un nombre = renombrar":"Check songs to move them, add them to a set, duplicate, export or delete them · double-click a name = rename","Salir (Esc)":"Exit (Esc)","La última nota que tocaste en el mástil":"The last note you played on the neck","Muestra solo las notas de una escala desde la tónica":"Shows only the notes of a scale from the tonic","modos":"modes","Resalta las notas de un acorde (su arpegio) y apaga las demás. «el que suena» lo sigue mientras reproduces la canción":"Highlights the notes of a chord (its arpeggio) and dims the rest. “the one sounding” follows it while the song plays","Cejilla: los acordes y los diagramas se cuentan desde ella. Toca para transponer o moverla":"Capo: chords and diagrams count from it. Tap to transpose or move it","Ocultar o mostrar los diagramas de acordes (vista compacta: solo nombre y grado)":"Hide or show the chord diagrams (compact view: just name and degree)","Transponer toda la canción (acordes, voicings y licks) y poner cejilla":"Transpose the whole song (chords, voicings and licks) and set a capo","transponer":"transpose","Coro, Verso, Solo…":"Chorus, Verse, Solo…","Agregar sección":"Add section","Ver u ocultar los acordes sobre la letra":"Show or hide the chords above the lyrics","Letra más pequeña":"Smaller text","Letra más grande":"Larger text","Transponer toda la canción y poner cejilla":"Transpose the whole song and set a capo","Pegar la letra entera y repartirla por las secciones de la canción":"Paste the whole lyrics and spread them over the song's sections","Capítulos del manual":"Manual chapters","Tempo, compás, batería y opciones de reproducción":"Tempo, time signature, drums and playback options","Cerrar":"Close","5 bpm menos":"5 bpm less","5 bpm más":"5 bpm more","Haz clic al ritmo para fijar el tempo":"Click in time to set the tempo","Estilo de batería de esta canción (se guarda con ella)":"Drum style of this song (saved with it)","Escucha el estilo elegido: un compás de cada nivel — 1 suave · 2 verso · 3 estribillo · 4 clímax — y luego el redoble y el final":"Hear the chosen style: one bar of each level — 1 soft · 2 verse · 3 chorus · 4 climax — and then the fill and the ending","Qué toca el bajo de esta canción (se guarda con ella). Siempre ataca al entrar cada acorde":"What the bass plays in this song (saved with it). It always hits when each chord comes in","Metrónomo":"Metronome","6/8: dos pulsos por compás, cada uno dividido en tres":"6/8: two pulses per bar, each split in three","12/8: cuatro pulsos por compás, cada uno dividido en tres (blues lento, shuffle)":"12/8: four pulses per bar, each split in three (slow blues, shuffle)","En 6/8 y 12/8 el tempo cuenta los pulsos (2 o 4 por compás), no cada corchea":"In 6/8 and 12/8 the tempo counts the pulses (2 or 4 per bar), not each eighth note","Activa o desactiva la batería":"Turn the drums on or off","Activa o desactiva la guitarra: apágala para tocar tú los acordes con la batería y el bajo (la canción sigue iluminándose y avanzando)":"Turn the guitar on or off: switch it off to play the chords yourself over the drums and bass (the song keeps lighting up and moving on)","Volumen y mezcla de metrónomo, batería, bajo y guitarra":"Volume and mix of metronome, drums, bass and guitar","Ajustes: sonido de la guitarra, tema, resaltado, avance del directo e idioma":"Settings: guitar sound, theme, highlighting, live auto-advance and language","Ajustes":"Settings","sonido de la guitarra":"guitar sound","Activa o desactiva el bajo: toca la fundamental de cada acorde (o su bajo, en acordes tipo D/F♯)":"Turn the bass on or off: it plays the root of each chord (or its bass note, in chords like D/F♯)","Deshacer el último cambio (Ctrl+Z)":"Undo the last change (Ctrl+Z)","Rehacer lo deshecho (Ctrl+Y)":"Redo (Ctrl+Y)","Ajustes: volumen, mezcla, sonido de la guitarra, tema, resaltado y avance del directo":"Settings: volume, mix, guitar sound, theme, highlighting and live auto-advance","Silenciado":"Muted","Volumen general":"Master volume","Silenciar / restablecer el volumen":"Mute / restore the volume","Volumen de la guitarra (acordes)":"Guitar volume (chords)","Volumen de la batería":"Drum volume","Volumen del bajo":"Bass volume","Volumen del metrónomo":"Metronome volume","Velocidad del rasgueo: izquierda = todas las cuerdas a la vez (plaqué), derecha = rasgueo lento":"Strum speed: left = all strings at once, right = slow strum","Caída máxima del rasgueo inicial de cada acorde: izquierda = corto y seco, derecha = largo. Los tiempos siguientes del acorde van en palm mute":"Maximum decay of each chord's first strum: left = short and dry, right = long. The following beats of the chord are palm-muted","Sonido de la guitarra — «cuerda»: cada nota se calcula como una cuerda pulsada, más real · «clásico»: el sonido de siempre (dos osciladores). De este aparato":"Guitar sound — “string”: each note is computed as a plucked string, more realistic · “classic”: the original sound (two oscillators). For this device","Sonido de la guitarra":"Guitar sound","Ambiente: un poco de reverberación de sala para la guitarra y la batería. A la izquierda del todo, apagado. De este aparato":"Room: a little room reverb for guitar and drums. All the way left, off. For this device","Tema":"Theme","Según el sistema":"Follow the system","Tema claro":"Light theme","Tema oscuro":"Dark theme","Qué se ilumina mientras suena: cada acorde, o solo la sección entera — en directo, si la banda no va clavada al clic, la sección es más fiable que el acorde exacto":"What lights up during playback: each chord, or just the whole section — live, if the band isn't locked to the click, the section is more reliable than the exact chord","Resaltar al reproducir":"Highlight during playback","En el modo directo, aunque NO le des a reproducir, la pantalla va bajando sola, sección a sección, desde que la canción sale en pantalla. «Al tempo» usa los compases y las repeticiones de cada sección con el tempo de la canción; «cada N s» da el mismo tiempo a cada vuelta de cada sección. Si se adelanta o se atrasa, toca la sección que suena en la tira de abajo y sigue desde ahí.":"In live mode, even if you DON'T press play, the screen scrolls down by itself, section by section, from the moment the song appears. “At tempo” uses each section's bars and repeats with the song's tempo; “every N s” gives the same time to each pass of each section. If it runs ahead or behind, tap the section that is sounding on the strip below and it continues from there.","Reglas palabra → color para pintar de golpe las secciones de tus canciones":"Word → colour rules to paint the sections of your songs in one go","Abrir el manual de GuitarStudio":"Open the GuitarStudio manual","manual":"manual","Volver al estudio":"Back to the studio","Acordes: la rejilla de la canción. Se guarda con cada canción":"Chords: the song grid. Saved with each song","Letra: la letra de la sección que suena. Se guarda con cada canción":"Lyrics: the lyrics of the section that is sounding. Saved with each song","Letra":"Lyrics","Reproducir / parar":"Play / stop","Vista simple / diagramas":"Simple view / diagrams","Ver también las secciones ocultas":"Also show the hidden sections","compón · ensaya · toca":"compose · rehearse · play","Sin título":"Untitled","Guardar":"Save","letra":"lyrics","directo":"live","BIBLIOTECA":"LIBRARY","Nueva":"New","Archivo":"File","Editar":"Edit","Imágenes":"Images","salir":"exit","todas":"all","vista":"view","simple (chuleta)":"simple (cheat sheet)","con diagramas":"with diagrams","tema":"theme","blanco":"white","negro":"black","ancho":"width","nitidez":"sharpness","destino":"destination","ZIP (descargas)":"ZIP (downloads)","Exportar":"Export","nombre de cada imagen:":"name of each image:","Nº-Canción-Tono.png":"No-Song-Key.png","· el número sigue el orden del set":"· the number follows the set order","círculo de quintas · tonalidad":"circle of fifths · key","Clic en un acorde coloreado = ver sus voicings · clic fuera de la escala = cambiar de tonalidad (anillo exterior = mayor · anillo medio = menor)":"Click a coloured chord = see its voicings · click outside the scale = change key (outer ring = major · middle ring = minor)","leyenda":"legend","trucos de composición":"songwriting tricks","acordes de la escala":"chords of the scale","voicings del acorde":"chord voicings","diapasón · intervalos desde la tónica":"fretboard · intervals from the tonic","toca una nota del mástil":"tap a note on the neck","escala":"scale","— todas las notas":"— all notes","la de la canción":"the song's","mayor (jónico)":"major (Ionian)","menor natural (eólico)":"natural minor (Aeolian)","menor armónica":"harmonic minor","pentatónica mayor":"major pentatonic","pentatónica menor":"minor pentatonic","blues (con blue note)":"blues (with blue note)","dórico":"Dorian","frigio":"Phrygian","lidio":"Lydian","mixolidio":"Mixolydian","locrio":"Locrian","acorde":"chord","clic":"click","= escuchar ·":"= listen ·","doble clic":"double-click","= esa nota pasa a ser la tónica (modular) · la caja lisa es la nota, la de color su grado":"= that note becomes the tonic (modulate) · the plain box is the note, the coloured one its degree","dibujar un lick · solo (diagrama para la canción)":"draw a lick · solo (diagram for the song)","toca la rejilla para poner o quitar notas ·":"tap the grid to add or remove notes ·","arrastra":"drag","una nota para moverla ·":"a note to move it ·","en una nota, flecha, slide, bend o grupo = borrarlo (con":"on a note, arrow, slide, bend or group = delete it (with",", los toques seguidos sobre la nota cambian el bend; para quitarlo, doble clic en su etiqueta) · flecha,":", repeated taps on the note change the bend; to remove it, double-click its label) · arrow,",": toca dos notas ·":": tap two notes ·",": toca una nota (½ → 1 → 1½ tono → sin bend) ·":": tap a note (½ → 1 → 1½ step → no bend) ·","agrupar":"group",": toca las notas y pulsa «cerrar grupo» · fuera de la rejilla = nota desplazada; con «pos» 1, encima de la cejuela = al aire ·":": tap the notes and press “close group” · outside the grid = shifted note; with “pos” 1, above the nut = open string ·","deshace el dibujo":"undoes the drawing","compacto":"compact","transponer":"transpose","agregar sección:":"add section:","clic en «×N» = duración del acorde (compases o tiempos) ·":"click “×N” = chord duration (bars or beats) ·","= silencio ·":"= rest ·","salta de línea · arrastra para reordenar":"breaks the line · drag to reorder","acordes":"chords","pegar letra…":"paste lyrics…","Toca un acorde de la sección y luego la sílaba donde entra · arrástralo para moverlo · tócalo para afinar su sitio (◀ ▶) o quitarlo ·":"Tap a chord of the section and then the syllable where it comes in · drag it to move it · tap it to fine-tune its place (◀ ▶) or remove it ·","escribe la letra":"writes the lyrics","Manual de GuitarStudio":"GuitarStudio manual","Reproducir":"Play","ritmo":"rhythm","compás":"time","batería":"drums","pop 80":"80s pop","rock rápido (movida)":"fast rock (movida)","medio tiempo":"mid-tempo","balada":"ballad","vals (3/4)":"waltz (3/4)","oír el estilo":"hear the style","bajo":"bass","con el bombo":"with the kick drum","una nota por acorde":"one note per chord","negras":"quarter notes","corcheas":"eighth notes","fundamental y quinta":"root and fifth","cuenta de entrada":"count-in","bucle":"loop","metrónomo":"metronome","ajustes":"settings","volumen":"volume","mezcla":"mix","guitarra":"guitar","ataque":"attack","sonido":"sound","cuerda":"string","clásico":"classic","sala":"room","pantalla":"display","· de este aparato":"· for this device","claro":"light","oscuro":"dark","resaltar":"highlight","cada acorde":"each chord","la sección":"the section","solo la sección":"just the section","avance en el directo":"auto-advance in live mode","solo al reproducir":"only during playback","sin reproducir · al tempo":"without playing · at tempo","sin reproducir · cada 10 s":"without playing · every 10 s","sin reproducir · cada 15 s":"without playing · every 15 s","sin reproducir · cada 20 s":"without playing · every 20 s","sin reproducir · cada 30 s":"without playing · every 30 s","sin reproducir · cada 45 s":"without playing · every 45 s","sin reproducir · cada 60 s":"without playing · every 60 s","secciones":"sections","colores automáticos…":"automatic colours…","desliza para cambiar de canción":"swipe to change song","Cambios sin guardar":"Unsaved changes","Cancelar":"Cancel","Descartar":"Discard","Guardar y seguir":"Save and continue","Idioma":"Language","idioma":"language","Si GuitarStudio te sirve, puedes apoyarlo con una donación":"If GuitarStudio is useful to you, you can support it with a donation","apoyar GuitarStudio":"support GuitarStudio","y":"and"};/*@I18N_HTML@*/
 function i18nDom(root){
   if(LANG!=='en'||!root)return;
   const tw=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),ns=[];
@@ -2802,7 +2844,16 @@ function chipHTML(ch,idx,cls,registry){
     '<span class="deg">'+esc(ch.deg)+'</span><span class="nm">'+esc(ch.label)+'</span><span class="nts">'+esc(notes)+'</span></button>';
 }
 function isSel(ch){return S.selChord&&S.selChord.pc===ch.pc&&S.selChord.quality===ch.quality&&S.selChord.deg===ch.deg;}
+function renderMM(){
+  const b=document.getElementById('mmbtn');if(!b)return;
+  const k=keyObj(),rel=nName(relMinorPc(),k.flat)+'m';
+  b.classList.toggle('minor',!!S.minorView);
+  b.innerHTML='<span class="mmsym">'+(S.minorView?'−':'+')+'</span><span>'+(S.minorView?TR('menor','minor'):TR('mayor','major'))+'</span>';
+  b.title=S.minorView?TR('Ahora en '+rel+' (menor relativa). Toca para ver la canción en '+k.label+' mayor','Now in '+rel+' (relative minor). Tap to see the song in '+k.label+' major')
+    :TR('Ahora en '+k.label+' mayor. Toca para verla como su menor relativa ('+rel+')','Now in '+k.label+' major. Tap to see it as its relative minor ('+rel+')');
+}
 function renderPalette(){
+  renderMM();
   PALETTE=currentChords();
   const k=keyObj();
   document.getElementById('palettetitle').textContent=S.minorView
@@ -2843,13 +2894,15 @@ function palStrip(){
 function palStripTop(){const t=document.querySelector('.topbar');return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
 function palStripPos(){
   if(!PSTRIP)return;
-  const pal=document.getElementById('palette'),vo=document.getElementById('voicings'),box=pal&&pal.closest('.panel');
-  const first=pal&&pal.querySelector('.pchip');
-  if(!box||!first||!vo||!vo.offsetWidth){PSTRIP.classList.remove('on','comp');return;}
-  const top=palStripTop(),r=box.getBoundingClientRect();
-  PSTRIP.style.top=top+'px';PSTRIP.style.left=r.left+'px';PSTRIP.style.width=r.width+'px';
-  /* se engancha justo cuando la fila de acordes llega a la barra de arriba, y se suelta al llegar al final de los voicings */
-  const on=first.getBoundingClientRect().top<top+8&&vo.getBoundingClientRect().bottom>top+PSTRIP.offsetHeight+40;
+  const pal=document.getElementById('palette'),vo=document.getElementById('voicings');
+  const first=pal&&pal.querySelector('.pchip'),prog=document.querySelector('section.progress');
+  if(!first||!vo||!vo.offsetWidth){PSTRIP.classList.remove('on','comp');if(pal)pal.classList.remove('stuck');return;}
+  /* 2026-11-26: centrada y a todo lo ancho, como el diapasón, y también sobre el diapasón (para ver dónde cae cada
+     acorde en el mástil). Se suelta al llegar a la canción. */
+  const top=palStripTop(),wide=vo.closest('.panel').getBoundingClientRect();
+  PSTRIP.style.top=top+'px';PSTRIP.style.left=wide.left+'px';PSTRIP.style.width=wide.width+'px';
+  const endY=prog&&prog.offsetWidth?prog.getBoundingClientRect().top:vo.getBoundingClientRect().bottom;
+  const on=first.getBoundingClientRect().top<top+8&&endY>top+PSTRIP.offsetHeight+40;
   if(on&&!PSTRIP.classList.contains('on')){PSTRIP.classList.add('on');requestAnimationFrame(()=>PSTRIP.classList.add('comp'));}
   else if(!on&&PSTRIP.classList.contains('on'))PSTRIP.classList.remove('on','comp');
   pal.classList.toggle('stuck',on); /* la original se oculta mientras está enganchada: que no se vea doble */
@@ -2860,10 +2913,14 @@ function palStripPick(i){
      tira; no uno del que solo asoma el borde) */
   const line=palStripTop()+PSTRIP.offsetHeight,ref=line+(window.innerHeight-line)*0.3;
   let anc=null;
-  for(const v of document.querySelectorAll('#voicings .vsec')){const r=v.getBoundingClientRect();if(r.bottom>ref){anc={id:v.id,top:r.top};break;}}
+  const dp=document.querySelector('details.diap');
+  for(const v of [...document.querySelectorAll('#voicings .vsec'),dp]){if(!v)continue;const r=v.getBoundingClientRect();if(r.bottom>ref){anc={el:v,id:v.id,top:r.top};break;}}
   const vo=document.getElementById('voicings'),voTop=vo.getBoundingClientRect().top;
+  /* sobre el diapasón: el mástil pasa a resaltar el acorde elegido */
+  const onDiap=anc&&anc.el===dp;
+  if(onDiap&&S.fbArp!=='sel')S.fbArp='sel';
   S.selChord=ch;previewChord(ch);renderCircle();renderPalette();renderTricks();renderVoicings();if(S.fbArp==='sel')renderLickEd();
-  const el=anc&&document.getElementById(anc.id);
+  const el=anc&&(anc.el===dp?dp:document.getElementById(anc.id));
   if(el)window.scrollBy(0,el.getBoundingClientRect().top-anc.top);
   else window.scrollBy(0,vo.getBoundingClientRect().top-voTop);
   palStripPos();
@@ -3684,9 +3741,14 @@ let XOPEN=null;
 function secCtlHTML(sec,si,cpt,showNote){
   const xo=XOPEN===sec,li=secLvlInfo(si),man=!li.auto||typeof sec.fill==='boolean';
   const B=(attr,cls,ic,lab,title)=>'<button class="scbtn'+(cls?' '+cls:'')+'" '+attr+' title="'+esc(title)+'">'+ICO(ic)+'<span class="sclab">'+esc(lab)+'</span></button>';
+  /* ▷ y ▭ se quedan a la vista; el resto va en el cajón que hay «detrás» de la sección (2026-11-26) */
   return '<div class="secctl'+(xo?' xopen':'')+'" data-ctl="'+si+'">'+
     B('data-playsec="'+si+'"','playsec','play',S.loop?TR('tocar en bucle','play in a loop'):TR('tocar desde aquí','play from here'),S.loop?TR('Toca esta sección sola, en bucle (el bucle está encendido)','Plays this section alone, in a loop (loop is on)'):TR('Empieza en esta sección y sigue hasta el final (el bucle está apagado)','Starts at this section and goes on to the end (loop is off)'))+
     B('data-viewsec="'+si+'"','',cpt?'grid-3x3':'rectangle-horizontal',cpt?TR('con diagramas','with diagrams'):TR('vista simple','simple view'),cpt?TR('Abrir esta sección con diagramas (en esta vista)','Open this section with diagrams (in this view)'):TR('Plegar esta sección a vista simple (en esta vista)','Fold this section to simple view (in this view)'))+
+    '<button class="scbtn scmore'+(man?' lvman':'')+(xo?' on':'')+'" data-moresec="'+si+'" aria-expanded="'+xo+'" title="'+(xo?TR('Cerrar los botones','Close the buttons'):TR('Más botones: color, ocultar en directo, renombrar, duplicar, fusionar, nota, batería, eliminar','More buttons: colour, hide in live, rename, duplicate, merge, note, drums, delete'))+'">'+
+      ICO(xo?'chevron-left':'ellipsis')+TR('<span class="sclab">cerrar</span></button>','<span class="sclab">close</span></button>')+
+    '</div>'+
+    '<div class="secdrawer" data-drw="'+si+'">'+
     B('data-colorsec="'+si+'"','scx','palette',TR('color','colour'),TR('Color de fondo de la sección — para localizar el solo, el estribillo… de un vistazo','Section background colour — to spot the solo, the chorus… at a glance'))+
     B('data-lhsec="'+si+'"','scx'+(sec.lh?' lhon':''),sec.lh?'eye-off':'eye',sec.lh?TR('oculta en directo','hidden in live'):TR('ocultar en directo','hide in live'),sec.lh?TR('Oculta en el modo directo — clic para volver a mostrarla','Hidden in live mode — click to show it again'):TR('Ocultar esta sección en el modo directo (se sigue viendo aquí para ensayar, y suena igual al reproducir)','Hide this section in live mode (it stays visible here for rehearsing, and plays the same)'))+
     B('data-rensec="'+si+'"','scx','pencil',TR('renombrar','rename'),TR('Renombrar sección (también: doble clic en el nombre)','Rename section (also: double-click the name)'))+
@@ -3695,22 +3757,76 @@ function secCtlHTML(sec,si,cpt,showNote){
     (showNote?'':B('data-addnote="'+si+'"','scx','sticky-note',TR('nota','note'),TR('Añadir nota para el directo','Add a note for live mode')))+
     lvBtnHTML(si)+
     (S.sections.length>1?B('data-delsec="'+si+'"','scx del','x','eliminar',TR('Eliminar sección (Ctrl+Z deshace)','Delete section (Ctrl+Z undoes)')):'')+
-    '<button class="scbtn scmore'+(man?' lvman':'')+(xo?' on':'')+'" data-moresec="'+si+'" aria-expanded="'+xo+'" title="'+(xo?TR('Cerrar los botones','Close the buttons'):TR('Más botones: color, ocultar en directo, renombrar, duplicar, fusionar, nota, batería, eliminar','More buttons: colour, hide in live, rename, duplicate, merge, note, drums, delete'))+'">'+
-      ICO(xo?'chevron-left':'ellipsis')+TR('<span class="sclab">cerrar</span></button>','<span class="sclab">close</span></button>')+
+    '<button class="scbtn scclose" data-moresec="'+si+'" title="'+esc(TR('Cerrar los botones (o desliza la sección a la izquierda)','Close the buttons (or swipe the section to the left)'))+'">'+ICO('chevron-left')+TR('<span class="sclab">cerrar</span></button>','<span class="sclab">close</span></button>')+
     '</div>';
 }
-function secCtlOpen(si){ /* abre (o cierra si ya está abierta) sin redibujar */
+function secCtlOpen(si,force){ /* abre (o cierra si ya está abierta) sin redibujar; force = true/false lo fija */
   const sec=S.sections[si];
-  XOPEN=(sec&&XOPEN!==sec)?sec:null;
+  XOPEN=force===true?(sec||null):force===false?null:((sec&&XOPEN!==sec)?sec:null);
   document.querySelectorAll('#sections .secctl').forEach(el=>{
     const on=XOPEN!=null&&S.sections[+el.dataset.ctl]===XOPEN;
     el.classList.toggle('xopen',on);
+    secSlideRow(el.closest('.secrow'),on);
     const mb=el.querySelector('.scmore');
     if(mb){mb.classList.toggle('on',on);mb.setAttribute('aria-expanded',String(on));mb.innerHTML=ICO(on?'chevron-left':'ellipsis')+TR('<span class="sclab">cerrar</span>','<span class="sclab">close</span>');
       mb.title=on?TR('Cerrar los botones','Close the buttons'):TR('Más botones: color, ocultar en directo, renombrar, duplicar, fusionar, nota, batería, eliminar','More buttons: colour, hide in live, rename, duplicate, merge, note, drums, delete');}
   });
-  if(typeof layoutSong==='function')layoutSong();
 }
+/* ── la sección se desliza a la derecha y deja ver sus botones «detrás» (2026-11-26) ──────────────────────────
+   Con ⋯ o deslizando el dedo a la derecha sobre la sección. El contenido no se recoloca: solo se aparta (transform),
+   y la fila crece si el cajón es más alto que ella. Deslizar a la izquierda (o ‹ cerrar, Esc, tocar fuera) la cierra. */
+const DRAWER_W=300;
+function secSlideRow(row,on){
+  if(!row)return;
+  const dr=row.querySelector('.secdrawer');
+  if(on){
+    row.classList.add('xclip');
+    if(dr){row.style.minHeight='';const h=dr.scrollHeight;if(h>row.offsetHeight)row.style.minHeight=h+'px';}
+    row.style.removeProperty('--xdx');row.classList.add('xo');
+  }else if(row.classList.contains('xo')||row.classList.contains('xdrag')){
+    row.classList.remove('xo','xdrag');row.style.removeProperty('--xdx');
+    clearTimeout(row._xt);row._xt=setTimeout(()=>{if(!row.classList.contains('xo')){row.classList.remove('xclip');row.style.minHeight='';}},320);
+  }
+}
+(function(){
+  const box=document.getElementById('sections');if(!box)return;
+  let G=null,eat=false;
+  box.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'||document.body.classList.contains('live'))return;
+    const row=e.target.closest('.secrow');if(!row)return;
+    if(e.target.closest('.slot,input,textarea,select,.secnote,.lickfig,.secdrawer,.secgut button,.lnrep'))return;
+    const si=+row.dataset.si;
+    G={row,si,x:e.clientX,y:e.clientY,open:row.classList.contains('xo'),on:false,id:e.pointerId,dx:0};
+  },{passive:true});
+  box.addEventListener('pointermove',e=>{
+    if(!G||e.pointerId!==G.id)return;
+    const dx=e.clientX-G.x,dy=e.clientY-G.y;
+    if(!G.on){
+      if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){G=null;return;} /* es un desplazamiento vertical: se deja */
+      if(Math.abs(dx)<12||Math.abs(dx)<Math.abs(dy)*1.4)return;
+      if(!G.open&&dx<0){G=null;return;}
+      G.on=true;
+      if(!G.open){XOPEN=null;document.querySelectorAll('#sections .secrow.xo').forEach(r=>{if(r!==G.row)secSlideRow(r,false);});
+        G.row.classList.add('xclip');const dr=G.row.querySelector('.secdrawer');if(dr){const h=dr.scrollHeight;if(h>G.row.offsetHeight)G.row.style.minHeight=h+'px';}}
+      G.row.classList.add('xdrag');
+      try{G.row.setPointerCapture(e.pointerId);}catch(er){}
+    }
+    G.dx=dx;
+    const v=Math.max(0,Math.min(DRAWER_W,(G.open?DRAWER_W:0)+dx));
+    G.row.style.setProperty('--xdx',v+'px');
+  });
+  const end=e=>{
+    if(!G||e.pointerId!==G.id)return;
+    const g=G;G=null;if(!g.on)return;
+    eat=true;setTimeout(()=>{eat=false;},350);
+    const v=Math.max(0,Math.min(DRAWER_W,(g.open?DRAWER_W:0)+g.dx));
+    g.row.classList.remove('xdrag');g.row.style.removeProperty('--xdx');
+    const open=g.open?v>DRAWER_W*0.6:v>DRAWER_W*0.3;
+    secCtlOpen(g.si,open);
+  };
+  box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
+  box.addEventListener('click',e=>{if(eat){e.stopPropagation();e.preventDefault();eat=false;}},true);
+})();
 function closeLvPop(){document.querySelectorAll('.lvpop').forEach(el=>el.remove());document.querySelectorAll('.lvbtn.open').forEach(b=>b.classList.remove('open'));}
 function openLvPop(si,anchor){
   closeLvPop();
@@ -3890,7 +4006,7 @@ function renderSections(){
     }
     gut+='</div>';
     const cpt=isCompact(sec);
-    return '<div class="secrow'+(si===S.active?' on':'')+(cpt?' compact':'')+(!sec.slots.length?' noslots':'')+(sec.lh?' lhid':'')+'" data-si="'+si+'"'+(sec.lh?' data-nm="'+esc(sec.name)+'"':'')+(sec.color?' data-c="'+sec.color+'" style="--secc:var(--'+sec.color+')"':'')+'>'+
+    return '<div class="secrow'+(si===S.active?' on':'')+(XOPEN===sec&&!document.body.classList.contains('live')?' xo xclip':'')+(cpt?' compact':'')+(!sec.slots.length?' noslots':'')+(sec.lh?' lhid':'')+'" data-si="'+si+'"'+(sec.lh?' data-nm="'+esc(sec.name)+'"':'')+(sec.color?' data-c="'+sec.color+'" style="--secc:var(--'+sec.color+')"':'')+'>'+
       '<div class="secleft">'+
       '<div class="secname" data-selsec="'+si+TR('" draggable="true" role="button" tabindex="0" title="clic = sección activa · arrastra = reordenar · doble clic = renombrar · en directo: toca para plegar/abrir"><span class="tname">','" draggable="true" role="button" tabindex="0" title="click = active section · drag = reorder · double-click = rename · in live: tap to fold/open"><span class="tname">')+esc(sec.name)+'</span><span class="vmark'+(cpt?'':' open')+'">'+ICO('chevron-down')+'</span>'+(sec.lh?TR('<span class="lhmark" title="Oculta en el modo directo">','<span class="lhmark" title="Hidden in live mode">')+ICO('eye-off')+'</span>':'')+'</div>'+
       secCtlHTML(sec,si,cpt,showNote)+
@@ -3898,6 +4014,7 @@ function renderSections(){
       '<div class="secbody'+(sec.note&&sec.note.trim()?' hasnote':'')+'"><div class="slots'+(sec.slots.length&&secLines(sec).length>1?' ml':'')+'" data-si="'+si+'">'+inner+'</div>'+noteHTML+lickHTML+'</div>'+gut+
       '</div>';
   }).join('');
+  {const xr=wrap.querySelector('.secrow.xo');if(xr){const dr=xr.querySelector('.secdrawer');if(dr&&dr.scrollHeight>xr.offsetHeight)xr.style.minHeight=dr.scrollHeight+'px';}}
   wrap.querySelectorAll('.secnote').forEach(autoGrow);
   { /* margen izquierdo de casillas: igual en toda la canción para no romper la rejilla */
     const pr=wrap.closest('.progress');
@@ -6039,6 +6156,10 @@ document.getElementById('dlgbox').addEventListener('click',e=>{
 });
 document.getElementById('dlgbox').addEventListener('change',e=>{if(e.target&&e.target.id==='tpkeep')TPKEEP=e.target.checked;});
 document.getElementById('tpbtn').addEventListener('click',openTranspose);
+document.getElementById('mmbtn').addEventListener('click',()=>{ /* mismo efecto que «ver como menor relativa» de los trucos */
+  pushUndo();S.minorView=!S.minorView;S.selChord=currentChords()[0];renderAll();
+  const k=keyObj();toast(S.minorView?TR('Menor relativa: ','Relative minor: ')+nName(relMinorPc(),k.flat)+'m':TR('Mayor: ','Major: ')+k.label);
+});
 document.getElementById('prcapo').addEventListener('click',openTranspose);
 
 /* ════════ modo letra (2026-11-12, Rodney) ════════
@@ -7532,6 +7653,7 @@ const MAN=[
   TR('Si cambias de canción o entras al directo con cambios pendientes, sale <b>Cambios sin guardar</b>: <b>Cancelar</b> (no hace nada), <b>Descartar</b> o <b>Guardar y seguir</b>.','If you switch songs or enter live mode with pending changes, you get <b>Unsaved changes</b>: <b>Cancel</b> (does nothing), <b>Discard</b> or <b>Save and continue</b>.'),
   '<b>'+ICO('undo-2')+' '+ICO('redo-2')+TR('</b> de la barra de abajo (o Ctrl+Z / Ctrl+Y) deshacen y rehacen cualquier cambio de la canción.','</b> on the bottom bar (or Ctrl+Z / Ctrl+Y) undo and redo any change to the song.')]},
  {id:'tono',ic:'music',t:TR('Tonalidad y acordes','Key and chords'),p:TR('El círculo y la paleta dan los acordes que encajan en la tonalidad, cada uno con el color de su grado.','The circle and the palette give the chords that fit the key, each with the colour of its degree.'),li:[
+  TR('<b>+ / −</b> (arriba a la izquierda del círculo): alterna entre la tonalidad mayor (+) y su menor relativa (−). Los acordes, los grados y las funciones pasan a contarse desde la menor; es lo mismo que «ver como menor relativa» de los trucos.','<b>+ / −</b> (top left of the circle): switches between the major key (+) and its relative minor (−). Chords, degrees and functions are then counted from the minor; same as “view as relative minor” in the tricks.'),
   TR('Clic en una nota <b>gris</b> del círculo = nueva tonalidad: el anillo exterior la fija <b>mayor</b> y el del medio <b>menor</b>.','Click a note <b>grey</b> on the circle = new key: the outer ring sets it as <b>major</b> and the middle one as <b>minor</b>.'),
   TR('Clic en un acorde <b>coloreado</b> (círculo o paleta) = suena y abre sus voicings. Debajo de cada acorde de la paleta va su función: tónica, subdominante o dominante.','Click a chord <b>coloreado</b> (circle or palette) = it sounds and opens its voicings. Under each palette chord is its function: tonic, subdominant or dominant.'),
   TR('Voicings por forma: <b>abierto</b>, fundamental en 6ª (forma E), en 5ª (forma A) y en 4ª (forma D7, en los 7) y <b>tríadas</b> con inversiones (en tenue, la forma CAGED de la que salen). El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.','Voicings by shape: <b>open</b>, root on the 6th string (E shape), on the 5th (A shape) and on the 4th (D7 shape, for 7ths) and <b>triads</b> with inversions (faded, the CAGED shape they come from). The mini neck above shows where each shape falls: tap it to go there.'),
@@ -7554,7 +7676,7 @@ const MAN=[
  {id:'botones',ic:'ellipsis',t:TR('Botones de cada sección','Buttons on each section'),p:TR('A la vista solo los de siempre; el resto, con su nombre, detrás de ⋯.','Only the everyday ones are visible; the rest, with their names, behind ⋯.'),li:[
   '<b>'+ICO('play')+TR('</b> la toca: con el <b>bucle encendido</b> se repite sola; con el bucle apagado empieza ahí y sigue hasta el final.','</b> plays it: with <b>loop on</b> it repeats by itself; with loop off it starts there and goes on to the end.'),
   '<b>'+ICO('rectangle-horizontal')+'/'+ICO('grid-3x3')+TR('</b> abre o pliega sus diagramas en la vista actual.','</b> opens or folds its diagrams in the current view.'),
-  '<b>'+ICO('ellipsis')+TR('</b> despliega todos los botones con su nombre (la sección se aparta a la derecha): color, ocultar en directo, renombrar, duplicar, fusionar con la siguiente, nota para el directo, batería y eliminar. Se cierra con <b>‹ cerrar</b>, con Esc o tocando fuera.','</b> unfolds all the buttons with their names (the section moves aside to the right): colour, hide in live, rename, duplicate, merge with the next, stage note, drums and delete. Close it with <b>‹ close</b>, with Esc or by tapping outside.'),
+  '<b>'+ICO('ellipsis')+TR('</b> (o deslizar la sección a la derecha con el dedo) aparta la sección y deja ver los botones que hay detrás, con su nombre: color, ocultar en directo, renombrar, duplicar, fusionar con la siguiente, nota para el directo, batería y eliminar. Se cierra con <b>‹ cerrar</b>, deslizando a la izquierda, con Esc o tocando fuera.','</b> (or swiping the section to the right) slides the section aside and shows the buttons behind it with their names: colour, hide in live, rename, duplicate, merge with the next, stage note, drums and delete. Close it with <b>‹ close</b>, with Esc or by tapping outside.'),
   TR('Un <b style="color:var(--focus)">punto azul</b> en ⋯ = esa sección tiene la batería puesta a mano.','Un <b style="color:var(--focus)">blue dot</b> on ⋯ = that section has its drums set by hand.'),
   TR('<b>Fusionar</b> «Verso ×2» con «Verso 2» los deja en una sola sección, con la primera línea ×2: suena igual.','<b>Merge</b> “Verse ×2” with “Verse 2” leaves them as one section, with the first line ×2: it sounds the same.')]},
  {id:'repes',ic:'redo-2',t:TR('Repeticiones','Repeats'),p:TR('Todas van en la columna de la derecha, con la misma pastilla roja ×N.','They all go in the right-hand column, with the same red ×N pill.'),li:[
@@ -7599,7 +7721,7 @@ const MAN=[
   TR('Al escribir, los acordes se ven entre corchetes dentro del texto ([G]Hola [D]mundo): así no se descolocan al corregir la letra, y también se pueden teclear.','While typing, chords appear in square brackets inside the text ([G]Hello [D]world): that way they stay in place when you fix the lyrics, and you can also type them.'),
   TR('A− y A+ cambian el tamaño de la letra; «acordes» los esconde para leer solo el texto. Al reproducir se marca la sección que suena.','A− and A+ change the text size; “chords” hides them to read just the words. During playback the section that is sounding is marked.')]},
  {id:'transponer',ic:'arrow-down-up',t:TR('Transponer y cejilla','Transpose and capo'),p:TR('Cambiar el tono de toda la canción, o tocarla con otras posturas.','Change the key of the whole song, or play it with different shapes.'),li:[
-  TR('El botón «transponer» de la cabecera de la canción sube o baja de semitono en semitono toda la canción: tonalidad, acordes, voicings, licks y los acordes de la letra.','The “transpose” button in the song header moves the whole song up or down a semitone at a time: key, chords, voicings, licks and the chords over the lyrics.'),
+  TR('El botón «transponer» (arriba a la derecha del círculo de quintas; en el modo letra, en su barra) sube o baja de semitono en semitono toda la canción: tonalidad, acordes, voicings, licks y los acordes de la letra.','The “transpose” button (top right of the circle of fifths; in lyrics mode, on its bar) moves the whole song up or down a semitone at a time: key, chords, voicings, licks and the chords over the lyrics.'),
   TR('Los acordes abiertos siguen abiertos cuando existen en el tono nuevo; las cejillas conservan su forma.','Open chords stay open when they exist in the new key; barre chords keep their shape.'),
   TR('Cejilla: los acordes y los diagramas se escriben como formas contadas desde la cejilla, y el sonido sube lo que marque. Se ve junto a la tonalidad, también en el directo.','Capo: chords and diagrams are written as shapes counted from the capo, and the sound goes up by that many frets. It is shown next to the key, in live mode too.'),
   TR('Con «mantener el tono» marcado, mover la cejilla cambia las posturas pero no cómo suena: sirve para buscar acordes más fáciles. El panel propone las cejillas con más acordes abiertos.','With “keep the key” checked, moving the capo changes the shapes but not how it sounds: useful for finding easier chords. The panel suggests the capo positions with the most open chords.'),
@@ -7659,15 +7781,18 @@ function openManual(id){
   const d=document.getElementById('manual');if(!d)return;
   if(id)MANCH=id;
   document.querySelectorAll('.tpop').forEach(p=>{p.hidden=true;});document.querySelectorAll('.tgrp.open').forEach(g=>g.classList.remove('open'));
-  d.open=true;renderManual();
-  d.scrollIntoView({behavior:'smooth',block:'start'});
+  if(songPanelOpen())closeSongMenu();
+  d.hidden=false;document.getElementById('spback').hidden=false;renderManual();
 }
-document.getElementById('manual').addEventListener('toggle',e=>{if(e.target.open)renderManual();});
+function manualOpen(){return !document.getElementById('manual').hidden;}
+function closeManual(){document.getElementById('manual').hidden=true;if(!songPanelOpen())document.getElementById('spback').hidden=true;}
+document.getElementById('manclose').addEventListener('click',closeManual);
+document.getElementById('lgmanbtn').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openManual();});
 document.getElementById('manual').addEventListener('click',e=>{
   const b=e.target.closest&&e.target.closest('[data-manch]');if(!b)return;
   MANCH=b.dataset.manch;try{STORE.setItem('gc-manch',MANCH);}catch(er){}
   renderManual();
-  if(b.closest('.manfoot')){const h=document.getElementById('manbody');if(h&&h.getBoundingClientRect().top<normHeadH()+8)h.scrollIntoView({block:'start'});}
+  if(b.closest('.manfoot')){const h=document.getElementById('manbody');if(h)h.scrollTop=0;}
 });
 document.getElementById('manual').addEventListener('input',e=>{if(e.target.id==='manq'){MANQ=e.target.value;renderManual();}});
 
@@ -8378,6 +8503,7 @@ document.addEventListener('keydown',e=>{
     if(dlgOpen()){closeDlg();IMP=null;return;}
     if(imagesOpen()){exitImages();return;}
     if(document.body.classList.contains('live')){exitLive();return;}
+    if(manualOpen()){closeManual();return;}
     if(songPanelOpen())closeSongMenu();return;
   }
   /* pedales-teclado (pasadores de página Bluetooth) y teclado en el directo */
@@ -8613,7 +8739,7 @@ document.getElementById('newsec').addEventListener('keydown',e=>{
 document.getElementById('savebtn').addEventListener('click',saveSong);
 document.getElementById('songtab').addEventListener('click',()=>{songPanelOpen()?closeSongMenu():openSongPanel();});
 document.getElementById('spclose').addEventListener('click',closeSongMenu);
-document.getElementById('spback').addEventListener('click',closeSongMenu);
+document.getElementById('spback').addEventListener('click',()=>{if(manualOpen())closeManual();if(songPanelOpen())closeSongMenu();});
 document.getElementById('newbtn').addEventListener('click',openNueva);
 document.getElementById('spfile').addEventListener('click',openArchivo);
 document.getElementById('spedit').addEventListener('click',()=>{SP.edit=!SP.edit;SP.sel.clear();renderSongs();});
@@ -8753,7 +8879,7 @@ document.getElementById('dlg').addEventListener('keydown',e=>{
   }
 });
 document.addEventListener('pointerdown',e=>{
-  if(XOPEN&&!(e.target.closest&&e.target.closest('.secctl.xopen,.colpop,.lvpop,#modal,#dlg')))secCtlOpen(-1);
+  if(XOPEN&&!(e.target.closest&&e.target.closest('.secctl.xopen,.secrow.xo .secdrawer,.colpop,.lvpop,#modal,#dlg')))secCtlOpen(-1);
   if(document.querySelector('.colpop')&&!(e.target.closest&&e.target.closest('.colpop,[data-colorsec]')))closeColPop();
   if(document.querySelector('.durpop')&&!(e.target.closest&&e.target.closest('.durpop,.slot .mchip,.durchip')))closeDurPop();
   if(document.querySelector('.lvpop')&&!(e.target.closest&&e.target.closest('.lvpop,[data-lvsec]')))closeLvPop();
@@ -9662,7 +9788,7 @@ renderLegend();
 renderAll();
 renderLickEd();
 updateSongTab();
-if(document.getElementById('manual').open)renderManual();
+
 /* aviso si el navegador no puede guardar (p. ej. abierto vía content:// desde la app de Archivos) */
 try{STORE.setItem('gc-t','1');STORE.removeItem('gc-t');}
 catch(e){setTimeout(()=>toast(TR('⚠ Aquí no se puede guardar: las canciones se perderán. Abre el archivo escribiendo su ruta file:// en Chrome','⚠ Nothing can be saved here: the songs will be lost. Open the file by typing its file:// path in Chrome')),700);}
