@@ -2502,6 +2502,31 @@ function getVoicings(ch){
   }
   SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++)add(vtag(triadVoicing(ch,si,inv),{fam:'tri',set:si,inv}));});
   extVoicings(ch).forEach(add);
+  moreVoicings(ch).forEach(add);
+  return out;
+}
+/* ── más allá del traste 12 (2026-11-26, Rodney: «no está G/C, G en traste 12») ─────────────────────────────────
+   Se añaden al FINAL (getVoicings(ch)[0] sigue siendo el de siempre) y hasta el traste 15, lo que muestra el mini-mástil:
+   · las tres formas CAGED que faltaban (C, G y D; la E y la A ya son las cejillas), en su sitio y una octava más arriba
+     si cabe — así sale el G con forma de G en el traste 12 o el G con forma de C en el 7;
+   · las cejillas E y A una octava más arriba cuando caben (F en el 13, B♭ en el 13…);
+   · cualquier acorde abierto repetido en el traste 12 (las cuerdas al aire pasan al 12). */
+const VMAX=15;
+const CAGED_ROOT={C:TR('fundamental en 5ª','root on the 5th string'),G:TR('fundamental en 6ª','root on the 6th string'),D:TR('fundamental en 4ª','root on the 4th string')};
+function moreVoicings(ch){
+  const out=[],q=ch.quality,ok=fr=>fr.some(f=>f>=0)&&Math.max(...fr)<=VMAX&&fr.every(f=>f<0||f>=1);
+  const T=CAGED[q],iv=TONE_INTS[q]||[];
+  const roleOf=(s,f)=>{const d=(((TUNING[s]+f)-ch.pc)%12+12)%12,t=iv.find(x=>x[0]===d);return t?t[1]:'';};
+  if(T)['C','G','D'].forEach(L=>{const [rs,off]=T[L],r0=((ch.pc-TUNING[rs])%12+12)%12;
+    [r0,r0+12].forEach(r=>{const fr=off.map(o=>o===null?-1:o+r);if(!ok(fr))return;
+      out.push(vtag({vname:TR('Forma ','Shape ')+L+' (CAGED) · '+CAGED_ROOT[L],frets:fr,roles:fr.map((f,s)=>f<0?'':roleOf(s,f))},
+        {fam:'c'+L,kind:'base',short:TR('Forma ','Shape ')+L,z:r}));});});
+  const B=BARRES[q]||{};
+  [['r6',4],['r5',9]].forEach(([k,o])=>{const b=B[k];if(!b)return;let f=(ch.pc-o+12)%12;if(f===0)f=12;
+    const fr=b.f.map(x=>x<0?-1:x+f+12);if(f+12>VMAX||!ok(fr))return;
+    out.push(vtag({vname:TR('Cejilla · forma ','Barre · shape ')+b.shape+TR(' · una octava más arriba',' · one octave up'),frets:fr,roles:b.r.slice()},{fam:k,kind:'base',short:TR('Cejilla','Barre'),z:f+12}));});
+  const op=OPEN[ch.pc+':'+q];
+  if(op){const fr=op.f.map(x=>x<0?-1:x+12);if(ok(fr))out.push(vtag({vname:TR('Acorde abierto en el traste 12','Open chord at fret 12'),frets:fr,roles:op.r.slice()},{fam:'open',kind:'base',short:TR('Abierto · traste 12','Open · fret 12'),z:12}));}
   return out;
 }
 
@@ -3166,6 +3191,9 @@ function renderVoicings(){
     {k:'open',t:TR('Abierto','Open'),bar:TR('abierto','open')},
     {k:'r6',t:TR('Fundamental en 6ª · forma ','Root on the 6th string · shape '),sh:sh[0],bar:TR('forma ','shape ')+sh[0]},
     {k:'r5',t:TR('Fundamental en 5ª · forma ','Root on the 5th string · shape '),sh:sh[1],bar:TR('forma ','shape ')+sh[1]},
+    {k:'cC',t:TR('Fundamental en 5ª · forma ','Root on the 5th string · shape '),sh:'C',bar:TR('forma ','shape ')+'C'},
+    {k:'cG',t:TR('Fundamental en 6ª · forma ','Root on the 6th string · shape '),sh:'G',bar:TR('forma ','shape ')+'G'},
+    {k:'cD',t:TR('Fundamental en 4ª · forma ','Root on the 4th string · shape '),sh:'D',bar:TR('forma ','shape ')+'D'},
     {k:'r4',t:TR('Fundamental en 4ª · forma ','Root on the 4th string · shape '),sh:'D7',bar:TR('forma D7','D7 shape')},
     {k:'tri',t:TR('Tríadas · inversiones','Triads · inversions')+(q==='dom7'?TR(' (sin 7ª)',' (no 7th)'):'')},
     {k:'x',t:TR('Otras','Other')}
@@ -8608,15 +8636,41 @@ document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPr
     if(T.ring&&T.phase==='hold')T.ring.cancel();
     if(T.ghost)T.ghost.remove();if(T.ph)T.ph.remove();
     if(T.slot){T.slot.classList.remove('tdpress','tdhide','copysrc');}
+    if(T.src)T.src.classList.remove('copysrc');
     document.querySelectorAll('.slots.tdover').forEach(b=>b.classList.remove('tdover'));
     document.querySelectorAll('.slots .empty.tdhid').forEach(x=>x.classList.remove('tdhid'));
     document.querySelectorAll('#sections .slots').forEach(b=>{b.style.minHeight='';});
     document.body.classList.remove('tdragging');
     T=null;
   }
+  /* 2026-11-26: con ratón, un voicing (o una ficha de la paleta) arrastrado hacia la canción se comporta igual que un
+     acorde ya añadido: lo que sigue al puntero es el acorde tal como quedará en la canción y el hueco aparece donde
+     caería, apartando a los demás. */
+  function liftNew(){
+    T.phase='drag';
+    const box=document.querySelector('#sections .slots[data-si="'+S.active+'"]')||document.querySelector('#sections .slots');
+    if(!box){cancelAll();return;}
+    const sl0=T.kind==='nc'?newNC():newSlot(T.chord,T.voicing);
+    const tmp=document.createElement('div');tmp.innerHTML=slotHTML(sl0,0,0);
+    const el=tmp.firstElementChild;el.removeAttribute('data-si');el.removeAttribute('data-ei');el.removeAttribute('draggable');
+    el.querySelectorAll('button').forEach(b=>b.setAttribute('tabindex','-1'));
+    const ref=document.querySelector('#sections .slot:not(.tdph):not(.tdghost)');
+    const rr=ref?ref.getBoundingClientRect():null;
+    const g=el.cloneNode(true);g.className=el.className+' tdghost';
+    if(rr){g.style.width=rr.width+'px';g.style.height=rr.height+'px';}else g.style.width='150px';
+    const cs=getComputedStyle(box);g.style.setProperty('--cs',cs.getPropertyValue('--cs')||1);
+    box.appendChild(g);T.ghost=g;
+    const gr=g.getBoundingClientRect();T.dx=gr.width/2;T.dy=Math.min(gr.height/2,24);
+    el.className+=' tdph';T.ph=el;T.box=null;
+    if(T.src)T.src.classList.add('copysrc');
+    document.querySelectorAll('#sections .slots').forEach(b=>{b.style.minHeight=b.offsetHeight+'px';});
+    document.body.classList.add('tdragging');
+    moveGhost(T.lx,T.ly);place(T.lx,T.ly);
+  }
   function lift(){
+    if(!T.slot)return liftNew();
     const sl=T.slot,r=sl.getBoundingClientRect();
-    T.phase='drag';T.ring.done();buzz(14);
+    T.phase='drag';if(T.ring)T.ring.done();if(!T.mouse)buzz(14);
     T.dx=T.x0-r.left;T.dy=T.y0-r.top;
     const g=sl.cloneNode(true);g.className=sl.className+' tdghost';g.removeAttribute('data-si');g.removeAttribute('data-ei');g.removeAttribute('draggable');
     g.style.width=r.width+'px';g.style.height=r.height+'px';
@@ -8677,12 +8731,14 @@ document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPr
     let p=ph.previousElementSibling;while(p&&!vis(p))p=p.previousElementSibling;
     let n=ph.nextElementSibling;while(n&&!vis(n))n=n.nextElementSibling;
     const d=p?{el:p,ei:+p.dataset.ei,after:true}:n?{el:n,ei:+n.dataset.ei,after:false}:{el:null,ei:-1,after:true};
-    const P={kind:T.kind,si:T.si,ei:T.ei};
+    const P=T.kind==='chord'?{kind:'chord',chord:T.chord,voicing:T.voicing}:T.kind==='nc'?{kind:'nc'}:{kind:T.kind,si:T.si,ei:T.ei};
     /* mover a su propio sitio = nada */
     const same=T.kind==='move'&&si===T.si&&((p&&+p.dataset.ei===T.ei-1)||(!p&&T.ei===0&&(!n||+n.dataset.ei===T.ei+1))||(n&&!p&&+n.dataset.ei===T.ei+1));
     cancelAll();
     if(same)return;
-    if(slotDropApply(P,si,d)){renderSections();toast(P.kind==='copy'?TR('Copia colocada','Copy placed'):TR('Acorde movido','Chord moved'));}
+    if(slotDropApply(P,si,d)){renderSections();
+      toast(P.kind==='copy'?TR('Copia colocada','Copy placed'):P.kind==='move'?TR('Acorde movido','Chord moved'):
+        (P.kind==='nc'?TR('Silencio','Rest'):(P.voicing&&P.voicing.disp)||P.chord.label)+TR(' añadido a ',' added to ')+S.sections[si].name);}
   }
   document.addEventListener('touchstart',e=>{
     if(T||e.touches.length!==1||document.body.classList.contains('live'))return;
@@ -8713,6 +8769,46 @@ document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPr
     e.preventDefault();EATCLICK=Date.now()+500;drop();
   },{passive:false});
   document.addEventListener('touchcancel',()=>cancelAll());
+  /* ── con ratón (ordenador): mismo arrastre con vista previa, sin pulsación larga — empieza al mover unos píxeles.
+     Vale para los acordes de la canción (mover; desde ⧉ = copia), los voicings y las fichas de la paleta. */
+  const MSRC='#sections .slot,.vcard,.pchip[data-reg],.tchip[data-reg],.pchip[data-nc]';
+  function mouseTarget(e){
+    if(e.pointerType!=='mouse'||e.button!==0||document.body.classList.contains('live'))return null;
+    const tg=e.target;if(!tg.closest)return null;
+    const src=tg.closest(MSRC);if(!src||src.classList.contains('tdph'))return null;
+    if(src.matches('.slot')){
+      if(document.querySelector('#sections .secrow.xo'))return null;
+      const dup=tg.closest('.sl-dup');
+      if(!dup&&tg.closest(BTN))return null;
+      return {kind:dup?'copy':'move',slot:src,si:+src.dataset.si,ei:+src.dataset.ei};
+    }
+    if(tg.closest('.addb,button.ear,input,textarea'))return null;
+    if(src.matches('.vcard')){const v=VOICINGS[+src.dataset.vi];if(!v||!S.selChord)return null;return {kind:'chord',src,chord:S.selChord,voicing:v};}
+    if(src.dataset.nc)return {kind:'nc',src};
+    const ch=(src.dataset.reg==='pal'?PALETTE:TRICKLIST)[+src.dataset.idx];if(!ch)return null;
+    return {kind:'chord',src,chord:ch,voicing:getVoicings(ch)[0]};
+  }
+  document.addEventListener('mousedown',e=>{if(e.button===0&&!document.body.classList.contains('live')&&mouseTarget({pointerType:'mouse',button:0,target:e.target}))e.preventDefault();},true); /* sin arrastre nativo ni selección de texto */
+  document.addEventListener('pointerdown',e=>{
+    if(T)return;const m=mouseTarget(e);if(!m)return;
+    T=Object.assign({phase:'hold',mouse:true,x0:e.clientX,y0:e.clientY,lx:e.clientX,ly:e.clientY,ring:null},m);
+  },true);
+  document.addEventListener('pointermove',e=>{
+    if(!T||!T.mouse)return;
+    if(T.phase==='hold'){
+      if(Math.hypot(e.clientX-T.x0,e.clientY-T.y0)<6)return;
+      T.lx=e.clientX;T.ly=e.clientY;lift();if(T&&T.phase==='drag')autoScroll();return;
+    }
+    moveGhost(e.clientX,e.clientY);place(e.clientX,e.clientY);
+  },true);
+  document.addEventListener('pointerup',e=>{
+    if(!T||!T.mouse)return;
+    if(T.phase==='hold'){cancelAll();return;} /* clic sin mover: lo de siempre (suena, ⧉ duplica, se elige el acorde…) */
+    EATCLICK=Date.now()+500;drop();
+  },true);
+  window.addEventListener('blur',()=>{if(T&&T.mouse)cancelAll();});
+  document.addEventListener('keydown',e=>{if(T&&T.mouse&&e.key==='Escape'){e.stopImmediatePropagation();cancelAll();}},true);
+  window.addEventListener('scroll',()=>{if(T&&T.phase==='drag')place(T.lx,T.ly);},{passive:true}); /* la rueda también sirve mientras se arrastra */
   /* el arrastre nativo del navegador no se mezcla con este */
   document.addEventListener('dragstart',e=>{if(T){e.preventDefault();e.stopImmediatePropagation();}},true);
 })();
@@ -10078,7 +10174,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.26b';
+const APP_VER='2026.11.26c';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
