@@ -1061,6 +1061,30 @@
   .secgut.gon.ge::before{bottom:6px;border-bottom:3.5px solid var(--ink)}
   .secgut.gsel{background:color-mix(in srgb, var(--accent) 18%, transparent)}
   .rcfit .secbody{flex:0 1 var(--bodyw);min-width:0}
+  /* ── pulsación larga en la tableta (2026-11-26): aro que se llena alrededor del dedo ── */
+  .holdring{position:fixed;z-index:300;width:88px;height:88px;margin:-44px 0 0 -44px;pointer-events:none;opacity:0;transform:scale(.7);
+    transition:opacity .12s,transform .18s}
+  .holdring.go{opacity:1;transform:scale(1)}
+  .holdring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .holdring circle{fill:none;stroke-width:6}
+  .holdring .hrt{stroke:color-mix(in srgb, var(--ink) 14%, transparent)}
+  .holdring .hrp{stroke:var(--hc,var(--ink));stroke-linecap:round;stroke-dasharray:239;stroke-dashoffset:239}
+  .holdring.go .hrp{transition:stroke-dashoffset var(--hd,550ms) linear;stroke-dashoffset:0}
+  .holdring .hrl{position:absolute;left:50%;bottom:100%;transform:translate(-50%,-4px);white-space:nowrap;padding:4px 9px;border-radius:2px;
+    background:var(--ink);color:var(--panel);font-family:var(--font-n);font-weight:700;font-size:12px;letter-spacing:.04em;box-shadow:var(--pop)}
+  .holdring.ok{transform:scale(1.25);opacity:0;transition:transform .25s,opacity .25s}
+  .rqb.holding{transform:translateY(-50%) scale(1.12);transition:transform .2s}
+  .lnrep.rqb.holding{transform:scale(1.12)}
+  /* arrastre de acordes con el dedo */
+  .slot.tdpress{transform:scale(.96);transition:transform .5s ease}
+  .slot.tdhide{display:none!important}
+  .slot.tdph{opacity:.45;outline:2.5px dashed var(--focus);outline-offset:-2px;pointer-events:auto;box-shadow:none;filter:saturate(.6)}
+  .slot.tdghost{position:fixed!important;left:0;top:0;z-index:250;margin:0;pointer-events:none;opacity:.95;
+    box-shadow:0 14px 28px rgba(0,0,0,.28),0 0 0 2px var(--focus);transition:none;will-change:transform}
+  .slots.tdover{background:color-mix(in srgb, var(--focus) 7%, transparent)}
+  .slots .empty.tdhid{display:none}
+  body.tdragging{cursor:grabbing}
+  body.tdragging .slot:not(.tdghost){transition:none}
   /* ── repeticiones (2026-10-22, «corchete único»): TODA repetición es la misma pastilla roja
      («×» pequeño arriba, cifra grande abajo), siempre en la columna de la DERECHA, detrás de los acordes, y del mismo color.
      Carril de DENTRO (1–19 px, pegado al final de los acordes) = la sección sola, con su corchete corto.
@@ -1077,7 +1101,8 @@
   .secrep.rqb{left:4px}
   /* opción A (2026-11-10): cada nivel con su peso · LÍNEA = ×N rojo suelto · SECCIÓN = corchete fino + pastilla roja ·
      BLOQUE = corchete grueso de tinta + pastilla de tinta, más grande */
-  .grep.rqb{width:21px;background:var(--ink);color:var(--panel);padding:5px 0 6px}
+  .grep.rqb{width:21px;background:var(--ink);color:var(--panel);padding:5px 0 6px;z-index:6;box-shadow:0 0 0 2px var(--panel)}
+  .lrep.rqb{z-index:6}
   .grep.rqb b{font-size:24px}
   .grep.rqb.now{background:var(--play);color:#fff}
   .rqb.now{background:var(--play);color:#fff}
@@ -1349,7 +1374,11 @@
     gap:5px;align-content:start;padding:8px;background:color-mix(in srgb, var(--wedge) 70%, var(--panel));visibility:hidden;box-sizing:border-box}
   .secrow.xclip{position:relative;overflow:hidden}
   .secrow.xclip .secdrawer{visibility:visible}
-  .secrow>.secbody,.secrow>.secgut{position:relative;z-index:1;background:var(--panel);transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s}
+  /* solo mientras se desliza (o está abierta) la sección tapa su cajón: fuera de eso el margen no crea capa propia,
+     para que el ×N del bloque pueda «flotar» por encima de la sección vecina (2026-11-26) */
+  .secrow>.secbody,.secrow>.secgut{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s}
+  .secrow.xclip>.secbody,.secrow.xclip>.secgut{position:relative;z-index:1;
+    background:linear-gradient(var(--secbg,transparent),var(--secbg,transparent)),var(--panel)}
   .secrow.xo>.secbody,.secrow.xo>.secgut{transform:translateX(300px)}
   .secrow.xdrag>.secbody,.secrow.xdrag>.secgut{transform:translateX(var(--xdx,0px));transition:none}
   .secrow.xo>.secbody,.secrow.xdrag>.secbody{box-shadow:-10px 0 14px -8px rgba(0,0,0,.35)}
@@ -7687,6 +7716,7 @@ const MAN=[
  {id:'cancion',ic:'list-music',t:TR('Escribir la canción','Writing the song'),p:TR('Cada sección es una fila: su nombre en vertical, sus botones y sus acordes.','Each section is a row: its name written vertically, its buttons and its chords.'),li:[
   TR('<b>Agregar sección</b> (en la cabecera de la canción): se crea justo detrás de la activa. Clic en el nombre = activarla · doble clic = renombrar · arrastrar el nombre = reordenar.','<b>Add section</b> (in the song header): it is created right after the active one. Click the name = make it active · double-click = rename · drag the name = reorder.'),
   TR('En cada acorde: <b>','On each chord: <b>')+ICO('copy')+TR('</b> duplica (mantenlo y arrastra = soltar una copia donde quieras), <b>','</b> duplicates (hold and drag = drop a copy wherever you like), <b>')+ICO('x')+TR('</b> lo quita y <b>','</b> removes it and <b>')+ICO('corner-down-left')+TR('</b> salta de línea, para ordenar los acordes como frases.','</b> breaks the line, to arrange the chords as phrases.'),
+  TR('Con el dedo: <b>mantén ⧉</b> hasta que se llene el aro azul y la copia se levanta; <b>mantén el acorde</b> (aro negro) para moverlo. Mientras lo llevas, un hueco punteado marca dónde caerá y los demás acordes se apartan en vivo; cerca del borde de arriba o de abajo la pantalla se desplaza sola. Soltar fuera de la canción no cambia nada.','With your finger: <b>hold ⧉</b> until the blue ring fills and the copy lifts; <b>hold the chord</b> (black ring) to move it. While you carry it, a dotted gap shows where it will land and the other chords move aside live; near the top or bottom edge the screen scrolls by itself. Dropping outside the song changes nothing.'),
   TR('<b>×N</b> abre la duración: compases (1·2·3·4·6·8) o tiempos (½·1·2·3); con <b>+</b> se suman (1 compás + 2 tiempos = 1½). Si un acorde cruza una barra, una <b>raya discontinua</b> marca dónde cae; si la sección no cierra en compases enteros, avisa del <b>compás corto</b>.','<b>×N</b> opens the duration: bars (1·2·3·4·6·8) or beats (½·1·2·3); with <b>+</b> they add up (1 bar + 2 beats = 1½). If a chord crosses a barline, a <b>dashed line</b> marks where it falls; if the section doesn\'t end on whole bars, it warns about the <b>short bar</b>.'),
   TR('Cada acorde que empieza compás lleva <b>su barra delante</b>, también cuando una línea larga salta sola por falta de ancho: la rejilla queda alineada.','Every chord that starts a bar has <b>its barline in front</b>, also when a long line wraps by itself for lack of width: the grid stays aligned.'),
   TR('Dos vistas: <b>simple</b> (chuleta) y <b>diagramas</b>, con el botón de la cabecera. El <b>','Two views: <b>simple</b> (cheat sheet) and <b>diagrams</b>, with the header button. The <b>')+ICO('rectangle-horizontal')+'/'+ICO('grid-3x3')+TR('</b> de cada sección pliega o abre solo esa, y cada vista lo recuerda.','</b> of each section folds or opens just that one, and each view remembers it.'),
@@ -7698,6 +7728,7 @@ const MAN=[
   TR('Un <b style="color:var(--focus)">punto azul</b> en ⋯ = esa sección tiene la batería puesta a mano.','Un <b style="color:var(--focus)">blue dot</b> on ⋯ = that section has its drums set by hand.'),
   TR('<b>Fusionar</b> «Verso ×2» con «Verso 2» los deja en una sola sección, con la primera línea ×2: suena igual.','<b>Merge</b> “Verse ×2” with “Verse 2” leaves them as one section, with the first line ×2: it sounds the same.')]},
  {id:'repes',ic:'redo-2',t:TR('Repeticiones','Repeats'),p:TR('Todas van en la columna de la derecha, con la misma pastilla roja ×N.','They all go in the right-hand column, with the same red ×N pill.'),li:[
+  TR('<b>Mantener pulsada</b> cualquier pastilla ×N la quita: un aro rojo se llena alrededor del dedo y, al completarse, la repetición desaparece (Ctrl+Z la recupera). Soltar antes = un toque normal.','<b>Holding</b> any ×N pill removes it: a red ring fills around your finger and, when it completes, the repeat is gone (Ctrl+Z brings it back). Letting go earlier = a normal tap.'),
   TR('<b>Sección:</b> la pastilla pegada a sus acordes. Clic sube (hasta ×12) y Mayús+clic baja; el ×1 tenue sirve para empezar.','<b>Section:</b> the pill next to its chords. Click raises it (up to ×12) and Shift+click lowers it; the faded ×1 is there to get started.'),
   TR('<b>Bloque de secciones:</b> arrastra por la columna, de arriba abajo, para dibujar un <b>corchete rojo</b> (p. ej. Intro-Verso-Coro ×2). Clic sube; Mayús+clic baja y, en ×2, quita el corchete.','<b>Block of sections:</b> drag down the column, top to bottom, to draw a <b>red bracket</b> (e.g. Intro-Verse-Chorus ×2). Click raises it; Shift+click lowers it and, at ×2, removes the bracket.'),
   TR('<b>Línea:</b> en una sección con varias líneas (salto ','<b>Line:</b> in a section with several lines (break ')+ICO('corner-down-left')+TR('), cada línea lleva su ×N al final: esa línea suena N veces antes de pasar a la siguiente.','), each line has its ×N at the end: that line plays N times before moving to the next.'),
@@ -8392,6 +8423,33 @@ document.addEventListener('dragover',e=>{
   const d=dropSlotAt(box,e);
   if(d.el&&!(dragPayload.kind==='move'&&dragPayload.si===+box.dataset.si&&dragPayload.ei===d.ei))d.el.classList.add(d.after?'dropafter':'dropbefore');
 });
+function slotDropApply(P,si,d){ /* d = {el, ei, after}: el nulo = al final de la sección */
+  const slots=S.sections[si].slots;
+  if(P.kind==='move'&&P.si===si&&d.el&&d.ei===P.ei)return false; /* sobre sí mismo: nada */
+  pushUndo();
+  let at=d.el?d.ei+(d.after?1:0):slots.length;
+  /* el acorde que llega entra DENTRO de una línea: no trae salto ni ×N. Si entra detrás del acorde que cierra una línea
+     (o al final de la sección), pasa a cerrarla él: se lleva el salto, el ×N y la casilla. El que se va deja los suyos
+     al anterior de su línea. */
+  let ns;
+  if(P.kind==='chord')ns=newSlot(P.chord,P.voicing);
+  else if(P.kind==='nc')ns=newNC();
+  else if(P.kind==='copy')ns=bareSlot(JSON.parse(JSON.stringify(S.sections[P.si].slots[P.ei])));
+  else{
+    const src=S.sections[P.si].slots;
+    lineEndOff(src,P.ei);
+    ns=bareSlot(src.splice(P.ei,1)[0]);
+    if(P.si===si&&at>P.ei)at--;
+    lineTidy(S.sections[P.si]);
+  }
+  if(at>=slots.length)lineEndOn(slots,ns);
+  else if(at>0&&d.after&&slots[at-1].br){const o=slots[at-1]; /* detrás del que cerraba la línea: ahora la cierra el nuevo */
+    ns.br=true;delete o.br;if(o.lr){ns.lr=o.lr;delete o.lr;}if(o.cv){ns.cv=o.cv;delete o.cv;}}
+  slots.splice(at,0,ns);
+  lineTidy(S.sections[si]);
+  S.active=si;
+  return true;
+}
 document.addEventListener('drop',e=>{
   if(dragPayload&&dragPayload.kind==='movefold'){
     const tg=e.target.closest&&(e.target.closest('.spfh[data-fh]')||e.target.closest('.sproot'));
@@ -8465,29 +8523,7 @@ document.addEventListener('drop',e=>{
   const si=+box.dataset.si;
   const slots=S.sections[si].slots;
   const d=dropSlotAt(box,e);
-  if(dragPayload.kind==='move'&&dragPayload.si===si&&d.ei===dragPayload.ei){dragPayload=null;return;} /* sobre sí mismo: nada */
-  pushUndo();
-  let at=d.el?d.ei+(d.after?1:0):slots.length;
-  /* el acorde que llega entra DENTRO de una línea: no trae salto ni ×N. Si entra detrás del acorde que cierra una línea
-     (o al final de la sección), pasa a cerrarla él: se lleva el salto, el ×N y la casilla. El que se va deja los suyos
-     al anterior de su línea. */
-  let ns;
-  if(dragPayload.kind==='chord')ns=newSlot(dragPayload.chord,dragPayload.voicing);
-  else if(dragPayload.kind==='nc')ns=newNC();
-  else if(dragPayload.kind==='copy')ns=bareSlot(JSON.parse(JSON.stringify(S.sections[dragPayload.si].slots[dragPayload.ei])));
-  else{
-    const src=S.sections[dragPayload.si].slots;
-    lineEndOff(src,dragPayload.ei);
-    ns=bareSlot(src.splice(dragPayload.ei,1)[0]);
-    if(dragPayload.si===si&&at>dragPayload.ei)at--;
-    lineTidy(S.sections[dragPayload.si]);
-  }
-  if(at>=slots.length)lineEndOn(slots,ns);
-  else if(at>0&&d.after&&slots[at-1].br){const o=slots[at-1]; /* detrás del que cerraba la línea: ahora la cierra el nuevo */
-    ns.br=true;delete o.br;if(o.lr){ns.lr=o.lr;delete o.lr;}if(o.cv){ns.cv=o.cv;delete o.cv;}}
-  slots.splice(at,0,ns);
-  lineTidy(S.sections[si]);
-  S.active=si;
+  if(!slotDropApply(dragPayload,si,d)){dragPayload=null;return;}
   dragPayload=null;
   renderSections();
 });
@@ -8500,6 +8536,177 @@ document.addEventListener('dragend',()=>{
   dragPayload=null;
   const sm=document.getElementById('songmenu');if(sm)sm.classList.remove('fdrag');
 });
+
+/* ════════ tableta: pulsación larga con respuesta visual (2026-11-26) ═══════════════════════════════════════════
+   El dedo tapa lo que pulsa, así que la respuesta va ALREDEDOR: un aro que se llena (y un rótulo encima) mientras se
+   mantiene pulsado. Al completarse vibra (si el aparato puede) y hace la acción. Soltar antes = un toque normal. */
+const HOLD_MS=550;
+function holdRing(x,y,label,col){
+  const el=document.createElement('div');el.className='holdring';el.style.left=x+'px';el.style.top=y+'px';
+  if(col)el.style.setProperty('--hc',col);el.style.setProperty('--hd',HOLD_MS+'ms');
+  el.innerHTML='<svg viewBox="0 0 88 88" aria-hidden="true"><circle class="hrt" cx="44" cy="44" r="38"/><circle class="hrp" cx="44" cy="44" r="38"/></svg>'+
+    (label?'<span class="hrl">'+label+'</span>':'');
+  document.body.appendChild(el);
+  const lb=el.querySelector('.hrl');
+  if(lb){const r=lb.getBoundingClientRect(),m=8; /* el rótulo nunca se sale de la pantalla (el ×N del bloque va pegado al borde) */
+    const sh=r.right>innerWidth-m?innerWidth-m-r.right:r.left<m?m-r.left:0;if(sh)lb.style.marginLeft=sh+'px';}
+  requestAnimationFrame(()=>el.classList.add('go'));
+  return {done(){el.classList.add('ok');setTimeout(()=>el.remove(),260);},cancel(){el.remove();}};
+}
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||12);}catch(e){}}
+let EATCLICK=0;
+document.addEventListener('click',e=>{if(EATCLICK&&Date.now()<EATCLICK){e.stopPropagation();e.preventDefault();EATCLICK=0;}},true);
+
+/* ── mantener pulsado un ×N = quitar esa repetición ── */
+(function(){
+  let H=null;
+  const what=b=>{
+    const live=document.body.classList.contains('live');
+    if(b.matches('.lrep'))return live?{t:TR('quitar anotación','remove note'),run:()=>{const l=lgroupOf(+b.dataset.lrep);if(!l)return false;S.lgroups=S.lgroups.filter(x=>x!==l);persistLive();return TR('Anotación quitada','Annotation removed');}}:null;
+    if(live||b.classList.contains('ghost'))return null;
+    if(b.matches('.grep'))return {t:TR('quitar ×','remove ×')+b.dataset.n,run:()=>{const g=groupOf(+b.dataset.grep);if(!g)return false;S.groups=S.groups.filter(x=>x!==g);return TR('Repetición del bloque quitada','Block repeat removed');}};
+    if(b.matches('.secrep'))return {t:TR('quitar ×','remove ×')+b.dataset.n,run:()=>{const sec=S.sections[+b.dataset.rep];if(!sec||(sec.repeat||1)<2)return false;sec.repeat=1;return TR('Repetición de la sección quitada','Section repeat removed');}};
+    if(b.matches('.lnrep'))return {t:TR('quitar ×','remove ×')+b.dataset.n,run:()=>{const [si,li]=b.dataset.lnrep.split(':').map(Number),sec=S.sections[si],l=sec&&secLines(sec)[li];if(!l||!sec.slots[l.b].lr)return false;delete sec.slots[l.b].lr;return TR('Repetición de la línea quitada','Line repeat removed');}};
+    return null;
+  };
+  const stop=()=>{if(!H)return;clearTimeout(H.t);H.b.classList.remove('holding');if(!H.fired)H.ring.cancel();H=null;};
+  document.addEventListener('pointerdown',e=>{
+    const b=e.target.closest&&e.target.closest('.rqb[data-grep],.rqb[data-lrep],.rqb[data-rep],.rqb[data-lnrep]');if(!b)return;
+    const w=what(b);if(!w)return;
+    stop();
+    const r=b.getBoundingClientRect();
+    H={b,x:e.clientX,y:e.clientY,fired:false,ring:holdRing(r.left+r.width/2,r.top+r.height/2,esc(w.t),'var(--danger)')};
+    b.classList.add('holding');
+    H.t=setTimeout(()=>{
+      if(!H)return;H.fired=true;const h=H;
+      pushUndo();const msg=w.run();
+      if(msg===false){UNDO.pop();updUndoBtns();h.ring.cancel();}
+      else{h.ring.done();buzz(18);renderSections();toast(msg+TR(' · Ctrl+Z para deshacer',' · Ctrl+Z to undo'));}
+      EATCLICK=Date.now()+700;stop();
+    },HOLD_MS);
+  },true);
+  document.addEventListener('pointermove',e=>{if(H&&Math.hypot(e.clientX-H.x,e.clientY-H.y)>12)stop();},true);
+  ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,stop,true));
+})();
+
+/* ── acordes con el dedo: mantener ⧉ = arrastrar una COPIA · mantener el acorde = moverlo ─────────────────────
+   Al completarse la pulsación el acorde «se levanta» (una copia sigue al dedo) y en la canción aparece un hueco con
+   su silueta justo donde caería: los demás acordes se apartan en vivo, así se ve cómo queda antes de soltar.
+   Soltar fuera de una sección = no pasa nada. Cerca del borde de arriba o de abajo la pantalla se desplaza sola. */
+(function(){
+  let T=null; /* {phase:'hold'|'drag', kind:'copy'|'move', slot, si, ei, x0,y0, ring, timer, ghost, ph, box, dx,dy, raf} */
+  const BTN='.sl-x,.sl-br,.durchip,.mchip,.lvolta,.sl-v,.ncdr,button.ear,input,textarea';
+  const touchOf=e=>e.changedTouches&&e.changedTouches[0];
+  function cancelAll(){
+    if(!T)return;clearTimeout(T.timer);cancelAnimationFrame(T.raf);
+    if(T.ring&&T.phase==='hold')T.ring.cancel();
+    if(T.ghost)T.ghost.remove();if(T.ph)T.ph.remove();
+    if(T.slot){T.slot.classList.remove('tdpress','tdhide','copysrc');}
+    document.querySelectorAll('.slots.tdover').forEach(b=>b.classList.remove('tdover'));
+    document.querySelectorAll('.slots .empty.tdhid').forEach(x=>x.classList.remove('tdhid'));
+    document.querySelectorAll('#sections .slots').forEach(b=>{b.style.minHeight='';});
+    document.body.classList.remove('tdragging');
+    T=null;
+  }
+  function lift(){
+    const sl=T.slot,r=sl.getBoundingClientRect();
+    T.phase='drag';T.ring.done();buzz(14);
+    T.dx=T.x0-r.left;T.dy=T.y0-r.top;
+    const g=sl.cloneNode(true);g.className=sl.className+' tdghost';g.removeAttribute('data-si');g.removeAttribute('data-ei');g.removeAttribute('draggable');
+    g.style.width=r.width+'px';g.style.height=r.height+'px';
+    const cs=getComputedStyle(sl.closest('.slots'));g.style.setProperty('--cs',cs.getPropertyValue('--cs')||1);
+    sl.parentNode.appendChild(g);T.ghost=g; /* dentro de su sección: conserva el mismo aspecto (estilos que dependen de la fila) */
+    const ph=sl.cloneNode(true);ph.className=sl.className+' tdph';ph.removeAttribute('data-si');ph.removeAttribute('data-ei');ph.removeAttribute('draggable');
+    ph.querySelectorAll('button').forEach(b=>b.setAttribute('tabindex','-1'));
+    T.ph=ph;
+    sl.classList.remove('tdpress');
+    if(T.kind==='move')sl.classList.add('tdhide');else sl.classList.add('copysrc');
+    /* mientras dura el arrastre las secciones pueden crecer pero no encoger: así lo que hay bajo el dedo no se escapa
+       hacia arriba cuando el hueco sale de una sección */
+    document.querySelectorAll('#sections .slots').forEach(b=>{b.style.minHeight=b.offsetHeight+'px';});
+    if(T.kind==='move')sl.parentNode.insertBefore(ph,sl); /* mover: el hueco ocupa su sitio. Copiar: aparece al mover el dedo */
+    T.box=sl.parentNode;T.box.classList.add('tdover');
+    document.body.classList.add('tdragging');
+    moveGhost(T.x0,T.y0);
+  }
+  function moveGhost(x,y){T.ghost.style.transform='translate('+(x-T.dx)+'px,'+(y-T.dy)+'px) rotate(-2deg) scale(1.04)';T.lx=x;T.ly=y;}
+  const vis=el=>el.classList.contains('slot')&&!el.classList.contains('tdph')&&!el.classList.contains('tdhide')&&!el.classList.contains('tdghost');
+  function place(x,y){
+    T.ghost.style.visibility='hidden';const under=document.elementFromPoint(x,y);T.ghost.style.visibility='';
+    const box=under&&under.closest&&under.closest('#sections .slots');
+    document.querySelectorAll('.slots.tdover').forEach(b=>{if(b!==box)b.classList.remove('tdover');});
+    if(!box){if(T.ph.parentNode){T.ph.remove();document.querySelectorAll('.slots .empty.tdhid').forEach(x=>x.classList.remove('tdhid'));}T.box=null;return;}
+    box.classList.add('tdover');T.box=box;
+    const em=box.querySelector('.empty');if(em)em.classList.add('tdhid');
+    if(under.closest('.tdph'))return; /* encima del hueco: se queda donde está */
+    let el=under.closest('.slot'),after=false;
+    if(el&&!vis(el))el=null;
+    if(el){const r=el.getBoundingClientRect();after=x>r.left+r.width/2;}
+    else{ /* hueco de una fila: el acorde de esa fila más cercano por la izquierda; si no, el primero de la fila */
+      let best=null,bd=Infinity,row=null;
+      [...box.children].filter(vis).forEach(c=>{const r=c.getBoundingClientRect();if(!r.width)return;
+        if(y>=r.top-4&&y<=r.bottom+4){const d=x-r.right;if(d>=-r.width/2&&d<bd){bd=d;best=c;}row=row||c;}});
+      if(best){el=best;after=true;}else if(row){el=row;after=false;}
+    }
+    if(!el){ /* sección vacía o por debajo de todo: al final */
+      const last=[...box.children].filter(vis).pop();
+      if(!last){if(T.ph.parentNode!==box||T.ph.nextSibling)box.appendChild(T.ph);return;}
+      el=last;after=true;
+    }
+    const ref=after?el.nextSibling:el;
+    if(ref===T.ph||(after?el.nextSibling===T.ph:el.previousSibling===T.ph))return; /* ya está ahí: sin parpadeos */
+    box.insertBefore(T.ph,ref);
+  }
+  function autoScroll(){
+    if(!T||T.phase!=='drag')return;
+    const top=normHeadH()+30,bot=window.innerHeight-((document.querySelector('.transport')||{}).offsetHeight||0)-30;
+    let v=0;if(T.ly<top)v=-Math.min(18,(top-T.ly)/3+2);else if(T.ly>bot)v=Math.min(18,(T.ly-bot)/3+2);
+    if(v){window.scrollBy(0,v);place(T.lx,T.ly);}
+    T.raf=requestAnimationFrame(autoScroll);
+  }
+  function drop(){
+    const ph=T.ph,box=ph&&ph.parentNode&&ph.parentNode.closest?ph.parentNode:null;
+    if(!box||!box.matches('.slots')){toast(TR('Soltado fuera de la canción: no cambia nada','Dropped outside the song: nothing changes'));cancelAll();return;}
+    const si=+box.dataset.si;
+    let p=ph.previousElementSibling;while(p&&!vis(p))p=p.previousElementSibling;
+    let n=ph.nextElementSibling;while(n&&!vis(n))n=n.nextElementSibling;
+    const d=p?{el:p,ei:+p.dataset.ei,after:true}:n?{el:n,ei:+n.dataset.ei,after:false}:{el:null,ei:-1,after:true};
+    const P={kind:T.kind,si:T.si,ei:T.ei};
+    /* mover a su propio sitio = nada */
+    const same=T.kind==='move'&&si===T.si&&((p&&+p.dataset.ei===T.ei-1)||(!p&&T.ei===0&&(!n||+n.dataset.ei===T.ei+1))||(n&&!p&&+n.dataset.ei===T.ei+1));
+    cancelAll();
+    if(same)return;
+    if(slotDropApply(P,si,d)){renderSections();toast(P.kind==='copy'?TR('Copia colocada','Copy placed'):TR('Acorde movido','Chord moved'));}
+  }
+  document.addEventListener('touchstart',e=>{
+    if(T||e.touches.length!==1||document.body.classList.contains('live'))return;
+    const t=e.touches[0],tg=e.target;
+    const slot=tg.closest&&tg.closest('#sections .slot');if(!slot||slot.classList.contains('tdph'))return;
+    if(document.querySelector('#sections .secrow.xo'))return;
+    const dup=tg.closest('.sl-dup');
+    if(!dup&&tg.closest(BTN))return;
+    const kind=dup?'copy':'move';
+    const r=(dup||slot).getBoundingClientRect();
+    T={phase:'hold',kind,slot,si:+slot.dataset.si,ei:+slot.dataset.ei,x0:t.clientX,y0:t.clientY,lx:t.clientX,ly:t.clientY,
+      ring:holdRing(dup?r.left+r.width/2:t.clientX,dup?r.top+r.height/2:t.clientY,kind==='copy'?TR('copiar','copy'):TR('mover','move'),kind==='copy'?'var(--focus)':'var(--ink)')};
+    slot.classList.add('tdpress');
+    T.timer=setTimeout(()=>{if(T&&T.phase==='hold'){lift();autoScroll();}},HOLD_MS);
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!T)return;const t=e.touches[0];
+    if(T.phase==='hold'){if(Math.hypot(t.clientX-T.x0,t.clientY-T.y0)>10)cancelAll();return;} /* era un desplazamiento */
+    e.preventDefault(); /* agarrado: la pantalla no se desplaza con el dedo */
+    moveGhost(t.clientX,t.clientY);place(t.clientX,t.clientY);
+  },{passive:false});
+  document.addEventListener('touchend',e=>{
+    if(!T)return;
+    if(T.phase==='hold'){cancelAll();return;} /* toque corto: lo de siempre (⧉ duplica, el acorde suena…) */
+    e.preventDefault();EATCLICK=Date.now()+500;drop();
+  },{passive:false});
+  document.addEventListener('touchcancel',()=>cancelAll());
+  /* el arrastre nativo del navegador no se mezcla con este */
+  document.addEventListener('dragstart',e=>{if(T){e.preventDefault();e.stopImmediatePropagation();}},true);
+})();
 
 /* transporte */
 document.getElementById('playbtn').addEventListener('click',()=>{play.on?stopPlay():startPlay(null);});
