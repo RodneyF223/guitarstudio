@@ -1841,6 +1841,88 @@
   .dlg .cfcard{border:1px solid var(--line,#ccc);padding:9px 12px;border-radius:2px;font-size:13px;line-height:1.5}
   .dlg .cfcard b{font-size:13.5px}
 </style>
+<style id="gs-movil">
+  /* ── móvil (2026-11-27, Rodney: «que se entienda y que la app luzca aún en móvil; si hace falta, reducir el tamaño de las cosas»)
+     Solo por debajo de 540 px (teléfonos en vertical); tabletas y ordenador no cambian.
+     · Barra de arriba en DOS líneas: 1ª el nombre de la app + letra, directo y ajustes; 2ª la canción (⏮ título ⏭), la
+       tonalidad y Guardar. Al bajar se recoge entera (body.tbhide) y vuelve en cuanto se sube un poco.
+     · Barra de abajo en UNA línea: botones más estrechos (40 px de alto).
+     · Márgenes y rellenos más finos, y la canción no se sale de la pantalla (2 tarjetas de acorde por fila). */
+  @media (max-width:540px){
+    body{padding-bottom:76px}
+    .topbar{display:flex;flex-wrap:wrap;gap:6px 6px;min-height:0;padding:6px 10px 7px;
+      padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));
+      transition:transform .22s ease}
+    .topbar::after{content:'';order:4;flex-basis:100%;height:0}
+    .topbar .brand,body.scrolled:not(.live) .brand{display:flex;order:0;flex:1 1 auto;flex-basis:auto;min-width:0;align-items:baseline;gap:7px}
+    .brand h1{font-size:18px}
+    .appver{position:static;margin:0;font-size:9px}
+    #lyrbtn{order:1}#livebtn{order:2}.topbar>.tgrp{order:3}
+    .topbar .songbox,body.scrolled .songbox{order:5;flex:1 1 0;min-width:0;max-width:none}
+    .topbar .keychip{order:6}
+    #savebtn{order:7}
+    /* todos a 36 px, también al bajar (body.scrolled ya no agranda nada en el teléfono) */
+    .topbar .sbtn,body.scrolled .topbar .sbtn{height:36px;padding:0 10px;font-size:12px}
+    #lyrbtn,#livebtn,#setbtn{width:38px;padding:0;justify-content:center}
+    .songtab,body.scrolled .songtab{height:36px;font-size:15px;padding:0 8px;gap:6px}
+    .snav,body.scrolled .snav{width:32px;height:36px}
+    .keychip,body.scrolled .keychip{height:36px;padding:0 9px;font-size:15px}
+    body.scrolled .topbar .sbtn{padding:0 10px}
+    body.tbhide:not(.live) .topbar{transform:translateY(-100%)}
+    body.tbhide:not(.live) .topbar .tpop{display:none}
+
+    /* barra de abajo: una sola línea */
+    .transport{flex-wrap:nowrap;gap:5px;padding:7px 8px;padding-bottom:max(7px,env(safe-area-inset-bottom,0px));
+      padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+    .transport .tpill,.transport #playbtn{height:40px}
+    .transport #playbtn{padding:0 13px;flex:none}
+    .transport .tsw,.transport #volbtn,.transport .tpill.tundo{padding:0;width:36px;justify-content:center;flex:none}
+    .transport .tico{font-size:15px}
+    .tnum{padding:0 8px}
+    .tnum b{font-size:21px}
+    .tright{gap:5px}
+    .transport .tsep{display:none}
+
+    /* márgenes */
+    .main{padding:8px 8px 4px;gap:10px}
+    .progress{width:auto;min-width:0;max-width:calc(100vw - 16px);margin-left:8px;margin-right:8px}
+    .proghead{padding:8px 10px;gap:6px}
+    .proghead h2{font-size:21px;max-width:100%}
+    /* filas de sección más estrechas por los lados: nombre, botones y asa ocupan menos y caben 2 acordes por fila */
+    .secname{min-width:30px;padding:10px 2px;font-size:15px}
+    .secctl{padding:8px 4px;gap:4px}
+    .secctl .scbtn{padding:2px 4px}
+    .secgut{flex-basis:26px;width:26px}
+    .secgut::after{left:3px}
+    .secdrawer{width:250px}
+    .secrow.xo>.secbody,.secrow.xo>.secgut{transform:translateX(250px)}
+    /* tira de acordes enganchada: 8 fichas en 370 px */
+    #palstrip{padding:6px 6px}
+    #palstrip .psrow{gap:3px}
+    #palstrip .pchip .nm{font-size:16px;letter-spacing:-.03em}
+    #palstrip .fnlab{font-size:7.5px;letter-spacing:0;overflow:hidden;text-overflow:clip;white-space:nowrap}
+    #palstrip.comp .fnlab{font-size:7px}
+    .vcaged i{display:none} /* tríadas: solo la letra CAGED marcada, para que no la tape el ＋ */
+    /* directo: título, tono y tempo en una línea legible; botones del teclado sin rótulo (el icono basta) y más bajos */
+    body.live .proghead{gap:8px;padding:4px 8px 5px}
+    body.live .proghead h2{font-size:24px}
+    body.live .prkey{height:32px;padding:0 9px;font-size:21px}
+    body.live .prmeta{font-size:15px}
+    body.live .tschip{font-size:15px;padding:1px 6px}
+    body.live .prnum:not([hidden]){height:32px;padding:0 7px;font-size:17px}
+    #livebar .lbtn::before{display:none}
+    body.live #livebar .lbtn{min-height:52px;font-size:24px}
+    body.live{padding-bottom:124px}
+    .slots{padding:10px 8px 6px;gap:6px;--cg:6px}
+    .secnote{margin:0 8px 9px;max-width:calc(100% - 16px);font-size:14px}
+  }
+  @media (max-width:540px){
+    .transport{gap:4px}
+    .transport .tsw,.transport #volbtn,.transport .tpill.tundo{width:34px}
+    .transport #playbtn{padding:0 12px}
+    .tright{gap:4px}
+  }
+</style>
 </head>
 <body>
 
@@ -2947,7 +3029,8 @@ function palStrip(){
       '<span class="fnlab ncfn">—</span></div></div>';
   palStripPos();
 }
-function palStripTop(){const t=document.querySelector('.topbar');return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
+function palStripTop(){const t=document.querySelector('.topbar');if(document.body.classList.contains('tbhide'))return 0; /* móvil: barra recogida */
+  return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
 function palStripPos(){
   if(!PSTRIP)return;
   const pal=document.getElementById('palette'),vo=document.getElementById('voicings');
@@ -3834,7 +3917,9 @@ function secCtlOpen(si,force){ /* abre (o cierra si ya está abierta) sin redibu
 /* ── la sección se desliza a la derecha y deja ver sus botones «detrás» (2026-11-26) ──────────────────────────
    Con ⋯ o deslizando el dedo a la derecha sobre la sección. El contenido no se recoloca: solo se aparta (transform),
    y la fila crece si el cajón es más alto que ella. Deslizar a la izquierda (o ‹ cerrar, Esc, tocar fuera) la cierra. */
-const DRAWER_W=300;
+const DRAWER_W_=300;
+const DRAWER_W_M=window.matchMedia('(max-width:540px)'); /* móvil: el cajón mide 250 px (ver CSS #gs-movil) */
+Object.defineProperty(window,'DRAWER_W',{get:()=>DRAWER_W_M.matches?250:DRAWER_W_});
 function secSlideRow(row,on){
   if(!row)return;
   const dr=row.querySelector('.secdrawer');
@@ -4149,10 +4234,11 @@ function fitCards(root){
   root.style.removeProperty('--cs');root.classList.remove('tight');
   const sl=[...root.querySelectorAll('.secrow:not(.compact) .slots>.slot')].find(x=>x.offsetWidth);if(!sl)return;
   const R=slotsRoom(sl);
+  const mn=window.matchMedia('(max-width:540px)').matches?0.6:CARD.min; /* móvil: se encogen más para que quepan 2 por fila */
   for(const n of [4,3,2,1]){
     const s=((R.avail-(n-1)*R.gap)/n-R.ml)/CARD.w;
     if(s>=1)return;
-    if(s>=(n>1?CARD.min:0.6)){root.style.setProperty('--cs',(Math.floor(s*1000)/1000).toFixed(3));root.classList.add('tight');return;} /* n = 1: móvil, una tarjeta por fila que no se salga */
+    if(s>=(n>1?mn:0.6)){root.style.setProperty('--cs',(Math.floor(s*1000)/1000).toFixed(3));root.classList.add('tight');return;} /* n = 1: móvil, una tarjeta por fila que no se salga */
   }
 }
 /* nombres de acorde en las tarjetas con diagrama: el que no cabe en su tarjeta se estrecha (y, si no basta, baja de cuerpo) */
@@ -10099,6 +10185,18 @@ document.addEventListener('change',e=>{const t=e.target;if(t&&t.type==='checkbox
     else if(on&&y<10){on=false;document.body.classList.remove('scrolled');}};
   window.addEventListener('scroll',f,{passive:true});f();
 })();
+/* móvil (≤540 px, 2026-11-27): la barra de arriba (dos líneas) se recoge al bajar y vuelve en cuanto se sube un poco o
+   se llega arriba del todo. Con un menú de la barra abierto no se esconde */
+(()=>{
+  const mq=window.matchMedia('(max-width:540px)'),B=document.body;
+  let last=window.scrollY||0,acc=0;
+  const f=()=>{const y=window.scrollY||0,d=y-last;last=y;
+    if(!mq.matches||B.classList.contains('live')||y<60||document.querySelector('.topbar .tpop:not([hidden])')){acc=0;B.classList.remove('tbhide');return;}
+    if((acc>0)!==(d>0))acc=0;acc+=d;
+    if(acc>24)B.classList.add('tbhide');else if(acc<-14)B.classList.remove('tbhide');};
+  window.addEventListener('scroll',f,{passive:true});
+  mq.addEventListener&&mq.addEventListener('change',f);
+})();
 /* guardar en el aparato cada cambio de botones, volumen o mezcla (después de los manejadores de arriba) */
 ['metro','drumson','basson','gtron','vol','volchords','voldrums','volmetro','volbass'].forEach(id=>{
   const el=document.getElementById(id);if(el){el.addEventListener('change',mixSave);el.addEventListener('input',mixSave);}});
@@ -10138,7 +10236,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    (cambia si se parte en dos líneas) · --phh = alto de la barra del título (para los saltos al manual) */
 function normHeadH(){
   const tb=document.querySelector('.topbar'),ph=document.querySelector('body>section.progress>.proghead');
-  return (tb?tb.getBoundingClientRect().height:0)+(ph?ph.offsetHeight:0);
+  return (tb?Math.max(0,tb.getBoundingClientRect().bottom):0)+(ph?ph.offsetHeight:0); /* bottom: la barra recogida (móvil) cuenta 0 */
 }
 (()=>{
   const tb=document.querySelector('.topbar'),sec=document.querySelector('body>section.progress'),
@@ -10154,7 +10252,7 @@ function normHeadH(){
   };
   const upd=()=>{
     raf=0;
-    const tbh=Math.round(tb.getBoundingClientRect().height);
+    const tbh=document.body.classList.contains('tbhide')?0:Math.round(tb.getBoundingClientRect().height); /* móvil: barra recogida = 0 */
     rs.setProperty('--tbh',tbh+'px');
     if(document.body.classList.contains('live')){setFix(false);return;}
     if(remide){remide=false;setFix(false);} /* cambió el tamaño de algo: se mide otra vez en su sitio */
@@ -10167,6 +10265,7 @@ function normHeadH(){
   const cambia=()=>{remide=true;go();};
   window.addEventListener('scroll',go,{passive:true});
   window.addEventListener('resize',cambia);
+  tb.addEventListener('transitionend',()=>{go();try{palStripPos();}catch(e){}}); /* móvil: la barra termina de recogerse o de volver */
   if(window.ResizeObserver){const ro=new ResizeObserver(cambia);[tb,ph,document.getElementById('sections'),document.body].forEach(e=>e&&ro.observe(e));}
   upd();
 })();
