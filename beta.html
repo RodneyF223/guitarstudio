@@ -1903,6 +1903,36 @@
     #palstrip .fnlab{font-size:7.5px;letter-spacing:0;overflow:hidden;text-overflow:clip;white-space:nowrap}
     #palstrip.comp .fnlab{font-size:7px}
     .vcaged i{display:none} /* tríadas: solo la letra CAGED marcada, para que no la tape el ＋ */
+    /* 2º repaso (2026-11-27, «puedes ocultar funciones no esenciales»): fuera textos de ayuda y botones secundarios */
+    .boxpad{padding:10px 10px}
+    .boxpad>.boxtitle:first-child{margin:-10px -10px 10px;padding:9px 10px 8px}
+    .circlefoot,#vhead .vhint,.proghint,.addsec .aslab{display:none}
+    #vhead{gap:7px;margin-bottom:8px}
+    /* voicings: 3 tarjetas por fila, más bajas */
+    .vgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding-top:8px}
+    .vcard{padding:5px 3px 5px}
+    .vtop,.vgrid.hascol .vtop{min-height:26px;padding:0 26px 0 2px;gap:2px 4px}
+    .vcard .vn{font-size:11.5px}
+    .vplus{width:26px;height:26px;top:3px;right:3px}
+    .vplus .ic{width:14px;height:14px}
+    .vadd{font-size:9.5px;gap:2px}
+    .vadd i{display:none}
+    .vsec-h .vtit{font-size:11.5px;letter-spacing:.04em}
+    .vsec-h .vpos,.vsec-h .vcnt{font-size:10.5px}
+    #voicings{gap:12px}
+    /* cabecera de la canción: vista simple solo con icono y «añadir sección» más corto */
+    #compactbtn{font-size:0;width:36px;padding:0;justify-content:center}
+    #compactbtn .ic{width:17px;height:17px}
+    .addsec input{width:104px}
+    .proghead .prmeta{font-size:13px}
+    /* tarjeta de acorde de la canción: sin «duplicar» (se puede arrastrar con ⧉ en tableta/ordenador) */
+    .slot .sl-dup{display:none}
+    /* acordes de la escala: 4 por fila (2 filas en vez de 3), fichas más bajas */
+    #palette{gap:6px}
+    #palette .palcol{width:calc(25% - 4.5px)}
+    #palette .pchip{min-height:58px;padding:5px 2px 4px}
+    #palette .pchip .nm{font-size:19px}
+    #palette .fnlab{font-size:8px;letter-spacing:0;overflow:hidden;white-space:nowrap}
     /* directo: título, tono y tempo en una línea legible; botones del teclado sin rótulo (el icono basta) y más bajos */
     body.live .proghead{gap:8px;padding:4px 8px 5px}
     body.live .proghead h2{font-size:24px}
@@ -3194,7 +3224,12 @@ const VSHAPE={maj:['E','A'],min:['Em','Am'],dom7:['E7','A7'],dim:['E°','A°']};
 /* desplegables: se recuerda cómo los dejaste (gc-fold = {id: 1 abierto · 0 plegado}).
    ids: 'diap', 'leyenda', 'trucos' (paneles <details data-fold>) y 'v-open', 'v-r6'… (secciones de voicings) */
 let FOLDST={};try{FOLDST=JSON.parse(STORE.getItem('gc-fold')||'{}')||{};}catch(e){}
-function foldOpen(id,def){return Object.prototype.hasOwnProperty.call(FOLDST,id)?!!FOLDST[id]:def;}
+/* móvil (≤540 px): si no lo has tocado nunca en este aparato, la leyenda, los trucos y los grupos de voicings (menos el
+   primero) empiezan plegados, para que la canción no quede tan abajo */
+const FOLD_PHONE=window.matchMedia('(max-width:540px)').matches;
+function foldOpen(id,def){if(Object.prototype.hasOwnProperty.call(FOLDST,id))return !!FOLDST[id];
+  if(FOLD_PHONE&&(id==='leyenda'||id==='trucos'||(/^v-/.test(id)&&id!=='v-open')))return false;
+  return def;}
 function foldSet(id,open){FOLDST[id]=open?1:0;try{STORE.setItem('gc-fold',JSON.stringify(FOLDST));}catch(e){}}
 document.querySelectorAll('details.fold[data-fold]').forEach(d=>{
   const id=d.dataset.fold;d.open=foldOpen(id,d.open);
