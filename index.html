@@ -1240,20 +1240,16 @@
   /* 2026-11-12 · tarjetas encogidas para que quepan 4 por fila (.tight lo pone fitCards cuando --cs < 1): el nombre del
      acorde se quedaba sin sitio entre el grado y los botones ⧉ × (F♯m7♭5 salía diminuto). Aquí el nombre ocupa toda la
      fila de arriba y ⧉ × ↵ van abajo, junto a la duración, en el sitio del rótulo del voicing (que ya salía cortado). */
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot){display:grid;grid-template-columns:auto 1fr auto auto auto;
-    grid-template-areas:"deg name name name name" "dg dg dg dg dg" "chip . dup x br";align-items:center;column-gap:3px;row-gap:1px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-top,
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-bot{display:contents}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-deg{grid-area:deg;margin-left:3px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-name{grid-area:name;padding-left:3px;overflow:hidden}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot)>svg{grid-area:dg;justify-self:center}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .mchip{grid-area:chip;margin-left:3px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-dup{grid-area:dup}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-x{grid-area:x}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-br{grid-area:br;margin-right:2px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-v{display:none}
+  /* 2026-11-28 · ⧉ × ↵ van siempre abajo, repartidos a partes iguales en la fila de la duración (cada uno con su
+     tercio del ancho = diana grande para el dedo). Arriba solo grado + nombre, con todo el ancho: el rótulo del voicing
+     («Open chord»…) se quitó de la tarjeta (nunca se leía entero; el nombre del voicing sigue en el apartado de voicings). */
   .sl-x:hover{color:var(--danger)}
   .sl-bot{display:flex;align-items:center;gap:6px;width:100%;padding:0 3px}
+  .sl-btns{display:flex;flex:1;min-width:0;align-items:center}
+  .sl-btns>button{flex:1 1 0;justify-content:center;padding:3px 0;min-width:0}
+  .sl-top .ncdr{flex:none}
+  @media (pointer:coarse){.sl-btns>button::after{inset:-9px 0}}
+  .secrow.compact .sl-btns,body.live .sl-btns{display:none}
   /* duración: ficha invertida (como el contador del kit) */
   .mchip{border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:0;
     font-family:var(--font-n);font-size:13.5px;font-weight:700;padding:1px 7px}
@@ -1840,6 +1836,118 @@
   .dlg .cfgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
   .dlg .cfcard{border:1px solid var(--line,#ccc);padding:9px 12px;border-radius:2px;font-size:13px;line-height:1.5}
   .dlg .cfcard b{font-size:13.5px}
+</style>
+<style id="gs-movil">
+  /* ── móvil (2026-11-27, Rodney: «que se entienda y que la app luzca aún en móvil; si hace falta, reducir el tamaño de las cosas»)
+     Solo por debajo de 540 px (teléfonos en vertical); tabletas y ordenador no cambian.
+     · Barra de arriba en DOS líneas: 1ª el nombre de la app + letra, directo y ajustes; 2ª la canción (⏮ título ⏭), la
+       tonalidad y Guardar. Al bajar se recoge entera (body.tbhide) y vuelve en cuanto se sube un poco.
+     · Barra de abajo en UNA línea: botones más estrechos (40 px de alto).
+     · Márgenes y rellenos más finos, y la canción no se sale de la pantalla (2 tarjetas de acorde por fila). */
+  @media (max-width:540px){
+    body{padding-bottom:76px}
+    .topbar{display:flex;flex-wrap:wrap;gap:6px 6px;min-height:0;padding:6px 10px 7px;
+      padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));
+      transition:transform .22s ease}
+    .topbar::after{content:'';order:4;flex-basis:100%;height:0}
+    .topbar .brand,body.scrolled:not(.live) .brand{display:flex;order:0;flex:1 1 auto;flex-basis:auto;min-width:0;align-items:baseline;gap:7px}
+    .brand h1{font-size:18px}
+    .appver{position:static;margin:0;font-size:9px}
+    #lyrbtn{order:1}#livebtn{order:2}.topbar>.tgrp{order:3}
+    .topbar .songbox,body.scrolled .songbox{order:5;flex:1 1 0;min-width:0;max-width:none}
+    .topbar .keychip{order:6}
+    #savebtn{order:7}
+    /* todos a 36 px, también al bajar (body.scrolled ya no agranda nada en el teléfono) */
+    .topbar .sbtn,body.scrolled .topbar .sbtn{height:36px;padding:0 10px;font-size:12px}
+    #lyrbtn,#livebtn,#setbtn{width:38px;padding:0;justify-content:center}
+    .songtab,body.scrolled .songtab{height:36px;font-size:15px;padding:0 8px;gap:6px}
+    .snav,body.scrolled .snav{width:32px;height:36px}
+    .keychip,body.scrolled .keychip{height:36px;padding:0 9px;font-size:15px}
+    body.scrolled .topbar .sbtn{padding:0 10px}
+    body.tbhide:not(.live) .topbar{transform:translateY(-100%)}
+    body.tbhide:not(.live) .topbar .tpop{display:none}
+
+    /* barra de abajo: una sola línea */
+    .transport{flex-wrap:nowrap;gap:5px;padding:7px 8px;padding-bottom:max(7px,env(safe-area-inset-bottom,0px));
+      padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+    .transport .tpill,.transport #playbtn{height:40px}
+    .transport #playbtn{padding:0 13px;flex:none}
+    .transport .tsw,.transport #volbtn,.transport .tpill.tundo{padding:0;width:36px;justify-content:center;flex:none}
+    .transport .tico{font-size:15px}
+    .tnum{padding:0 8px}
+    .tnum b{font-size:21px}
+    .tright{gap:5px}
+    .transport .tsep{display:none}
+
+    /* márgenes */
+    .main{padding:8px 8px 4px;gap:10px}
+    .progress{width:auto;min-width:0;max-width:calc(100vw - 16px);margin-left:8px;margin-right:8px}
+    .proghead{padding:8px 10px;gap:6px}
+    .proghead h2{font-size:21px;max-width:100%}
+    /* filas de sección más estrechas por los lados: nombre, botones y asa ocupan menos y caben 2 acordes por fila */
+    .secname{min-width:30px;padding:10px 2px;font-size:15px}
+    .secctl{padding:8px 4px;gap:4px}
+    .secctl .scbtn{padding:2px 4px}
+    .secgut{flex-basis:26px;width:26px}
+    .secgut::after{left:3px}
+    .secdrawer{width:250px}
+    .secrow.xo>.secbody,.secrow.xo>.secgut{transform:translateX(250px)}
+    /* tira de acordes enganchada: 8 fichas en 370 px */
+    #palstrip{padding:6px 6px}
+    #palstrip .psrow{gap:3px}
+    #palstrip .pchip .nm{font-size:16px;letter-spacing:-.03em}
+    #palstrip .fnlab{font-size:7.5px;letter-spacing:0;overflow:hidden;text-overflow:clip;white-space:nowrap}
+    #palstrip.comp .fnlab{font-size:7px}
+    .vcaged i{display:none} /* tríadas: solo la letra CAGED marcada, para que no la tape el ＋ */
+    /* 2º repaso (2026-11-27, «puedes ocultar funciones no esenciales»): fuera textos de ayuda y botones secundarios */
+    .boxpad{padding:10px 10px}
+    .boxpad>.boxtitle:first-child{margin:-10px -10px 10px;padding:9px 10px 8px}
+    .circlefoot,#vhead .vhint,.proghint,.addsec .aslab{display:none}
+    #vhead{gap:7px;margin-bottom:8px}
+    /* voicings: 3 tarjetas por fila, más bajas */
+    .vgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding-top:8px}
+    .vcard{padding:5px 3px 5px}
+    .vtop,.vgrid.hascol .vtop{min-height:26px;padding:0 26px 0 2px;gap:2px 4px}
+    .vcard .vn{font-size:11.5px}
+    .vplus{width:26px;height:26px;top:3px;right:3px}
+    .vplus .ic{width:14px;height:14px}
+    .vadd{font-size:9.5px;gap:2px}
+    .vadd i{display:none}
+    .vsec-h .vtit{font-size:11.5px;letter-spacing:.04em}
+    .vsec-h .vpos,.vsec-h .vcnt{font-size:10.5px}
+    #voicings{gap:12px}
+    /* cabecera de la canción: vista simple solo con icono y «añadir sección» más corto */
+    #compactbtn{font-size:0;width:36px;padding:0;justify-content:center}
+    #compactbtn .ic{width:17px;height:17px}
+    .addsec input{width:104px}
+    .proghead .prmeta{font-size:13px}
+    /* tarjeta de acorde de la canción: sin «duplicar» (se puede arrastrar con ⧉ en tableta/ordenador) */
+    .slot .sl-dup{display:none}
+    /* acordes de la escala: 4 por fila (2 filas en vez de 3), fichas más bajas */
+    #palette{gap:6px}
+    #palette .palcol{width:calc(25% - 4.5px)}
+    #palette .pchip{min-height:58px;padding:5px 2px 4px}
+    #palette .pchip .nm{font-size:19px}
+    #palette .fnlab{font-size:8px;letter-spacing:0;overflow:hidden;white-space:nowrap}
+    /* directo: título, tono y tempo en una línea legible; botones del teclado sin rótulo (el icono basta) y más bajos */
+    body.live .proghead{gap:8px;padding:4px 8px 5px}
+    body.live .proghead h2{font-size:24px}
+    body.live .prkey{height:32px;padding:0 9px;font-size:21px}
+    body.live .prmeta{font-size:15px}
+    body.live .tschip{font-size:15px;padding:1px 6px}
+    body.live .prnum:not([hidden]){height:32px;padding:0 7px;font-size:17px}
+    #livebar .lbtn::before{display:none}
+    body.live #livebar .lbtn{min-height:52px;font-size:24px}
+    body.live{padding-bottom:124px}
+    .slots{padding:10px 8px 6px;gap:6px;--cg:6px}
+    .secnote{margin:0 8px 9px;max-width:calc(100% - 16px);font-size:14px}
+  }
+  @media (max-width:540px){
+    .transport{gap:4px}
+    .transport .tsw,.transport #volbtn,.transport .tpill.tundo{width:34px}
+    .transport #playbtn{padding:0 12px}
+    .tright{gap:4px}
+  }
 </style>
 </head>
 <body>
@@ -2456,7 +2564,7 @@ const SETS=[{s:[3,4,5],name:TR('cuerdas 1·2·3','strings 1·2·3')},{s:[2,3,4],
 const TRIAD_DATA={maj:{ints:[0,4,7],roles:['1','3','5']},min:{ints:[0,3,7],roles:['1','♭3','5']},dim:{ints:[0,3,6],roles:['1','♭3','♭5']}};
 const INV_NAMES=[TR('fundamental','root'),TR('1ª inversión','1st inversion'),TR('2ª inversión','2nd inversion')];
 
-function triadVoicing(ch,setIdx,inv){
+function triadVoicing(ch,setIdx,inv,up){
   const q=ch.quality==='dom7'?'maj':ch.quality;
   const td=TRIAD_DATA[q];
   const order=[[0,1,2],[1,2,0],[2,0,1]][inv];
@@ -2470,6 +2578,8 @@ function triadVoicing(ch,setIdx,inv){
     if(!best||score<best.score)best={f,score};
   }
   if(!best)best={f:base};
+  /* up = la misma tríada una octava más arriba (2026-11-28, Rodney: «falta E en el traste 12, cuerdas 1·2·3») */
+  if(up){best={f:best.f.map(x=>x+12)};if(Math.max(...best.f)>VMAX)return null;}
   const frets=[-1,-1,-1,-1,-1,-1],roles=['','','','','',''];
   strings.forEach((s,j)=>{frets[s]=best.f[j];roles[s]=td.roles[order[j]];});
   /* convención pop: inversión = acorde/bajo (C/E = 3ª en el bajo, C/G = 5ª) */
@@ -2503,6 +2613,16 @@ function getVoicings(ch){
   SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++)add(vtag(triadVoicing(ch,si,inv),{fam:'tri',set:si,inv}));});
   extVoicings(ch).forEach(add);
   moreVoicings(ch).forEach(add);
+  /* 2026-11-28 (Rodney: «faltan voicings del traste 12 hacia arriba»): toda forma que quepa una octava más arriba
+     (hasta el traste 15 del mini-mástil) sale también allí — tríadas, quintas, shells, tensiones… Al FINAL, así
+     getVoicings(ch)[0] sigue siendo el de siempre. Las tríadas de arriba van en su propia fila de la tabla. */
+  out.filter(v=>v._m&&v._m.fam!=='tri').forEach(v=>{
+    const fr=v.frets.map(f=>f<0?-1:f+12);if(Math.max(...fr)>VMAX)return;
+    const m=Object.assign({},v._m,{z:(v._m.z||0)+12});
+    add(vtag(Object.assign({},v,{frets:fr,roles:v.roles.slice(),vname:v.vname+TR(' · una octava más arriba',' · one octave up')}),m));
+  });
+  SETS.forEach((st,si)=>{for(let inv=0;inv<3;inv++){const v=triadVoicing(ch,si,inv,true);
+    if(v)add(vtag(Object.assign(v,{vname:v.vname+TR(' · una octava más arriba',' · one octave up')}),{fam:'tri',set:si,inv,oct:1}));}});
   return out;
 }
 /* ── más allá del traste 12 (2026-11-26, Rodney: «no está G/C, G en traste 12») ─────────────────────────────────
@@ -2947,7 +3067,8 @@ function palStrip(){
       '<span class="fnlab ncfn">—</span></div></div>';
   palStripPos();
 }
-function palStripTop(){const t=document.querySelector('.topbar');return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
+function palStripTop(){const t=document.querySelector('.topbar');if(document.body.classList.contains('tbhide'))return 0; /* móvil: barra recogida */
+  return t?Math.max(0,t.getBoundingClientRect().bottom):0;}
 function palStripPos(){
   if(!PSTRIP)return;
   const pal=document.getElementById('palette'),vo=document.getElementById('voicings');
@@ -3111,7 +3232,12 @@ const VSHAPE={maj:['E','A'],min:['Em','Am'],dom7:['E7','A7'],dim:['E°','A°']};
 /* desplegables: se recuerda cómo los dejaste (gc-fold = {id: 1 abierto · 0 plegado}).
    ids: 'diap', 'leyenda', 'trucos' (paneles <details data-fold>) y 'v-open', 'v-r6'… (secciones de voicings) */
 let FOLDST={};try{FOLDST=JSON.parse(STORE.getItem('gc-fold')||'{}')||{};}catch(e){}
-function foldOpen(id,def){return Object.prototype.hasOwnProperty.call(FOLDST,id)?!!FOLDST[id]:def;}
+/* móvil (≤540 px): si no lo has tocado nunca en este aparato, la leyenda, los trucos y los grupos de voicings (menos el
+   primero) empiezan plegados, para que la canción no quede tan abajo */
+const FOLD_PHONE=window.matchMedia('(max-width:540px)').matches;
+function foldOpen(id,def){if(Object.prototype.hasOwnProperty.call(FOLDST,id))return !!FOLDST[id];
+  if(FOLD_PHONE&&(id==='leyenda'||id==='trucos'||(/^v-/.test(id)&&id!=='v-open')))return false;
+  return def;}
 function foldSet(id,open){FOLDST[id]=open?1:0;try{STORE.setItem('gc-fold',JSON.stringify(FOLDST));}catch(e){}}
 document.querySelectorAll('details.fold[data-fold]').forEach(d=>{
   const id=d.dataset.fold;d.open=foldOpen(id,d.open);
@@ -3217,15 +3343,16 @@ function renderVoicings(){
       '<span class="vtit">'+esc(f.t)+(f.sh?'<span class="vsh">'+esc(f.sh)+'</span>':'')+'</span>'+(f.pos?'<span class="vpos">'+f.pos+'</span>':'')+
       '<span class="vcnt">'+n+' voicing'+(n===1?'':'s')+'</span>'+'<span class="fchev">'+ICO('chevron-down')+'</span></button>';
     if(f.k==='tri'){
-      const C={};G.tri.forEach(i=>{const m=VOICINGS[i]._m;C[m.set+':'+m.inv]=i;});
+      const C={};G.tri.forEach(i=>{const m=VOICINGS[i]._m;C[m.set+':'+m.inv+(m.oct?':8':'')]=i;});
       const nm=inv=>{if(!inv)return nName(ch.pc,ch.flat)+SUFFIX[q==='dom7'?'maj':q];
         const i=C['0:'+inv]!==undefined?C['0:'+inv]:C['1:'+inv];return (i!==undefined&&VOICINGS[i].disp)||'';};
       const tq=q==='dom7'?'maj':q;
       if(CAGED[tq])h+=TR('<p class="vtrihint">En tenue, el resto de la <b>forma CAGED</b> a la que pertenece cada tríada (la letra marcada).</p>','<p class="vtrihint">Faded, the rest of the <b>CAGED shape</b> each triad belongs to (the marked letter).</p>');
       h+='<div class="vtri"><span class="vcorner"></span>';
       [0,1,2].forEach(inv=>{h+='<span class="vth">'+INV_NAMES[inv]+'<b>'+esc(nm(inv))+'</b></span>';});
-      SETS.forEach((st,si)=>{h+='<span class="vrh">'+esc(st.name).replace(' ',' <br>')+'</span>';
-        [0,1,2].forEach(inv=>{const i=C[si+':'+inv];if(i===undefined){h+='<span></span>';return;}
+      const rows=[];SETS.forEach((st,si)=>{rows.push([si,'']);if([0,1,2].some(inv=>C[si+':'+inv+':8']!==undefined))rows.push([si,':8']);});
+      rows.forEach(([si,o])=>{const st=SETS[si];h+='<span class="vrh">'+esc(st.name).replace(' ',' <br>')+(o?TR('<br><span class="voct">8ª arriba</span>','<br><span class="voct">8ve up</span>'):'')+'</span>';
+        [0,1,2].forEach(inv=>{const i=C[si+':'+inv+o];if(i===undefined){h+='<span></span>';return;}
           const cg=cagedOf(VOICINGS[i],ch.pc,tq);
           h+=vCardHTML(VOICINGS[i],i,'',cg?cagedTag(cg.L):'',cg?cg.frets:null);});});
       h+='</div>';
@@ -3569,20 +3696,20 @@ function slotHTML(sl,si,ei,mids){
     const para=sl.drums!=='go';
     return '<div class="slot ncslot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
       '<div class="sl-top"><span class="sl-deg ncdeg">—</span><span class="sl-name">'+RESTICO()+'</span>'+
-      TR('<button class="sl-dup" title="Duplicar · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button></div>'+
+      TR('<button class="sl-v ncdr" title="Qué hace la batería durante el silencio — clic para cambiar">','<button class="sl-v ncdr" title="What the drums do during the rest — click to change">')+(para?ICO('drum')+' para':ICO('drum')+' sigue')+'</button></div>'+
       TR('<div class="ncbox"><b>silencio</b><span>corta lo que suena</span></div>','<div class="ncbox"><b>rest</b><span>cuts what is ringing</span></div>')+
-      '<div class="sl-bot">'+mc+
-      TR('<button class="sl-v ncdr" title="Qué hace la batería durante el silencio — clic para cambiar">','<button class="sl-v ncdr" title="What the drums do during the rest — click to change">')+(para?ICO('drum')+' para':ICO('drum')+' sigue')+'</button>'+
-      brb+'</div></div>';
+      '<div class="sl-bot">'+mc+'<div class="sl-btns">'+
+      TR('<button class="sl-dup" title="Duplicar · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button>'+
+      brb+'</div></div></div>';
   }
   return '<div class="slot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
     '<div class="sl-top"><span class="sl-deg '+txtOn(sl.chord.degNum)+'" style="background:'+sl.chord.color+'">'+esc(sl.chord.deg)+'</span>'+
     '<span class="sl-name">'+esc(sl.voicing.disp||sl.chord.label)+'</span>'+
-    TR('<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate chord · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button></div>'+
+    '</div>'+
     chordSVG(sl.voicing,'dg-sm',null,secFrets(S.sections[si]))+
-    '<div class="sl-bot">'+mc+
-    '<span class="sl-v">'+esc(sl.voicing.vname)+'</span>'+
-    brb+'</div></div>';
+    '<div class="sl-bot">'+mc+'<div class="sl-btns">'+
+    TR('<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate chord · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button>'+
+    brb+'</div></div></div>';
 }
 /* ── duración de cada acorde, en TIEMPOS (sl.beats) ──────────────
    Antes solo existía sl.measures (compases). Al abrir una canción antigua:
@@ -3834,7 +3961,9 @@ function secCtlOpen(si,force){ /* abre (o cierra si ya está abierta) sin redibu
 /* ── la sección se desliza a la derecha y deja ver sus botones «detrás» (2026-11-26) ──────────────────────────
    Con ⋯ o deslizando el dedo a la derecha sobre la sección. El contenido no se recoloca: solo se aparta (transform),
    y la fila crece si el cajón es más alto que ella. Deslizar a la izquierda (o ‹ cerrar, Esc, tocar fuera) la cierra. */
-const DRAWER_W=300;
+const DRAWER_W_=300;
+const DRAWER_W_M=window.matchMedia('(max-width:540px)'); /* móvil: el cajón mide 250 px (ver CSS #gs-movil) */
+Object.defineProperty(window,'DRAWER_W',{get:()=>DRAWER_W_M.matches?250:DRAWER_W_});
 function secSlideRow(row,on){
   if(!row)return;
   const dr=row.querySelector('.secdrawer');
@@ -4149,10 +4278,11 @@ function fitCards(root){
   root.style.removeProperty('--cs');root.classList.remove('tight');
   const sl=[...root.querySelectorAll('.secrow:not(.compact) .slots>.slot')].find(x=>x.offsetWidth);if(!sl)return;
   const R=slotsRoom(sl);
+  const mn=window.matchMedia('(max-width:540px)').matches?0.6:CARD.min; /* móvil: se encogen más para que quepan 2 por fila */
   for(const n of [4,3,2,1]){
     const s=((R.avail-(n-1)*R.gap)/n-R.ml)/CARD.w;
     if(s>=1)return;
-    if(s>=(n>1?CARD.min:0.6)){root.style.setProperty('--cs',(Math.floor(s*1000)/1000).toFixed(3));root.classList.add('tight');return;} /* n = 1: móvil, una tarjeta por fila que no se salga */
+    if(s>=(n>1?mn:0.6)){root.style.setProperty('--cs',(Math.floor(s*1000)/1000).toFixed(3));root.classList.add('tight');return;} /* n = 1: móvil, una tarjeta por fila que no se salga */
   }
 }
 /* nombres de acorde en las tarjetas con diagrama: el que no cabe en su tarjeta se estrecha (y, si no basta, baja de cuerpo) */
@@ -10099,6 +10229,18 @@ document.addEventListener('change',e=>{const t=e.target;if(t&&t.type==='checkbox
     else if(on&&y<10){on=false;document.body.classList.remove('scrolled');}};
   window.addEventListener('scroll',f,{passive:true});f();
 })();
+/* móvil (≤540 px, 2026-11-27): la barra de arriba (dos líneas) se recoge al bajar y vuelve en cuanto se sube un poco o
+   se llega arriba del todo. Con un menú de la barra abierto no se esconde */
+(()=>{
+  const mq=window.matchMedia('(max-width:540px)'),B=document.body;
+  let last=window.scrollY||0,acc=0;
+  const f=()=>{const y=window.scrollY||0,d=y-last;last=y;
+    if(!mq.matches||B.classList.contains('live')||y<60||document.querySelector('.topbar .tpop:not([hidden])')){acc=0;B.classList.remove('tbhide');return;}
+    if((acc>0)!==(d>0))acc=0;acc+=d;
+    if(acc>24)B.classList.add('tbhide');else if(acc<-14)B.classList.remove('tbhide');};
+  window.addEventListener('scroll',f,{passive:true});
+  mq.addEventListener&&mq.addEventListener('change',f);
+})();
 /* guardar en el aparato cada cambio de botones, volumen o mezcla (después de los manejadores de arriba) */
 ['metro','drumson','basson','gtron','vol','volchords','voldrums','volmetro','volbass'].forEach(id=>{
   const el=document.getElementById(id);if(el){el.addEventListener('change',mixSave);el.addEventListener('input',mixSave);}});
@@ -10138,7 +10280,7 @@ if('serviceWorker' in navigator&&location.protocol==='https:'){
    (cambia si se parte en dos líneas) · --phh = alto de la barra del título (para los saltos al manual) */
 function normHeadH(){
   const tb=document.querySelector('.topbar'),ph=document.querySelector('body>section.progress>.proghead');
-  return (tb?tb.getBoundingClientRect().height:0)+(ph?ph.offsetHeight:0);
+  return (tb?Math.max(0,tb.getBoundingClientRect().bottom):0)+(ph?ph.offsetHeight:0); /* bottom: la barra recogida (móvil) cuenta 0 */
 }
 (()=>{
   const tb=document.querySelector('.topbar'),sec=document.querySelector('body>section.progress'),
@@ -10154,7 +10296,7 @@ function normHeadH(){
   };
   const upd=()=>{
     raf=0;
-    const tbh=Math.round(tb.getBoundingClientRect().height);
+    const tbh=document.body.classList.contains('tbhide')?0:Math.round(tb.getBoundingClientRect().height); /* móvil: barra recogida = 0 */
     rs.setProperty('--tbh',tbh+'px');
     if(document.body.classList.contains('live')){setFix(false);return;}
     if(remide){remide=false;setFix(false);} /* cambió el tamaño de algo: se mide otra vez en su sitio */
@@ -10167,6 +10309,7 @@ function normHeadH(){
   const cambia=()=>{remide=true;go();};
   window.addEventListener('scroll',go,{passive:true});
   window.addEventListener('resize',cambia);
+  tb.addEventListener('transitionend',()=>{go();try{palStripPos();}catch(e){}}); /* móvil: la barra termina de recogerse o de volver */
   if(window.ResizeObserver){const ro=new ResizeObserver(cambia);[tb,ph,document.getElementById('sections'),document.body].forEach(e=>e&&ro.observe(e));}
   upd();
 })();
@@ -10174,7 +10317,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.26c';
+const APP_VER='2026.11.28';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
