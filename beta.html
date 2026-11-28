@@ -859,6 +859,36 @@
   .vgrip .ic{width:22px;height:22px;stroke-width:2.4;transform:rotate(180deg)}
   .vgrip::before,.vgrip::after{content:'';flex:1;height:1.5px;background:var(--line2);margin:0 10px}
   .vgrip:hover{color:var(--ink)}
+  /* 2026-11-28 · más apretado (Rodney: «muy bultoso»): la caja de voicings sin caja propia (mismo color que el fondo)
+     y todo más fino y más junto, para que quepa mucho en pantallas pequeñas */
+  .panel.vpanel{background:transparent;border-color:transparent;padding-left:0;padding-right:0}
+  #voicings .vsec{margin-top:4px}
+  #voicings .vsec-h{min-height:32px;padding:2px 3px 2px 5px;gap:7px;border-width:1px}
+  #voicings .vsec-h .vtit{font-size:11.5px;letter-spacing:.05em}
+  #voicings .vsec-h .vnum{min-width:18px;height:18px;font-size:11px}
+  .vfbtn{width:26px;height:26px;border-width:1px}
+  .vfbtn .ic{width:17px;height:17px}
+  .vmini{gap:3px}
+  .vin{border-left-width:2px;border-bottom-width:1px;border-right-width:1px;padding:0 5px}
+  #voicings .vgrid{gap:5px;padding-top:5px}
+  #voicings .vsmall{gap:4px 12px;padding-top:4px}
+  #voicings .vsmall .vgrid{padding-top:3px}
+  #voicings .vrow{font-size:10px}
+  #voicings .vtrihint{margin:4px 0 0;font-size:11px}
+  #voicings .vcard{padding:3px 3px 4px;gap:0;border-width:1px}
+  #voicings .vtop{min-height:24px;padding:0 28px 0 2px;gap:2px 4px}
+  #voicings .vgrid.hascol .vtop{min-height:36px}
+  #voicings .vcard .vn{font-size:12px}
+  #voicings .vplus{top:3px;right:3px;width:24px;height:24px;border-width:1px}
+  #voicings .vplus .ic{width:14px;height:14px}
+  #voicings .vsmall .vtop .vcaged{margin-top:3px}
+  #voicings .vcaged i,#voicings .vcaged b{width:14px;height:15px;font-size:10px}
+  .vgrip{height:18px;margin:4px 0 2px}
+  .vgrip .ic{width:18px;height:18px}
+  #voicings .vgrid:not(.vsmall .vgrid){grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
+  #voicings .vsmall{grid-template-columns:repeat(auto-fill,minmax(calc(var(--mx)*104px + (var(--mx) - 1)*5px),1fr))}
+  #voicings .dg-lg{width:104px}
+  #voicings .vmap{max-width:440px;margin-bottom:2px}
   .vsec.fold .vgrid,.vsec.fold .vtri{display:none}
   .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;padding-top:10px}
   .vsmall{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--mx)*128px + (var(--mx) - 1)*10px),1fr));gap:12px 22px;padding-top:10px}
@@ -2126,7 +2156,7 @@
       <div class="boxtitle" id="palettetitle">acordes de la escala</div>
       <div id="palette"></div>
     </div>
-    <div class="panel boxpad">
+    <div class="panel boxpad vpanel">
       <div class="boxtitle">voicings del acorde</div>
       <div id="vfind"></div>
       <div id="vhead"></div>
