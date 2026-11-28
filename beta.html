@@ -477,6 +477,8 @@
   .snav:active{transform:translate(1px,1px)}
   .snav .ic{fill:currentColor;stroke-width:1.6}
   .songtab .stitle{flex:1;min-width:0;text-align:left}
+  #prname{cursor:pointer}
+  #savebtn,#sdot{display:none!important} /* 2026-11-28: se guarda solo (el botón queda oculto como ancla del indicador de la nube) */
   .lrename{padding:3px 8px;border:1.5px solid var(--focus);border-radius:2px;background:var(--panel);color:var(--ink);font-size:13.5px}
   /* ── panel lateral «Canciones» ─────────────── */
   .spback{position:fixed;inset:0;z-index:79;background:var(--scrim)}
@@ -4729,7 +4731,7 @@ function openAutoColors(){
       TR('<button type="button" class="sbtn primary" data-acgo="song">esta canción</button>','<button type="button" class="sbtn primary" data-acgo="song">this song</button>')+
       (inf.act?'<button type="button" class="sbtn" data-acgo="set">set «'+esc(inf.act.name)+'» · '+inf.setN+'</button>':'')+
       '<button type="button" class="sbtn" data-acgo="lib"'+(inf.libN?'':' disabled')+TR('>toda la biblioteca · ','>the whole library · ')+inf.libN+'</button>'+
-    TR('</div><p class="achint" id="acmsg">El set y la biblioteca se guardan al momento. Esta canción queda «sin guardar», como cualquier cambio (Ctrl+Z deshace).</p>','</div><p class="achint" id="acmsg">The set and the library are saved right away. This song stays “unsaved”, like any change (Ctrl+Z undoes it).</p>')+
+    TR('</div><p class="achint" id="acmsg">El set y la biblioteca se guardan al momento. Esta canción también, como cualquier cambio (Ctrl+Z deshace).</p>','</div><p class="achint" id="acmsg">The set and the library are saved right away. So is this song, like any change (Ctrl+Z undoes it).</p>')+
     (ACBAK?'<button type="button" class="sbtn acundo" data-acundo="1">'+ICO('undo-2')+TR(' deshacer el último pintado de ',' undo the last painting of ')+ACBAK.list.length+TR(' canciones</button>',' songs</button>'):'')+
     '</div>'+
     TR('<div class="modalbtns"><button class="sbtn" data-dlg="close">Cerrar</button></div>','<div class="modalbtns"><button class="sbtn" data-dlg="close">Close</button></div>'));
@@ -6790,15 +6792,29 @@ function updateSongTab(){
   st.textContent=S.songName||TR('Sin título','Untitled');
   const d=isDirty();
   document.getElementById('sdot').classList.toggle('dirty',d);
-  document.getElementById('songtab').title=(S.songName||TR('Sin título','Untitled'))+(d?TR(' — cambios sin guardar',' — unsaved changes'):TR(' — guardada',' — saved'))+TR(' · clic para gestionar tus canciones',' · click to manage your songs');
+  document.getElementById('songtab').title=(S.songName||TR('Sin título','Untitled'))+TR(' · clic para gestionar tus canciones',' · click to manage your songs');
   if(typeof updateSongNav==='function')updateSongNav();
 }
 function persist(){
   updateSongTab();
   clearTimeout(persist._t);
   persist._t=setTimeout(persistNow,350);
+  clearTimeout(autoSave._t);autoSave._t=setTimeout(autoSave,1200);
 }
-function persistNow(){clearTimeout(persist._t);persist._t=null;try{const d=snapshot();d.base=BASE;STORE.setItem('gc-autosave',JSON.stringify(d));}catch(e){}}
+function persistNow(){clearTimeout(persist._t);persist._t=null;autoSave();try{const d=snapshot();d.base=BASE;STORE.setItem('gc-autosave',JSON.stringify(d));}catch(e){}undoSave();}
+/* ── guardado automático (2026-11-28, Rodney: «guardar siempre»; para experimentar se duplica la canción) ──
+   Cada cambio de la canción se escribe en la biblioteca 1,2 s después del último toque (y al momento si la app se
+   cierra, se cambia de canción o se entra al directo); de ahí la sincronización lo sube al Drive. «Sin guardar» ya
+   solo significa «aún dentro de esos 1,2 s». Una canción nueva sin nombre entra en la biblioteca con su primer acorde
+   (las vacías no se guardan nunca). */
+function autoSave(){
+  clearTimeout(autoSave._t);autoSave._t=null;
+  if(!isDirty())return;
+  if(!S.songId||!loadLib().some(x=>x.id===S.songId)){
+    if(!(S.songName||'').trim()&&!S.sections.some(x=>(x.slots||[]).length))return;
+  }
+  saveSong();
+}
 /* 2026-11-12: si la app se cierra o pasa a segundo plano con un cambio a medio guardar (los 350 ms de espera), se guarda ya:
    en la tableta, cambiar de app o apagar la pantalla justo después de tocar algo podía perder ese último cambio */
 window.addEventListener('pagehide',()=>{if(persist._t)persistNow();});
@@ -6868,6 +6884,28 @@ function pushUndo(){
   updUndoBtns();
 }
 function clearHistory(){UNDO.length=0;REDO.length=0;updUndoBtns();}
+/* 2026-11-28: el deshacer de la canción abierta sobrevive a cerrar la app (solo de este aparato, no se sincroniza).
+   Se guardan los 30 últimos pasos; si no cabe, menos. */
+function undoSave(){
+  if(!S.songId)return;
+  for(const n of [30,10,3]){
+    try{STORE.setItem('gc-undo',JSON.stringify({id:S.songId,u:UNDO.slice(-n),r:REDO.slice(-n)}));return;}catch(e){}
+  }
+  try{STORE.removeItem('gc-undo');}catch(e){}
+}
+function undoLoad(){
+  try{const d=JSON.parse(STORE.getItem('gc-undo')||'null');
+    if(d&&d.id&&d.id===S.songId){UNDO.length=0;REDO.length=0;(d.u||[]).forEach(x=>UNDO.push(x));(d.r||[]).forEach(x=>REDO.push(x));updUndoBtns();}}catch(e){}
+}
+/* foto de cada canción al abrirla (las 10 últimas), para «volver a como estaba al abrirla» */
+function openSnapSave(e){
+  if(!e||!e.id)return;
+  try{let m=JSON.parse(STORE.getItem('gc-open')||'{}');m[e.id]={t:Date.now(),s:JSON.stringify(e)};
+    const ids=Object.keys(m).sort((a,b)=>m[b].t-m[a].t);ids.slice(10).forEach(k=>delete m[k]);
+    try{STORE.setItem('gc-open',JSON.stringify(m));}catch(er){m={};m[e.id]={t:Date.now(),s:JSON.stringify(e)};STORE.setItem('gc-open',JSON.stringify(m));}
+  }catch(er){}
+}
+function openSnapGet(id){try{return (JSON.parse(STORE.getItem('gc-open')||'{}'))[id]||null;}catch(e){return null;}}
 /* deshacer «inteligente» (botón y Ctrl+Z): lo último que tocaste, el dibujo del lick o la canción */
 function smartUndo(){
   let lk=0;try{lk=LKUNDO.length&&(LK.t||0)>(pushUndo._t||0);}catch(e){}
@@ -7520,6 +7558,37 @@ function openNewFolder(parent){
 }
 
 /* ── doble clic en el título de la progresión = renombrar la canción ── */
+/* 2026-11-28: tocar el título grande = renombrar · duplicar · volver a como estaba al abrirla */
+function songTitleMenu(){
+  if(document.querySelector('#prname input'))return;
+  autoSave();
+  const id=S.songId,inLib=id&&loadLib().some(x=>x.id===id),o=inLib?openSnapGet(id):null;
+  let oj=null;try{if(o)oj=JSON.parse(o.s);}catch(e){}
+  const changed=!!oj&&songSig(oj)!==songJSON();
+  const hh=o?new Date(o.t).toLocaleTimeString(LANG==='en'?'en-GB':'es-ES',{hour:'2-digit',minute:'2-digit'}):'';
+  const hoy=o&&new Date(o.t).toDateString()===new Date().toDateString();
+  const cuando=o?(hoy?TR('hoy a las ','today at '):new Date(o.t).toLocaleDateString(LANG==='en'?'en-GB':'es-ES',{day:'numeric',month:'short'})+' · ')+hh:'';
+  openDlg('<h3>'+ICO('music')+' '+esc(S.songName||TR('Sin título','Untitled'))+'</h3><div class="dbig">'+
+    '<button class="sbtn" data-dlg="ren" autofocus>'+ICO('pencil')+TR(' Renombrar',' Rename')+'</button>'+
+    '<button class="sbtn" data-dlg="dup"'+(inLib?'':' disabled')+'>'+ICO('copy')+TR(' Duplicar<br><small>te lleva a la copia para probar ideas; la original no cambia</small>',' Duplicate<br><small>takes you to the copy to try ideas; the original stays as it is</small>')+'</button>'+
+    '<button class="sbtn" data-dlg="back"'+(changed?'':' disabled')+'>'+ICO('rotate-ccw')+TR(' Volver a como estaba al abrirla',' Back to how it was when opened')+'<br><small>'+
+      (o?cuando+(changed?'':TR(' · no ha cambiado desde entonces',' · unchanged since then')):TR('aún no hay foto de esta canción','no snapshot of this song yet'))+
+      (changed?TR(' · Ctrl+Z lo deshace',' · Ctrl+Z undoes it'):'')+'</small></button></div>'+
+    TR('<div class="modalbtns dsec"><button class="sbtn" data-dlg="close">Cerrar</button></div>','<div class="modalbtns dsec"><button class="sbtn" data-dlg="close">Close</button></div>'),
+    {ren:()=>{closeDlg();startTitleRename();},
+     dup:()=>{closeDlg();dupCurrentSong();},
+     back:()=>{closeDlg();if(!oj)return;pushUndo();const d=JSON.parse(JSON.stringify(oj));applyFull(d);S.songId=id;S.songName=oj.name||S.songName;
+       renderProgHead();persist();toast(TR('Vuelta a como estaba ','Back to how it was ')+cuando+TR(' · Ctrl+Z lo deshace',' · Ctrl+Z undoes it'));}});
+}
+function dupCurrentSong(){
+  autoSave();
+  const lib=loadLib(),i=lib.findIndex(x=>x.id===S.songId);if(i<0)return;
+  const c=JSON.parse(JSON.stringify(lib[i]));
+  c.id=uid();c.songId=c.id;c.name=uniqueSongName(lib[i].name+TR(' (copia)',' (copy)'));c.songName=c.name;c.savedAt=Date.now();
+  lib.splice(i+1,0,c);saveLib();
+  loadSong(c.id);
+  toast(TR('Ahora estás en «','Now you are in «')+c.name+TR('» · la original no cambia','» · the original stays as it is'));
+}
 function startTitleRename(){
   const h=document.getElementById('prname');if(!h||h.querySelector('input'))return;
   const old=S.songName||'';
@@ -7532,7 +7601,7 @@ function startTitleRename(){
     const nn=keep?old:inp.value.trim();
     if(nn&&nn!==old){
       if(S.songId&&loadLib().some(x=>x.id===S.songId))renameSongEntry(S.songId,nn);
-      else{S.songName=nn;persist();toast(TR('Nombre: «','Name: «')+nn+TR('» — pulsa Guardar para guardarla','» — press Save to save it'));}
+      else{S.songName=nn;persist();}
     }
     renderProgHead();updateSongTab();if(songPanelOpen())renderSongs();
   };
@@ -7590,12 +7659,12 @@ function renderImgPreview(){
   hold.style.width=Math.ceil(o.width*k)+'px';
   hold.style.height=Math.ceil(wrap.offsetHeight*k)+'px';
 }
-function saveSong(){
-  /* primera vez sin nombre: se pide (el nombre ya no se escribe en el panel; se renombra con doble clic en el título) */
-  if(!(S.songName||'').trim()){askName(TR('Guardar canción','Save song'),TR('Nombre de la canción','Song name'),'',nm=>{S.songName=nm;renderProgHead();saveSong();});return;}
-  const name=S.songName.trim();
+function saveSong(){ /* la llama el guardado automático (ya no hay botón Guardar): sin avisos */
   const lib=loadLib();
   const e=lib.find(x=>x.id===S.songId);
+  const nn=!(S.songName||'').trim();
+  if(nn)S.songName=uniqueSongName(TR('Sin título','Untitled'));
+  const name=S.songName.trim();
   S.songName=name;
   const snap=snapshot();snap.savedAt=Date.now();snap.name=name;
   if(e){snap.id=e.id;snap.songId=e.id;Object.assign(e,snap);}
@@ -7604,23 +7673,27 @@ function saveSong(){
     /* guardar por primera vez ya NO la mete sola en el set activo (se añade desde el panel) */
   }
   if(!saveLib())return;
-  markClean();persist();renderSongs();renderProgHead();
-  toast('«'+name+'» '+(e?TR('actualizada','updated'):TR('guardada','saved'))+' 🎶');
+  markClean();
+  if(songPanelOpen())renderSongs();
+  if(nn||!e){renderProgHead();updateLiveBar();}
 }
 function loadSong(id){
   const e=loadLib().find(x=>x.id===id);
   if(!e){toast(TR('No encontrada','Not found'));return;}
   guardChange(()=>{
-    applySnapshot(e);S.songId=e.id;S.songName=e.name;
+    const e2=loadLib().find(x=>x.id===id)||e; /* lo recién guardado, por si era la misma */
+    openSnapSave(e2);
+    applySnapshot(e2);S.songId=e2.id;S.songName=e2.name;
     S.selChord=currentChords()[0];
     
-    clearHistory();markClean();syncControls();renderAll();resetLickEd();
+    clearHistory();markClean();undoSave();syncControls();renderAll();resetLickEd();
     closeSongMenu();
-    toast('«'+e.name+TR('» cargada','» loaded'));
+    toast('«'+e2.name+TR('» cargada','» loaded'));
   });
 }
 let pendingNext=null;
 function guardChange(next){
+  autoSave(); /* se guarda solo: ya no hay que preguntar */
   if(!isDirty()){next();return;}
   pendingNext=next;
   document.getElementById('modaltext').innerHTML='<b>«'+esc(S.songName||TR('Sin título','Untitled'))+TR('»</b> tiene cambios que aún no has guardado. ¿Qué hacemos antes de seguir?','»</b> has changes you haven\'t saved yet. What do we do before going on?');
@@ -7852,10 +7925,10 @@ async function exportSetlist(){
 const MAN=[
  {id:'inicio',ic:'guitar',t:TR('Primeros pasos','Getting started'),p:TR('Una canción se escribe por secciones, se escucha y se toca en el directo.','A song is written in sections, listened to, and played in live mode.'),li:[
   TR('Dos modos: el <b>estudio</b>, para componer y ensayar, y el <b>directo</b>, para tocar en el escenario.','Two modes: the <b>studio</b>, for composing and rehearsing, and <b>live</b>, for playing on stage.'),
-  TR('Arriba: <b>⏮ nombre ⏭</b> de la canción, <b>Guardar</b>, la <b>tonalidad</b> y <b>','Top: <b>⏮ name ⏭</b> of the song, <b>Save</b>, the <b>key</b> and <b>')+ICO('monitor-play')+TR(' directo</b>. A la izquierda, el círculo de quintas, la leyenda y los trucos; a la derecha, los acordes de la escala y sus voicings. Debajo, el diapasón y la canción. Abajo del todo, la barra para escuchar.',' live</b>. On the left, the circle of fifths, the legend and the tricks; on the right, the chords of the scale and their voicings. Below, the fretboard and the song. At the very bottom, the bar for listening.'),
+  TR('Arriba: <b>⏮ nombre ⏭</b> de la canción, la <b>tonalidad</b> y <b>','Top: <b>⏮ name ⏭</b> of the song, the <b>key</b> and <b>')+ICO('monitor-play')+TR(' directo</b>. A la izquierda, el círculo de quintas, la leyenda y los trucos; a la derecha, los acordes de la escala y sus voicings. Debajo, el diapasón y la canción. Abajo del todo, la barra para escuchar.',' live</b>. On the left, the circle of fifths, the legend and the tricks; on the right, the chords of the scale and their voicings. Below, the fretboard and the song. At the very bottom, the bar for listening.'),
   TR('El camino de siempre: eliges la tonalidad → arrastras acordes a las secciones → escuchas → guardas → al escenario con el directo.','The usual path: pick the key → drag chords into the sections → listen → save → on stage with live mode.'),
-  TR('El punto de la pestaña de la canción: <b style="color:var(--g3)">verde</b> = guardada, <b style="color:var(--g2)">naranja</b> = cambios sin guardar. Guardar o <b>Ctrl+S</b>. Doble clic en el título grande = renombrar.','The dot on the song tab: <b style="color:var(--g3)">green</b> = saved, <b style="color:var(--g2)">orange</b> = unsaved changes. Save or <b>Ctrl+S</b>. Double-click the big title = rename.'),
-  TR('Si cambias de canción o entras al directo con cambios pendientes, sale <b>Cambios sin guardar</b>: <b>Cancelar</b> (no hace nada), <b>Descartar</b> o <b>Guardar y seguir</b>.','If you switch songs or enter live mode with pending changes, you get <b>Unsaved changes</b>: <b>Cancel</b> (does nothing), <b>Discard</b> or <b>Save and continue</b>.'),
+  TR('<b>Todo se guarda solo</b>, al momento: no hay botón Guardar. Ctrl+Z deshace (también después de cerrar la app). Para probar ideas sin tocar la canción, <b>duplícala</b> antes.','<b>Everything saves by itself</b>, right away: there is no Save button. Ctrl+Z undoes (even after closing the app). To try ideas without touching the song, <b>duplicate it</b> first.'),
+  TR('Toca el <b>título grande</b> de la canción: <b>renombrar</b>, <b>duplicar</b> (te lleva a la copia; la original no cambia) o <b>volver a como estaba al abrirla</b>.','Tap the song\'s <b>big title</b>: <b>rename</b>, <b>duplicate</b> (takes you to the copy; the original stays as it was) or <b>go back to how it was when you opened it</b>.'),
   '<b>'+ICO('undo-2')+' '+ICO('redo-2')+TR('</b> de la barra de abajo (o Ctrl+Z / Ctrl+Y) deshacen y rehacen cualquier cambio de la canción.','</b> on the bottom bar (or Ctrl+Z / Ctrl+Y) undo and redo any change to the song.')]},
  {id:'tono',ic:'music',t:TR('Tonalidad y acordes','Key and chords'),p:TR('El círculo y la paleta dan los acordes que encajan en la tonalidad, cada uno con el color de su grado.','The circle and the palette give the chords that fit the key, each with the colour of its degree.'),li:[
   TR('<b>+ / −</b> (arriba a la izquierda del círculo): alterna entre la tonalidad mayor (+) y su menor relativa (−). Los acordes, los grados y las funciones pasan a contarse desde la menor; es lo mismo que «ver como menor relativa» de los trucos.','<b>+ / −</b> (top left of the circle): switches between the major key (+) and its relative minor (−). Chords, degrees and functions are then counted from the minor; same as “view as relative minor” in the tricks.'),
@@ -7896,7 +7969,7 @@ const MAN=[
   TR('<b>Automáticos:</b> en la paleta de color, «automáticos…», o en <b>Ajustes → colores automáticos</b>. Cada regla son unas palabras y un color: pinta las secciones cuyo nombre contiene esas palabras, sin mirar mayúsculas ni tildes y por principio de palabra («coro» pinta «Coros» y «Pre-coro»).','<b>Automatic:</b> in the colour palette, “automatic…”, or in <b>Settings → automatic colours</b>. Each rule is a few words and a colour: it paints the sections whose name contains those words, ignoring capitals and accents and matching the start of a word (“chorus” paints “Chorus 2” and “Pre-chorus”).'),
   TR('Si dos reglas coinciden, <b>manda la de arriba</b> (con ↑ subes una regla). Por eso «pre» va antes que «coro».','If two rules match, <b>the one above wins</b> (↑ moves a rule up). That\'s why “pre” goes before “chorus”.'),
   TR('De partida: pre → amarillo, solo → rojo, puente/bridge → morado, coro/estribillo/chorus → naranja, verso/estrofa/verse → azul, y dos reglas vacías para las tuyas. «Reglas de partida» las restablece.','Starting set: pre → yellow, solo → red, bridge → purple, chorus → orange, verse → blue, and two empty rules for your own. “Starting rules” restores them.'),
-  TR('<b>Aplicar a:</b> esta canción (queda «sin guardar» y Ctrl+Z deshace), el set activo o toda la biblioteca (se guarda al momento; mientras la app siga abierta, «deshacer el último pintado» devuelve los colores de antes).','<b>Apply to:</b> this song (it stays “unsaved” and Ctrl+Z undoes it), the active set or the whole library (saved right away; while the app stays open, “undo the last painting” brings back the previous colours).'),
+  TR('<b>Aplicar a:</b> esta canción (Ctrl+Z deshace), el set activo o toda la biblioteca (se guarda al momento; mientras la app siga abierta, «deshacer el último pintado» devuelve los colores de antes).','<b>Apply to:</b> this song (Ctrl+Z undoes it), the active set or the whole library (saved right away; while the app stays open, “undo the last painting” brings back the previous colours).'),
   TR('Opciones: pintar también al <b>crear o renombrar</b> una sección, y quitar el color a las que no coinciden. Las reglas son de este aparato.','Options: also paint when you <b>create or rename</b> a section, and remove the colour from those that don\'t match. Rules belong to this device.')]},
  {id:'sonido',ic:'audio-lines',t:TR('Escuchar y batería','Listening and drums'),p:TR('Todos los controles de reproducción viven en la barra de abajo.','All the playback controls live on the bottom bar.'),li:[
   '<b>'+ICO('play')+TR(' Reproducir</b> (o la barra espaciadora) toca la canción entera; la tarjeta que suena se ilumina.',' Play</b> (or the space bar) plays the whole song; the card that is sounding lights up.'),
@@ -7912,7 +7985,7 @@ const MAN=[
   TR('<b>Pantalla</b> (de este aparato, para todas las canciones): tema automático, claro u oscuro · <b>resaltar</b> cada acorde o solo la sección (en directo, si la banda no va clavada al clic, la sección es más fiable) · <b>reproducción en el directo</b>.','<b>Display</b> (for this device, all songs): automatic, light or dark theme · <b>highlight</b> each chord or just the section (live, if the band isn\'t locked to the click, the section is more reliable) · <b>playback in live mode</b>.'),
   TR('Y dos atajos: <b>colores automáticos</b> y este <b>manual</b>.','And two shortcuts: <b>automatic colours</b> and this <b>manual</b>.')]},
  {id:'canciones',ic:'folder',t:TR('Canciones, sets y carpetas','Songs, sets and folders'),p:TR('La pestaña con el nombre de la canción abre el panel «Canciones».','The tab with the song name opens the “Songs” panel.'),li:[
-  TR('<b>⏮ ⏭</b> junto al nombre pasan a la canción anterior o siguiente del <b>set activo</b> (o de la biblioteca si no hay set), como en el directo. Si hay cambios sin guardar, pregunta antes.','<b>⏮ ⏭</b> next to the name go to the previous or next song of the <b>active set</b> (or of the library if there is no set), as in live mode. If there are unsaved changes, it asks first.'),
+  TR('<b>⏮ ⏭</b> junto al nombre pasan a la canción anterior o siguiente del <b>set activo</b> (o de la biblioteca si no hay set), como en el directo. ','<b>⏮ ⏭</b> next to the name go to the previous or next song of the <b>active set</b> (or of the library if there is no set), as in live mode.'),
   TR('<b>SET:</b> eliges el set (o «todas las canciones»), creas, renombras o borras sets y ordenas sus canciones arrastrando ','<b>SET:</b> you choose the set (or “all songs”), create, rename or delete sets and reorder their songs by dragging ')+ICO('grip-vertical')+TR('. <b>BIBLIOTECA:</b> tus canciones en carpetas de un nivel, con buscador.','. <b>LIBRARY:</b> your songs in folders, with a search box.'),
   '<b>'+ICO('plus')+TR(' Nueva</b> pide nombre, carpeta, plantilla (vacía o Intro · Verse · Chorus… ya preparada para la batería) y si va al set activo.',' New</b> asks for name, folder, template (empty or Intro · Verse · Chorus… ready for the drums) and whether it goes into the active set.'),
   '<b>'+ICO('square')+TR(' Editar</b> marca canciones para añadirlas o quitarlas del set, moverlas de carpeta, duplicarlas, renombrarlas, exportarlas o borrarlas.',' Edit</b> check songs to add them to or remove them from the set, move them to a folder, duplicate, rename, export or delete them.')]},
@@ -8956,7 +9029,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(mod&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))&&!inField){e.preventDefault();doRedo();return;}
-  if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();document.getElementById('savebtn').click();return;}
+  if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();autoSave();if(typeof syOn==='function'&&syOn())sync({force:true});toast(TR('Guardado (se guarda solo)','Saved (it saves by itself)'));return;}
   if(e.key==='Escape'){
     const modal=document.getElementById('modal');
     if(!modal.hidden){modal.hidden=true;pendingNext=null;return;}
@@ -9197,14 +9270,14 @@ document.getElementById('newsec').addEventListener('keydown',e=>{
 });
 
 /* canciones */
-document.getElementById('savebtn').addEventListener('click',saveSong);
+document.getElementById('savebtn').addEventListener('click',()=>{autoSave();if(syOn())sync({force:true});});
 document.getElementById('songtab').addEventListener('click',()=>{songPanelOpen()?closeSongMenu():openSongPanel();});
 document.getElementById('spclose').addEventListener('click',closeSongMenu);
 document.getElementById('spback').addEventListener('click',()=>{if(manualOpen())closeManual();if(songPanelOpen())closeSongMenu();});
 document.getElementById('newbtn').addEventListener('click',openNueva);
 document.getElementById('spfile').addEventListener('click',openArchivo);
 document.getElementById('spedit').addEventListener('click',()=>{SP.edit=!SP.edit;SP.sel.clear();renderSongs();});
-document.getElementById('prname').addEventListener('dblclick',startTitleRename);
+document.getElementById('prname').addEventListener('click',songTitleMenu);
 /* clics dentro del panel de canciones */
 document.getElementById('songmenu').addEventListener('click',e=>{
   const t=e.target;
@@ -10253,6 +10326,8 @@ restore();
 try{if(STORE.getItem('gc-mix')===null)mixSave();}catch(e){} /* primera vez: lo que tenía la última canción pasa a ser del aparato */
 /* enlaza el autosave antiguo (por nombre) con la biblioteca migrada */
 if(!S.songId&&S.songName){const e=LIB.find(x=>x.name===S.songName);if(e)S.songId=e.id;}
+undoLoad();
+setTimeout(()=>autoSave(),1500); /* lo que quedara a medio guardar al cerrar */
 S.selChord=currentChords()[0];
 
 syncControls();
@@ -10336,7 +10411,7 @@ const APP_VER='2026.11.28';
   };
   const toca=()=>{
     if(!nueva){mira(true);return;}
-    if(isDirty()){toast(TR('Guarda la canción antes de actualizar (Guardar o Ctrl+S)','Save the song before updating (Save or Ctrl+S)'));return;}
+    autoSave();persistNow();
     location.reload();
   };
   el.addEventListener('click',toca);
@@ -10545,14 +10620,14 @@ function syApply(r){
   if(ch.songs||ch.folders||ch.sets){if(songPanelOpen())renderSongs();updateLiveBar();}
   if(curUpd&&!isDirty()){
     const e=loadLib().find(x=>x.id===S.songId);
-    if(e){applySnapshot(e);S.songId=e.id;S.songName=e.name;S.selChord=currentChords()[0];clearHistory();markClean();syncControls();renderAll();
+    if(e){pushUndo(); /* lo de antes queda en Ctrl+Z */applySnapshot(e);S.songId=e.id;S.songName=e.name;S.selChord=currentChords()[0];markClean();undoSave();syncControls();renderAll();
       toast('«'+e.name+TR('» actualizada desde otro dispositivo','» updated from another device'));}
   }
 }
 const syCopyName=n=>(n||TR('Sin título','Untitled'))+TR(' (otro dispositivo)',' (other device)');
 
 /* ── sincronizar ── */
-function sySchedule(ms){clearTimeout(SY.t);if(!syOn())return;SY.t=setTimeout(()=>sync(),ms==null?4000:ms);syPaint();}
+function sySchedule(ms){clearTimeout(SY.t);if(!syOn())return;SY.t=setTimeout(()=>sync(),ms==null?1500:ms);syPaint();}
 async function sync(o){
   o=o||{};
   if(!syOn())return;
@@ -10717,7 +10792,7 @@ function renderSyncSec(onlyIfOpen){
     conf:'<span class="syko">'+ICO('cloud-alert')+' '+SY.conf.length+TR(' canción(es) cambiadas en dos dispositivos</span>',' song(s) changed on two devices</span>')}[st]||'';
   box.innerHTML='<div class="who">'+G+'<span><b>'+esc(m.email||TR('Cuenta de Google','Google account'))+'</b><br><small>'+TR('Google Drive · carpeta de la app','Google Drive · app folder')+'</small></span></div>'+
     '<div class="st">'+lab+' · '+lib.length+TR(' canciones · ',' songs · ')+loadSetl().lists.length+' sets · '+loadFolders().length+TR(' carpetas',' folders')+'<br>'+
-    TR('Se sincroniza solo al abrir, al guardar y al volver a la app.','Syncs by itself on opening, on saving and on returning to the app.')+'</div>'+
+    TR('Se sincroniza sola: tus cambios suben a los pocos segundos y los de tus otros dispositivos llegan en unos segundos con la app a la vista.','Syncs by itself: your changes go up within seconds and those from your other devices arrive within seconds while the app is on screen.')+'</div>'+
     '<div class="row"><button type="button" class="sbtn" id="synow">'+ICO('refresh-cw')+(st==='auth'?TR(' Entrar y sincronizar',' Sign in and sync'):TR(' Sincronizar ahora',' Sync now'))+'</button>'+
     '<button type="button" class="sbtn" id="syunlink">'+TR('Desvincular','Unlink')+'</button></div>';
 }
@@ -10728,6 +10803,7 @@ function renderSyncSec(onlyIfOpen){
     'cloud-off':'<path d="m2 2 20 20"/><path d="M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.19"/><path d="M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10.12 5.1"/>',
     'cloud-upload':'<path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/>',
     'cloud-alert':'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 10v3"/><path d="M12 16h.01"/>',
+    'rotate-ccw':'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
     'refresh-cw':'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>'});
   /* indicador junto a Guardar */
   const sv=document.getElementById('savebtn');
@@ -10750,11 +10826,12 @@ function renderSyncSec(onlyIfOpen){
   renderSyncSec();
   /* cada cambio guardado en la biblioteca, sets, carpetas o ajustes generales programa una sincronización */
   STORE.onset=k=>{if(!SY.quiet&&SYNC_WATCH.includes(k))sySchedule();};
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&syOn()&&Date.now()-(syMeta().last||0)>20000)sync();});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&syOn()&&Date.now()-(syMeta().last||0)>3000)sync();});
   window.addEventListener('online',()=>{if(syOn())sync();});
   window.addEventListener('offline',()=>{if(syOn()&&!SY.busy){SY.state='off';syPaint();}});
   if(syOn()){if(GDRIVE_CLIENT_ID)syLoadGIS().catch(()=>{});SY.state='';syPaint();setTimeout(()=>sync(),1500);}
-  /* vigilancia ligera (2026-11-26, Rodney): con la app a la vista, cada 45 s pregunta al Drive solo la versión del
+  /* 2026-11-28: cada 4 s (antes 45) para que los cambios de otro dispositivo lleguen casi al momento.
+     vigilancia ligera (2026-11-26, Rodney): con la app a la vista, cada 45 s pregunta al Drive solo la versión del
      archivo; si otro dispositivo guardó algo, sincroniza. Nunca mientras suena una canción (ni en el Directo ni en el
      Estudio: no se cambia nada en pleno bolo), ni con un diálogo abierto, ni si la sesión de Google caducó (no abre
      ventanas solo). La canción abierta solo se recarga si no tiene cambios sin guardar. */
@@ -10762,7 +10839,7 @@ function renderSyncSec(onlyIfOpen){
     if(!syOn()||SY.busy||document.hidden||!navigator.onLine||!syTok()||play.on||dlgOpen()||SY.state==='conf'||SY.state==='link')return;
     const m=syMeta();if(!m.base)return;
     try{const f=await gdFind();if(f&&String(f.version)!==String(m.ver)&&!play.on)sync();}catch(e){}
-  },45000);
+  },4000);
 })();
 </script>
 </body>
