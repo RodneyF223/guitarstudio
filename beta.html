@@ -1240,20 +1240,18 @@
   /* 2026-11-12 · tarjetas encogidas para que quepan 4 por fila (.tight lo pone fitCards cuando --cs < 1): el nombre del
      acorde se quedaba sin sitio entre el grado y los botones ⧉ × (F♯m7♭5 salía diminuto). Aquí el nombre ocupa toda la
      fila de arriba y ⧉ × ↵ van abajo, junto a la duración, en el sitio del rótulo del voicing (que ya salía cortado). */
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot){display:grid;grid-template-columns:auto 1fr auto auto auto;
-    grid-template-areas:"deg name name name name" "dg dg dg dg dg" "chip . dup x br";align-items:center;column-gap:3px;row-gap:1px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-top,
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-bot{display:contents}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-deg{grid-area:deg;margin-left:3px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-name{grid-area:name;padding-left:3px;overflow:hidden}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot)>svg{grid-area:dg;justify-self:center}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .mchip{grid-area:chip;margin-left:3px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-dup{grid-area:dup}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-x{grid-area:x}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-br{grid-area:br;margin-right:2px}
-  body:not(.live) .tight .secrow:not(.compact) .slot:not(.ncslot) .sl-v{display:none}
+  /* 2026-11-28 · ⧉ × ↵ van siempre abajo, repartidos a partes iguales en la fila de la duración (cada uno con su
+     tercio del ancho = diana grande para el dedo). Arriba queda el nombre con todo el ancho y, si sobra sitio, el rótulo
+     del voicing en gris; en las tarjetas encogidas (.tight) el rótulo se oculta y el nombre ocupa la fila entera. */
+  body:not(.live) .tight .secrow:not(.compact) .slot .sl-v:not(.ncdr){display:none}
   .sl-x:hover{color:var(--danger)}
   .sl-bot{display:flex;align-items:center;gap:6px;width:100%;padding:0 3px}
+  .sl-btns{display:flex;flex:1;min-width:0;align-items:center}
+  .sl-btns>button{flex:1 1 0;justify-content:center;padding:3px 0;min-width:0}
+  .sl-top .sl-name{flex:1 0 auto}
+  .sl-top .sl-v{flex:0 1 auto;min-width:0;text-align:right}
+  @media (pointer:coarse){.sl-btns>button::after{inset:-9px 0}}
+  .secrow.compact .sl-btns,body.live .sl-btns{display:none}
   /* duración: ficha invertida (como el contador del kit) */
   .mchip{border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:0;
     font-family:var(--font-n);font-size:13.5px;font-weight:700;padding:1px 7px}
@@ -3700,20 +3698,20 @@ function slotHTML(sl,si,ei,mids){
     const para=sl.drums!=='go';
     return '<div class="slot ncslot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
       '<div class="sl-top"><span class="sl-deg ncdeg">—</span><span class="sl-name">'+RESTICO()+'</span>'+
-      TR('<button class="sl-dup" title="Duplicar · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button></div>'+
+      TR('<button class="sl-v ncdr" title="Qué hace la batería durante el silencio — clic para cambiar">','<button class="sl-v ncdr" title="What the drums do during the rest — click to change">')+(para?ICO('drum')+' para':ICO('drum')+' sigue')+'</button></div>'+
       TR('<div class="ncbox"><b>silencio</b><span>corta lo que suena</span></div>','<div class="ncbox"><b>rest</b><span>cuts what is ringing</span></div>')+
-      '<div class="sl-bot">'+mc+
-      TR('<button class="sl-v ncdr" title="Qué hace la batería durante el silencio — clic para cambiar">','<button class="sl-v ncdr" title="What the drums do during the rest — click to change">')+(para?ICO('drum')+' para':ICO('drum')+' sigue')+'</button>'+
-      brb+'</div></div>';
+      '<div class="sl-bot">'+mc+'<div class="sl-btns">'+
+      TR('<button class="sl-dup" title="Duplicar · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button>'+
+      brb+'</div></div></div>';
   }
   return '<div class="slot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
     '<div class="sl-top"><span class="sl-deg '+txtOn(sl.chord.degNum)+'" style="background:'+sl.chord.color+'">'+esc(sl.chord.deg)+'</span>'+
     '<span class="sl-name">'+esc(sl.voicing.disp||sl.chord.label)+'</span>'+
-    TR('<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate chord · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button></div>'+
+    '<span class="sl-v">'+esc(sl.voicing.vname)+'</span></div>'+
     chordSVG(sl.voicing,'dg-sm',null,secFrets(S.sections[si]))+
-    '<div class="sl-bot">'+mc+
-    '<span class="sl-v">'+esc(sl.voicing.vname)+'</span>'+
-    brb+'</div></div>';
+    '<div class="sl-bot">'+mc+'<div class="sl-btns">'+
+    TR('<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate chord · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button>'+
+    brb+'</div></div></div>';
 }
 /* ── duración de cada acorde, en TIEMPOS (sl.beats) ──────────────
    Antes solo existía sl.measures (compases). Al abrir una canción antigua:
