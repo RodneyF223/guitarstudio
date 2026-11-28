@@ -1241,15 +1241,13 @@
      acorde se quedaba sin sitio entre el grado y los botones ⧉ × (F♯m7♭5 salía diminuto). Aquí el nombre ocupa toda la
      fila de arriba y ⧉ × ↵ van abajo, junto a la duración, en el sitio del rótulo del voicing (que ya salía cortado). */
   /* 2026-11-28 · ⧉ × ↵ van siempre abajo, repartidos a partes iguales en la fila de la duración (cada uno con su
-     tercio del ancho = diana grande para el dedo). Arriba queda el nombre con todo el ancho y, si sobra sitio, el rótulo
-     del voicing en gris; en las tarjetas encogidas (.tight) el rótulo se oculta y el nombre ocupa la fila entera. */
-  body:not(.live) .tight .secrow:not(.compact) .slot .sl-v:not(.ncdr){display:none}
+     tercio del ancho = diana grande para el dedo). Arriba solo grado + nombre, con todo el ancho: el rótulo del voicing
+     («Open chord»…) se quitó de la tarjeta (nunca se leía entero; el nombre del voicing sigue en el apartado de voicings). */
   .sl-x:hover{color:var(--danger)}
   .sl-bot{display:flex;align-items:center;gap:6px;width:100%;padding:0 3px}
   .sl-btns{display:flex;flex:1;min-width:0;align-items:center}
   .sl-btns>button{flex:1 1 0;justify-content:center;padding:3px 0;min-width:0}
-  .sl-top .sl-name{flex:1 0 auto}
-  .sl-top .sl-v{flex:0 1 auto;min-width:0;text-align:right}
+  .sl-top .ncdr{flex:none}
   @media (pointer:coarse){.sl-btns>button::after{inset:-9px 0}}
   .secrow.compact .sl-btns,body.live .sl-btns{display:none}
   /* duración: ficha invertida (como el contador del kit) */
@@ -3707,7 +3705,7 @@ function slotHTML(sl,si,ei,mids){
   return '<div class="slot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
     '<div class="sl-top"><span class="sl-deg '+txtOn(sl.chord.degNum)+'" style="background:'+sl.chord.color+'">'+esc(sl.chord.deg)+'</span>'+
     '<span class="sl-name">'+esc(sl.voicing.disp||sl.chord.label)+'</span>'+
-    '<span class="sl-v">'+esc(sl.voicing.vname)+'</span></div>'+
+    '</div>'+
     chordSVG(sl.voicing,'dg-sm',null,secFrets(S.sections[si]))+
     '<div class="sl-bot">'+mc+'<div class="sl-btns">'+
     TR('<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate chord · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button>'+
