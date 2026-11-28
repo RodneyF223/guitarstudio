@@ -834,8 +834,38 @@
   .vsec-h .vpos+.vcnt::before{content:'· '}
   .vsec-h .vsh{text-transform:none;letter-spacing:.02em}
   .vsec.fold .vsec-h{border-bottom-color:var(--line)}
+  /* 2026-11-28 · cajas que se recogen, sin palabras: cabecera rellena como una pestaña, flecha grande que gira,
+     el contenido cuelga de ella (borde a la izquierda), recogida enseña siluetas de lo que guarda, tirador al final,
+     la cabecera se pega arriba mientras estás dentro y se pliega con un movimiento corto */
+  #voicings .vsec{margin-top:10px}
+  #voicings .vsec-h{position:sticky;top:var(--vstick,0px);z-index:6;min-height:46px;padding:6px 6px 6px 8px;gap:10px;
+    background:var(--surf1);border:1.5px solid var(--line2);cursor:pointer}
+  #voicings .vsec:not(.fold) .vsec-h{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+  #voicings .vsec:not(.fold) .vsec-h .vnum{background:var(--panel);color:var(--ink)}
+  #voicings .vsec-h .vtit{flex:0 1 auto}
+  .vmini{display:flex;gap:5px;flex:1;min-width:0;overflow:hidden;color:var(--mut2);transition:opacity .2s}
+  .vmini svg{flex:none}
+  #voicings .vsec:not(.fold) .vmini{opacity:0}
+  .vfbtn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1.5px solid currentColor;color:inherit!important}
+  .vfbtn .ic{width:20px;height:20px;stroke-width:2.4}
+  #voicings .vsec:not(.fold) .vfbtn{transform:rotate(180deg)}
+  #voicings .vsec.fold .vsec-h .fchev{transform:none}
+  .vbody{display:grid;grid-template-rows:1fr;transition:grid-template-rows .22s ease}
+  .vsec.fold .vbody{grid-template-rows:0fr}
+  .vin{min-height:0;overflow:hidden;border-left:3px solid var(--ink);border-bottom:1.5px solid var(--line2);border-right:1.5px solid var(--line2);padding:0 10px}
+  .vsec.fold .vin{border-color:transparent}
+  #voicings .vsec.fold .vgrid,#voicings .vsec.fold .vsmall{display:grid}
+  .vgrip{display:flex;align-items:center;justify-content:center;width:100%;height:30px;margin:10px 0 4px;border:0;background:none;color:var(--mut2);cursor:pointer}
+  .vgrip .ic{width:22px;height:22px;stroke-width:2.4;transform:rotate(180deg)}
+  .vgrip::before,.vgrip::after{content:'';flex:1;height:1.5px;background:var(--line2);margin:0 10px}
+  .vgrip:hover{color:var(--ink)}
   .vsec.fold .vgrid,.vsec.fold .vtri{display:none}
   .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;padding-top:10px}
+  .vsmall{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--mx)*128px + (var(--mx) - 1)*10px),1fr));gap:12px 22px;padding-top:10px}
+  .vsec.fold .vsmall{display:none}
+  .vsmall .vgrid{grid-template-columns:repeat(var(--mx),minmax(0,1fr));padding-top:6px}
+  .vsmall .vrow{display:block;margin:0;font-family:var(--font-n);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut2)}
+  .vsmall .vtop .vcaged{flex-basis:100%;margin-top:7px}
   .vcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 6px 8px;min-width:0;
     border:1.5px solid var(--line);border-radius:0;background:var(--panel);cursor:grab}
   .vcard:hover{border-color:var(--line2)}
@@ -3085,6 +3115,7 @@ function palStripPos(){
   if(on&&!PSTRIP.classList.contains('on')){PSTRIP.classList.add('on');requestAnimationFrame(()=>PSTRIP.classList.add('comp'));}
   else if(!on&&PSTRIP.classList.contains('on'))PSTRIP.classList.remove('on','comp');
   pal.classList.toggle('stuck',on); /* la original se oculta mientras está enganchada: que no se vea doble */
+  document.documentElement.style.setProperty('--vstick',(top+(on?PSTRIP.offsetHeight:0))+'px'); /* bajo ella se pega la cabecera del grupo de voicings */
 }
 function palStripPick(i){
   const ch=PALETTE[i];if(!ch)return;
@@ -3260,6 +3291,16 @@ function vCardHTML(v,i,label,extra,ghost){
     '<div class="vtop">'+(label?'<span class="vn">'+esc(label)+'</span>':'')+chips+(extra||'')+'</div>'+chordSVG(v,'dg-lg',ghost)+
     '<button class="addb vplus" data-vi="'+i+TR('" title="Añadir a la sección activa" aria-label="Añadir a la sección activa">','" title="Add to the active section" aria-label="Add to the active section">')+ICO('plus')+'</button></div>';
 }
+/* 2026-11-28: silueta diminuta de un diagrama (para la cabecera recogida: «dentro hay esto») */
+function vMiniSVG(v){
+  const f=v.frets.filter(x=>x>0),lo=f.length?Math.min(...f):1,b=lo<=2?1:lo;
+  let s='<svg viewBox="0 0 17 20" width="17" height="20"><g stroke="currentColor" stroke-width=".8" opacity=".55">';
+  for(let i=0;i<6;i++)s+='<line x1="'+(1.5+i*2.8)+'" y1="2" x2="'+(1.5+i*2.8)+'" y2="19"/>';
+  for(let j=0;j<5;j++)s+='<line x1="1.5" y1="'+(2+j*4.25)+'" x2="15.5" y2="'+(2+j*4.25)+'"/>';
+  s+='</g>'+(b===1?'<rect x="1.5" y="1" width="14" height="1.8" fill="currentColor"/>':'');
+  v.frets.forEach((fr,i)=>{if(fr>0&&fr-b<4)s+='<circle cx="'+(1.5+i*2.8)+'" cy="'+(4.1+(fr-b)*4.25)+'" r="1.45" fill="currentColor"/>';});
+  return s+'</svg>';
+}
 /* mini-mástil: una barra por forma, en su zona (trastes 0–15) */
 function vMapHTML(fams){
   const L=fams.filter(f=>f.bar);if(!L.length)return '';
@@ -3314,54 +3355,74 @@ function renderVoicings(){
     '<div class="tones">'+tones+'</div>'+
     '<span class="vhint">'+esc(ch.label)+' '+esc(QUAL_ES[ch.quality])+TR(' · grado ',' · degree ')+esc(ch.deg)+TR('. Clic en el nombre o en un diagrama = el acorde y luego sus notas una a una · clic en una nota = esa nota. Arrastra un diagrama o pulsa ','. Click the name or a diagram = the chord and then its notes one by one · click a note = that note. Drag a diagram or press ')+ICO('plus')+TR(' para añadirlo a la progresión.</span>',' to add it to the progression.</span>');
   const q=ch.quality,sh=VSHAPE[q]||VSHAPE.maj;
-  const G={};VOICINGS.forEach((v,i)=>{const k=vFam(v);(G[k]=G[k]||[]).push(i);});
+  /* 2026-11-28 · 4 apartados pensados para el músico (antes 9, varios con un solo acorde):
+     1 abierto (principiante) · 2 por el mástil: las 5 formas CAGED completas, en orden de traste ·
+     3 acordes pequeños (tríadas, quintas, shells): una fila por juego de cuerdas, subiendo por el mástil ·
+     4 color (maj7, 6, 9, add9, sus…): agrupados por tipo. Listas corridas: sin columnas fijas ni huecos. */
+  const SHP={r6:sh[0],r5:sh[1],cC:'C',cG:'G',cD:'D',r4:'D7'};
+  const lowF=v=>{const f=v.frets.filter(x=>x>0);return f.length?Math.min(...f):0;};
+  const hiF=v=>Math.max(0,...v.frets);
+  const isFifth=v=>v._m&&v._m.short===TR('Quinta','Fifth');
+  const isShell=v=>v._m&&/^Shell/.test(v._m.short||'');
+  const B={open:[],neck:[],small:[],color:[],x:[]};
+  VOICINGS.forEach((v,i)=>{const f=vFam(v),m=v._m;
+    if(f==='tri'||isFifth(v)||isShell(v))B.small.push(i);
+    else if(m&&m.kind==='col')B.color.push(i);
+    else if(f==='x')B.x.push(i);
+    else B.neck.push(i);}); /* el acorde abierto es la primera posición del mástil */
+  const byFret=(a,b)=>lowF(VOICINGS[a])-lowF(VOICINGS[b])||hiF(VOICINGS[a])-hiF(VOICINGS[b]);
+  B.neck.sort((a,b)=>(vFam(VOICINGS[b])==='open')-(vFam(VOICINGS[a])==='open')||byFret(a,b));
+  const fretTxt=v=>{const lo=lowF(v);return lo?TR('traste ','fret ')+lo:TR('al aire','open');};
+  const triName=v=>{const m=v._m;if(!m.inv)return nName(ch.pc,ch.flat)+SUFFIX[q==='dom7'?'maj':q];return v.disp||'';};
   const fams=[
-    {k:'open',t:TR('Abierto','Open'),bar:TR('abierto','open')},
-    {k:'r6',t:TR('Fundamental en 6ª · forma ','Root on the 6th string · shape '),sh:sh[0],bar:TR('forma ','shape ')+sh[0]},
-    {k:'r5',t:TR('Fundamental en 5ª · forma ','Root on the 5th string · shape '),sh:sh[1],bar:TR('forma ','shape ')+sh[1]},
-    {k:'cC',t:TR('Fundamental en 5ª · forma ','Root on the 5th string · shape '),sh:'C',bar:TR('forma ','shape ')+'C'},
-    {k:'cG',t:TR('Fundamental en 6ª · forma ','Root on the 6th string · shape '),sh:'G',bar:TR('forma ','shape ')+'G'},
-    {k:'cD',t:TR('Fundamental en 4ª · forma ','Root on the 4th string · shape '),sh:'D',bar:TR('forma ','shape ')+'D'},
-    {k:'r4',t:TR('Fundamental en 4ª · forma ','Root on the 4th string · shape '),sh:'D7',bar:TR('forma D7','D7 shape')},
-    {k:'tri',t:TR('Tríadas · inversiones','Triads · inversions')+(q==='dom7'?TR(' (sin 7ª)',' (no 7th)'):'')},
-    {k:'x',t:TR('Otras','Other')}
-  ].filter(f=>G[f.k]);
-  /* número de cada sección y su zona (sin contar las que caen una octava más arriba) */
-  fams.forEach((f,n)=>{f.n=n+1;
-    if(f.k==='tri'||f.k==='x')return;
-    const z0=VOICINGS[G[f.k][0]]._m.z;let lo=99,hi=0;
-    G[f.k].forEach(i=>{const v=VOICINGS[i];if(f.k!=='open'&&Math.abs(v._m.z-z0)>=7)return;
-      v.frets.forEach(fr=>{if(fr>0){lo=Math.min(lo,fr);hi=Math.max(hi,fr);}});});
-    f.z0=z0;f.lo=(f.k==='open'||lo===99)?0:lo;f.hi=hi;
-    f.pos=(f.lo===f.hi?TR('traste ','fret ')+f.lo:TR('trastes ','frets ')+f.lo+'–'+f.hi);
-  });
-  const octTag=(v,f)=>{if(f.k==='open'||!v._m)return '';const d=v._m.z-f.z0;
-    return d>=7?TR('<span class="voct">8ª arriba</span>','<span class="voct">8ve up</span>'):d<=-7?TR('<span class="voct">8ª abajo</span>','<span class="voct">8ve down</span>'):'';};
-  let h=vMapHTML(fams);
+    {k:'neck',t:TR('Por el mástil · abierto y formas CAGED','Along the neck · open and CAGED shapes'),ids:B.neck},
+    {k:'small',t:TR('Acordes pequeños · tríadas y quintas','Small chords · triads and fifths'),ids:B.small},
+    {k:'color',t:TR('Color','Colour')+' · '+[...new Set(B.color.map(i=>(VOICINGS[i]._m.short||'').replace(nName(ch.pc,ch.flat),'')))].join(' · '),ids:B.color},
+    {k:'x',t:TR('Otras','Other'),ids:B.x}
+  ].filter(f=>f.ids.length);
+  fams.forEach((f,n)=>{f.n=n+1;});
+  /* mapa del mástil: una barra por forma CAGED del apartado «por el mástil» */
+  const nf=fams.find(f=>f.k==='neck');
+  const bars=nf?nf.ids.filter(i=>vFam(VOICINGS[i])!=='open').map(i=>{const v=VOICINGS[i],L=SHP[v._m.fam]||'';
+    return {k:'neck',n:nf.n,t:TR('forma ','shape '),sh:L,bar:L?TR('forma ','shape ')+L:fretTxt(v),lo:lowF(v),hi:hiF(v)};}):[];
+  let h=vMapHTML(bars);
   fams.forEach(f=>{
-    const fold=!foldOpen('v-'+f.k,true),n=G[f.k].length;
+    const fold=!foldOpen('v-'+f.k,true),n=f.ids.length;
     h+='<div class="vsec'+(fold?' fold':'')+'" id="vsec-'+f.k+'">'+
       '<button class="vsec-h" data-vfold="'+f.k+'" aria-expanded="'+(!fold)+'"><span class="vnum">'+f.n+'</span>'+
-      '<span class="vtit">'+esc(f.t)+(f.sh?'<span class="vsh">'+esc(f.sh)+'</span>':'')+'</span>'+(f.pos?'<span class="vpos">'+f.pos+'</span>':'')+
-      '<span class="vcnt">'+n+' voicing'+(n===1?'':'s')+'</span>'+'<span class="fchev">'+ICO('chevron-down')+'</span></button>';
-    if(f.k==='tri'){
-      const C={};G.tri.forEach(i=>{const m=VOICINGS[i]._m;C[m.set+':'+m.inv+(m.oct?':8':'')]=i;});
-      const nm=inv=>{if(!inv)return nName(ch.pc,ch.flat)+SUFFIX[q==='dom7'?'maj':q];
-        const i=C['0:'+inv]!==undefined?C['0:'+inv]:C['1:'+inv];return (i!==undefined&&VOICINGS[i].disp)||'';};
+      '<span class="vtit">'+esc(f.t)+'</span>'+
+      '<span class="vmini" aria-hidden="true">'+f.ids.slice(0,12).map(i=>vMiniSVG(VOICINGS[i])).join('')+'</span>'+
+      '<span class="fchev vfbtn">'+ICO('chevron-down')+'</span></button><div class="vbody"><div class="vin">';
+    if(f.k==='small'){
       const tq=q==='dom7'?'maj':q;
-      if(CAGED[tq])h+=TR('<p class="vtrihint">En tenue, el resto de la <b>forma CAGED</b> a la que pertenece cada tríada (la letra marcada).</p>','<p class="vtrihint">Faded, the rest of the <b>CAGED shape</b> each triad belongs to (the marked letter).</p>');
-      h+='<div class="vtri"><span class="vcorner"></span>';
-      [0,1,2].forEach(inv=>{h+='<span class="vth">'+INV_NAMES[inv]+'<b>'+esc(nm(inv))+'</b></span>';});
-      const rows=[];SETS.forEach((st,si)=>{rows.push([si,'']);if([0,1,2].some(inv=>C[si+':'+inv+':8']!==undefined))rows.push([si,':8']);});
-      rows.forEach(([si,o])=>{const st=SETS[si];h+='<span class="vrh">'+esc(st.name).replace(' ',' <br>')+(o?TR('<br><span class="voct">8ª arriba</span>','<br><span class="voct">8ve up</span>'):'')+'</span>';
-        [0,1,2].forEach(inv=>{const i=C[si+':'+inv+o];if(i===undefined){h+='<span></span>';return;}
-          const cg=cagedOf(VOICINGS[i],ch.pc,tq);
-          h+=vCardHTML(VOICINGS[i],i,'',cg?cagedTag(cg.L):'',cg?cg.frets:null);});});
+      if(CAGED[tq]&&f.ids.some(i=>vFam(VOICINGS[i])==='tri'))h+=TR('<p class="vtrihint">Cada fila sube por el mástil. En tenue, la <b>forma CAGED</b> de la que sale cada tríada (la letra marcada).</p>','<p class="vtrihint">Each row climbs the neck. Faded, the <b>CAGED shape</b> each triad comes from (the marked letter).</p>');
+      const rows=[];
+      SETS.forEach((st,si)=>{const ids=f.ids.filter(i=>vFam(VOICINGS[i])==='tri'&&VOICINGS[i]._m.set===si).sort(byFret);if(ids.length)rows.push([st.name,ids,'tri']);});
+      const sh5=f.ids.filter(i=>isShell(VOICINGS[i])).sort(byFret);if(sh5.length)rows.push([TR('shells · 1·♭7·3','shells · 1·♭7·3'),sh5,'shell']);
+      const q5=f.ids.filter(i=>isFifth(VOICINGS[i])).sort(byFret);if(q5.length)rows.push([TR('quintas','fifths'),q5,'q']);
+      const mx=Math.max(...rows.map(r=>r[1].length));
+      /* cada fila es un bloque de mx columnas; si caben dos bloques a lo ancho (tableta apaisada), van lado a lado */
+      h+='<div class="vsmall" style="--mx:'+mx+'">';
+      rows.forEach(([name,ids,kind])=>{
+        h+='<div class="vrowb"><span class="vrow">'+esc(name)+'</span><div class="vgrid">';
+        ids.forEach(i=>{const v=VOICINGS[i];
+          if(kind==='tri'){const cg=cagedOf(v,ch.pc,tq);
+            h+=vCardHTML(v,i,triName(v),cg?cagedTag(cg.L):'',cg?cg.frets:null);}
+          else h+=vCardHTML(v,i,kind==='q'?nName(ch.pc,ch.flat)+'5':v._m.short,'');});
+        h+='</div></div>';
+      });
       h+='</div>';
+    }else if(f.k==='neck'){
+      h+='<div class="vgrid">'+f.ids.map(i=>{const v=VOICINGS[i],L=SHP[v._m&&v._m.fam]||'';
+        const op=vFam(v)==='open';
+        return vCardHTML(v,i,op?TR('Abierto','Open'):L?TR('forma ','shape ')+L:(v._m?v._m.short:v.vname),'');}).join('')+'</div>';
+    }else if(f.k==='color'){
+      const ids=f.ids.slice().sort((a,b)=>String(VOICINGS[a]._m.short).localeCompare(String(VOICINGS[b]._m.short))||byFret(a,b));
+      h+='<div class="vgrid hascol">'+ids.map(i=>{const v=VOICINGS[i];return vCardHTML(v,i,v._m.short,'');}).join('')+'</div>';
     }else{
-      h+='<div class="vgrid'+(G[f.k].some(i=>VOICINGS[i]._m&&VOICINGS[i]._m.kind==='col')?' hascol':'')+'">'+G[f.k].map(i=>{const v=VOICINGS[i];return vCardHTML(v,i,v._m?v._m.short:v.vname,octTag(v,f));}).join('')+'</div>';
+      h+='<div class="vgrid'+(f.ids.some(i=>VOICINGS[i]._m&&VOICINGS[i]._m.kind==='col')?' hascol':'')+'">'+f.ids.map(i=>{const v=VOICINGS[i];return vCardHTML(v,i,v._m?v._m.short:v.vname,'');}).join('')+'</div>';
     }
-    h+='</div>';
+    h+='<button class="vgrip" data-vfold="'+f.k+'" aria-label="'+TR('Recoger','Fold')+'">'+ICO('chevron-down')+'</button></div></div></div>';
   });
   vv.innerHTML=h;
 }
@@ -3453,10 +3514,16 @@ function renderGenVoicings(ch){
   vv.innerHTML=h;
 }
 /* plegar / desplegar secciones y saltar desde el mini-mástil (sin redibujar el panel) */
-function vSetFold(sec,k,fold){
+function vSetFold(sec,k,fold,solo){
+  /* al recoger estando dentro (la cabecera pegada arriba), la página se coloca en la cabecera: no salta */
+  const st=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vstick'))||0;
+  const inside=fold&&sec.getBoundingClientRect().top<st+2;
   foldSet('v-'+k,!fold);
   sec.classList.toggle('fold',fold);
   sec.querySelector('[data-vfold]').setAttribute('aria-expanded',String(!fold));
+  if(inside)window.scrollTo({top:window.scrollY+sec.getBoundingClientRect().top-st-4});
+  /* acordeón: solo un grupo de voicings abierto a la vez */
+  if(!fold&&!solo)document.querySelectorAll('#voicings .vsec:not(.fold)').forEach(o=>{if(o!==sec)vSetFold(o,o.id.replace('vsec-',''),true,true);});
 }
 document.getElementById('voicings').addEventListener('click',e=>{
   const fb=e.target.closest('[data-vfold]');
@@ -7934,7 +8001,7 @@ const MAN=[
   TR('<b>+ / −</b> (arriba a la izquierda del círculo): alterna entre la tonalidad mayor (+) y su menor relativa (−). Los acordes, los grados y las funciones pasan a contarse desde la menor; es lo mismo que «ver como menor relativa» de los trucos.','<b>+ / −</b> (top left of the circle): switches between the major key (+) and its relative minor (−). Chords, degrees and functions are then counted from the minor; same as “view as relative minor” in the tricks.'),
   TR('Clic en una nota <b>gris</b> del círculo = nueva tonalidad: el anillo exterior la fija <b>mayor</b> y el del medio <b>menor</b>.','Click a note <b>grey</b> on the circle = new key: the outer ring sets it as <b>major</b> and the middle one as <b>minor</b>.'),
   TR('Clic en un acorde <b>coloreado</b> (círculo o paleta) = suena y abre sus voicings. Debajo de cada acorde de la paleta va su función: tónica, subdominante o dominante.','Click a chord <b>coloreado</b> (circle or palette) = it sounds and opens its voicings. Under each palette chord is its function: tonic, subdominant or dominant.'),
-  TR('Voicings por forma: <b>abierto</b>, fundamental en 6ª (forma E), en 5ª (forma A) y en 4ª (forma D7, en los 7) y <b>tríadas</b> con inversiones (en tenue, la forma CAGED de la que salen). El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.','Voicings by shape: <b>open</b>, root on the 6th string (E shape), on the 5th (A shape) and on the 4th (D7 shape, for 7ths) and <b>triads</b> with inversions (faded, the CAGED shape they come from). The mini neck above shows where each shape falls: tap it to go there.'),
+  TR('Voicings en 3 cajas: <b>por el mástil</b> (el abierto y las 5 formas CAGED, en orden de traste), <b>acordes pequeños</b> (tríadas por juego de cuerdas, subiendo por el mástil, y quintas; en tenue, la forma CAGED de la que sale cada tríada) y <b>color</b> (maj7, 6, 9, add9, sus…). Solo una caja abierta a la vez: la flecha (o el tirador de abajo) la recoge, y recogida enseña en miniatura lo que guarda. El mini mástil de arriba dice dónde cae cada forma: tócalo para ir.','Voicings in 3 boxes: <b>along the neck</b> (the open chord and the 5 CAGED shapes, in fret order), <b>small chords</b> (triads by string set, climbing the neck, and fifths; faded, the CAGED shape each triad comes from) and <b>colour</b> (maj7, 6, 9, add9, sus…). Only one box open at a time: the arrow (or the handle at the bottom) folds it, and folded it shows a miniature of what it holds. The mini neck above shows where each shape falls: tap it to go there.'),
   TR('Clic en un diagrama = el acorde y luego cada cuerda, de grave a aguda, para educar el oído (cada nota se marca en el diagrama) · clic en el <b>nombre del acorde</b> = el acorde y luego sus notas desde la fundamental · clic en una <b>nota</b> = esa nota sola. La nota que suena se marca arriba · <b>','Click a diagram = the chord and then each string, low to high, for ear training (each note is marked on the diagram) · click the <b>chord name</b> = the chord and then its notes from the root · click a <b>note</b> = that note alone. The note sounding is marked above · <b>')+ICO('plus')+TR('</b> o arrastrarlo = añadirlo a la <b>sección activa</b> (la del nombre enmarcado).','</b> or drag it = add it to the <b>active section</b> (the one with the framed name).'),
   TR('La ficha '+RESTICO()+' del final de la paleta es un silencio: corta lo que suena (la batería sigue o para, se elige en la propia ficha).','The chip '+RESTICO()+' at the end of the palette is a rest: it cuts what is ringing (drums go on or stop, chosen on the chip itself).')]},
  {id:'buscador',ic:'search',t:TR('Buscador: cualquier acorde','Finder: any chord'),p:TR('Para los acordes que no están en la escala, o para ver TODAS las formas de uno que sí está.','For chords that aren\'t in the scale, or to see ALL the shapes of one that is.'),li:[
