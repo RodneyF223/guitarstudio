@@ -2685,7 +2685,7 @@ function getVoicings(ch){
   extVoicings(ch).forEach(add);
   moreVoicings(ch).forEach(add);
   /* 2026-11-28 (Rodney: «faltan voicings del traste 12 hacia arriba»): toda forma que quepa una octava más arriba
-     (hasta el traste 15 del mini-mástil) sale también allí — tríadas, quintas, shells, tensiones… Al FINAL, así
+     (hasta el traste 20 del mini-mástil; antes 15) sale también allí — tríadas, quintas, shells, tensiones… Al FINAL, así
      getVoicings(ch)[0] sigue siendo el de siempre. Las tríadas de arriba van en su propia fila de la tabla. */
   out.filter(v=>v._m&&v._m.fam!=='tri').forEach(v=>{
     const fr=v.frets.map(f=>f<0?-1:f+12);if(Math.max(...fr)>VMAX)return;
@@ -2697,12 +2697,12 @@ function getVoicings(ch){
   return out;
 }
 /* ── más allá del traste 12 (2026-11-26, Rodney: «no está G/C, G en traste 12») ─────────────────────────────────
-   Se añaden al FINAL (getVoicings(ch)[0] sigue siendo el de siempre) y hasta el traste 15, lo que muestra el mini-mástil:
+   Se añaden al FINAL (getVoicings(ch)[0] sigue siendo el de siempre) y hasta el traste 20 (VMAX), lo que muestra el mini-mástil:
    · las tres formas CAGED que faltaban (C, G y D; la E y la A ya son las cejillas), en su sitio y una octava más arriba
      si cabe — así sale el G con forma de G en el traste 12 o el G con forma de C en el 7;
    · las cejillas E y A una octava más arriba cuando caben (F en el 13, B♭ en el 13…);
    · cualquier acorde abierto repetido en el traste 12 (las cuerdas al aire pasan al 12). */
-const VMAX=15;
+const VMAX=20; /* 2026-11-28 (Rodney: arpegios de guitarra eléctrica en los trastes 17–20): antes 15 */
 const CAGED_ROOT={C:TR('fundamental en 5ª','root on the 5th string'),G:TR('fundamental en 6ª','root on the 6th string'),D:TR('fundamental en 4ª','root on the 4th string')};
 function moreVoicings(ch){
   const out=[],q=ch.quality,ok=fr=>fr.some(f=>f>=0)&&Math.max(...fr)<=VMAX&&fr.every(f=>f<0||f>=1);
@@ -2844,12 +2844,12 @@ function genVoicings(ch,inv){
   const minStr=q.id==='5'?2:Math.min(4,Math.max(3,q.t.length));
   const res=[],seen=new Set();
   const okPc=(pc,s,isLow)=>role[pc]!==undefined||(extraBass&&pc===bassPc&&isLow);
-  for(let p=0;p<=12;p++){
+  for(let p=0;p<=VMAX-3;p++){ /* hasta el traste 20 (antes 12+3=15) */
     const opts=[];
     for(let s=0;s<6;s++){
       const o=[-1];
       const op=TUNING[s]%12;if(role[op]!==undefined||(extraBass&&op===bassPc))o.push(0);
-      for(let f=Math.max(1,p);f<=p+3&&f<=15;f++){const pc=(TUNING[s]+f)%12;if(role[pc]!==undefined||(extraBass&&pc===bassPc))o.push(f);}
+      for(let f=Math.max(1,p);f<=p+3&&f<=VMAX;f++){const pc=(TUNING[s]+f)%12;if(role[pc]!==undefined||(extraBass&&pc===bassPc))o.push(f);}
       opts.push(o);
     }
     const F=[-1,-1,-1,-1,-1,-1];
@@ -3340,18 +3340,18 @@ function vMiniSVG(v){
   v.frets.forEach((fr,i)=>{if(fr>0&&fr-b<4)s+='<circle cx="'+(1.5+i*2.8)+'" cy="'+(4.1+(fr-b)*4.25)+'" r="1.45" fill="currentColor"/>';});
   return s+'</svg>';
 }
-/* mini-mástil: una barra por forma, en su zona (trastes 0–15) */
+/* mini-mástil: una barra por forma, en su zona (trastes 0–20) */
 function vMapHTML(fams){
   const L=fams.filter(f=>f.bar);if(!L.length)return '';
-  const X0=4,NUT=30,CW=38,LH=19,GP=5,TOP=18,W=NUT+15*CW+2,H=TOP+L.length*(LH+GP);
-  const fx=n=>n<=0?X0:NUT+(n-1)*CW, fx2=n=>n<=0?NUT:NUT+Math.min(n,15)*CW;
+  const X0=4,NUT=30,CW=30,LH=19,GP=5,TOP=18,W=NUT+VMAX*CW+2,H=TOP+L.length*(LH+GP);
+  const fx=n=>n<=0?X0:NUT+(n-1)*CW, fx2=n=>n<=0?NUT:NUT+Math.min(n,VMAX)*CW;
   const mono=' font-family="IBM Plex Mono,Consolas,monospace"';
   let s='<svg class="vmap" viewBox="0 0 '+W+' '+H+TR('" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dónde cae cada forma en el mástil">','" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Where each shape falls on the neck">')+
     '<text x="'+((X0+NUT)/2)+'" y="12" font-size="11.5" fill="var(--mut)" text-anchor="middle"'+mono+'>0</text>';
-  INLAY_FRETS.filter(n=>n<=15).forEach(n=>{
+  INLAY_FRETS.filter(n=>n<=VMAX).forEach(n=>{
     s+='<rect x="'+fx(n)+'" y="'+(TOP-3)+'" width="'+CW+'" height="'+(H-TOP+3)+'" fill="'+(n===12?'var(--inlay12)':'var(--inlay)')+'"/>'+
       '<text x="'+(fx(n)+CW/2)+'" y="12" font-size="11.5" fill="var(--mut)" text-anchor="middle"'+mono+'>'+n+'</text>';});
-  for(let n=1;n<=15;n++)s+='<line x1="'+fx2(n)+'" y1="'+(TOP-3)+'" x2="'+fx2(n)+'" y2="'+H+'" stroke="var(--line)" stroke-width="1"/>';
+  for(let n=1;n<=VMAX;n++)s+='<line x1="'+fx2(n)+'" y1="'+(TOP-3)+'" x2="'+fx2(n)+'" y2="'+H+'" stroke="var(--line)" stroke-width="1"/>';
   s+='<rect x="'+(NUT-2.5)+'" y="'+(TOP-3)+'" width="3" height="'+(H-TOP+3)+'" fill="var(--ink)"/>';
   L.forEach((f,j)=>{const y=TOP+j*(LH+GP),x1=fx(f.lo)+1,x2=fx2(f.hi)-1;
     s+='<g class="vmapbar" data-vjump="'+f.k+TR('"><title>Ir a ','"><title>Go to ')+esc(f.t+(f.sh||''))+'</title><rect x="'+x1+'" y="'+y+'" width="'+Math.max(x2-x1,20)+'" height="'+LH+'" fill="var(--ink)"/>'+
@@ -10511,7 +10511,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.28d';
+const APP_VER='2026.11.28e';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
