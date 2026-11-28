@@ -1318,6 +1318,7 @@
   .sl-btns{display:flex;flex:1;min-width:0;align-items:center}
   .sl-btns>button{flex:1 1 0;justify-content:center;padding:3px 0;min-width:0}
   .sl-top .ncdr{flex:none}
+  .sl-top .sl-x{flex:none;margin-left:auto} /* 2026-11-28: quitar arriba a la derecha, como en cualquier interfaz */
   @media (pointer:coarse){.sl-btns>button::after{inset:-9px 0}}
   .secrow.compact .sl-btns,body.live .sl-btns{display:none}
   /* duración: ficha invertida (como el contador del kit) */
@@ -3809,19 +3810,19 @@ function slotHTML(sl,si,ei,mids){
     const para=sl.drums!=='go';
     return '<div class="slot ncslot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
       '<div class="sl-top"><span class="sl-deg ncdeg">—</span><span class="sl-name">'+RESTICO()+'</span>'+
-      TR('<button class="sl-v ncdr" title="Qué hace la batería durante el silencio — clic para cambiar">','<button class="sl-v ncdr" title="What the drums do during the rest — click to change">')+(para?ICO('drum')+' para':ICO('drum')+' sigue')+'</button></div>'+
+      TR('<button class="sl-v ncdr" title="Qué hace la batería durante el silencio — clic para cambiar">','<button class="sl-v ncdr" title="What the drums do during the rest — click to change">')+(para?ICO('drum')+' para':ICO('drum')+' sigue')+'</button>'+TR('<button class="sl-x" title="Quitar">','<button class="sl-x" title="Remove">')+ICO('x')+'</button>'+'</div>'+
       TR('<div class="ncbox"><b>silencio</b><span>corta lo que suena</span></div>','<div class="ncbox"><b>rest</b><span>cuts what is ringing</span></div>')+
       '<div class="sl-bot">'+mc+'<div class="sl-btns">'+
-      TR('<button class="sl-dup" title="Duplicar · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button>'+
+      TR('<button class="sl-dup" title="Duplicar · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate · hold and drag = drop a copy wherever you like">')+ICO('copy')+'</button>'+
       brb+'</div></div></div>';
   }
   return '<div class="slot" draggable="true" data-si="'+si+'" data-ei="'+ei+'">'+mk+
     '<div class="sl-top"><span class="sl-deg '+txtOn(sl.chord.degNum)+'" style="background:'+sl.chord.color+'">'+esc(sl.chord.deg)+'</span>'+
     '<span class="sl-name">'+esc(sl.voicing.disp||sl.chord.label)+'</span>'+
-    '</div>'+
+    TR('<button class="sl-x" title="Quitar">','<button class="sl-x" title="Remove">')+ICO('x')+'</button>'+'</div>'+
     chordSVG(sl.voicing,'dg-sm',null,secFrets(S.sections[si]))+
     '<div class="sl-bot">'+mc+'<div class="sl-btns">'+
-    TR('<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate chord · hold and drag = drop a copy wherever you like">')+ICO('copy')+TR('</button><button class="sl-x" title="Quitar">','</button><button class="sl-x" title="Remove">')+ICO('x')+'</button>'+
+    TR('<button class="sl-dup" title="Duplicar acorde · mantener y arrastrar = soltar una copia donde quieras">','<button class="sl-dup" title="Duplicate chord · hold and drag = drop a copy wherever you like">')+ICO('copy')+'</button>'+
     brb+'</div></div></div>';
 }
 /* ── duración de cada acorde, en TIEMPOS (sl.beats) ──────────────
@@ -10510,7 +10511,7 @@ function normHeadH(){
    más de una el mismo día) y se copia a version.txt del repositorio (ver CLAUDE.md). En la app instalada (https)
    se compara con la publicada al abrir y al volver a la app: si hay otra, el número avisa y al tocarlo recarga
    (nunca con cambios sin guardar). Como archivo del PC (file://) solo muestra el número */
-const APP_VER='2026.11.28c';
+const APP_VER='2026.11.28d';
 (()=>{
   const el=document.getElementById('appver');if(!el)return;
   const web=location.protocol==='https:';
